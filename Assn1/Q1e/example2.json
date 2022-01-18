@@ -1,0 +1,7 @@
+{
+   "X-Cloud-Trace-Context": "e42a1a86d7571b38954ac1b7761d5eec/8090902935328716470",
+   "Accept": "*/*",
+   "traceparent": "00-e42a1a86d7571b38954ac1b7761d5eec-7048a95a2c6ef6b6-00",
+   "User-Agent": "curl/7.68.0",
+   "Host": "headers.jsontest.com"
+}
