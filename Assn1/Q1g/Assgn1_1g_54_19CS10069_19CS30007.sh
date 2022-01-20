@@ -1,4 +1,4 @@
-echo -n>$1
+>$1
 for i in {1..150};do
     for j in {1..10};do
         echo -n "$RANDOM,">>$1;
