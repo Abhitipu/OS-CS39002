@@ -3,8 +3,3 @@
 ./JSONData/4.json
 ./JSONData/6.json
 ./JSONData/8.json
-./JSONData/0.json
-./JSONData/2.json
-./JSONData/4.json
-./JSONData/6.json
-./JSONData/8.json
