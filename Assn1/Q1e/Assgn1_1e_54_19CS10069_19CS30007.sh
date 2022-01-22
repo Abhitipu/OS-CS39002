@@ -1,12 +1,4 @@
-_V=0
-
-while getopts "v" OPTION
-do
-  case $OPTION in
-    v) _V=1
-       ;;
-  esac
-done
+[[ $1 == "-v" ]]&&_V=1||_V=0
 
 [[ $_V -eq 1 ]] && echo "Fetching html from example.com"
 curl -s "https://www.example.com/">example.html
