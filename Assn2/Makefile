@@ -6,6 +6,10 @@ ref: ref.c
 	cc -o sibashell ref.c
 	./sibashell
 
+temp: temp.cpp
+	g++ -o t temp.cpp
+	./t
+
 clean:
-	rm sibashell shell
+	rm -f sibashell shell t output.txt
 

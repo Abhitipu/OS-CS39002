@@ -6,7 +6,7 @@
 #include "fcntl.h"
 
 #define BUF_SIZE 128
-#define BUILT_INS 3
+#define BUILT_INS 2
 
 int readCommand(char* line);
 char** splitPipes(char* line,int *pipeProcesses);
@@ -21,15 +21,13 @@ void printError(char* errMsg);
 //built-in commands for parent process
 char* builtIns[] = {
     "cd",
-    "exit",
-    "help"
+    "exit"
 };
 
 //functions to execute for built-in commands
 int (*builtInFuncs[])(char**)={
     &executeCd,
-    &executeExit,
-    &executeHelp
+    &executeExit
 };
 
 //print Error message in shell
@@ -64,6 +62,7 @@ int main()
         {
             int i, in_fd = 0;int pipeError=0;
             int FD[2];//store the read and write file descripters
+            
             for(i = 0; i < pipeProcesses - 1; i++)
             {
                 if(pipe(FD)==-1)
@@ -399,6 +398,7 @@ int shellExecute(char** args,int noOfArgs,int in_fd,int out_fd)
             if(strcmp(arg,">")==0)//output redirection
             {
                 //open file to write
+                printf("\n\n%s\n\n", args[i+1]);
                 int redirect_out_fd = open(args[i+1],O_CREAT | O_TRUNC | O_WRONLY, 0666);
                 //redirect stdout to redirect_out_fd
                 dup2(redirect_out_fd,STDOUT_FILENO);
@@ -443,13 +443,16 @@ int shellExecute(char** args,int noOfArgs,int in_fd,int out_fd)
         //wait for completion of child process unless last character is &
         if(strcmp(args[noOfArgs-1],"&")!=0)
         {
+            // not & => wait
+            // else background
             do{
                 wpid = waitpid(pid,&status,WUNTRACED);
-            }while(!WIFEXITED(status) && !WIFSIGNALED(status));
+            }while(!WIFEXITED(status) && !WIFSIGNALED(status) && !WIFSTOPPED(status));
         }
     }
     return EXIT_SUCCESS;
 }
+
 //change directory
 int executeCd(char** args)
 {
