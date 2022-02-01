@@ -29,7 +29,7 @@ void execute(vector<string> tokens, int in_fd=0, int out_fd=1);
 
 // This is for detecting ctrl + C and ctrl + Z signals
 void signal_callback_handler(int signum) {
-   cout << "Caught signal " << signum << endl;
+   cerr << "Caught signal " << signum << endl;
    // Terminate program
    exit(signum);
 }
@@ -47,7 +47,7 @@ void readline(vector<string> &tokens) {
 
         // tabs
         if(c == '\t') {
-            cout << "Tabbed! Feature yet to be added!\n";
+            cerr << "Tabbed! Feature yet to be added!\n";
             // auto complete
             // if one choice : print
 
@@ -93,7 +93,7 @@ void splitCommands(vector<string> tokens) {
         if(token == "|") {
             if(pipe(pipefd) == -1)
             {
-                cout << "Error in pipe!\n";
+                cerr << "Error in pipe!\n";
                 break;
             }
             // send output to pipefd[1], 
@@ -126,7 +126,7 @@ void execute(vector<string> tokens, int in_fd, int out_fd) {
 
     int fork_status = fork();
     if(fork_status < 0) {
-        cout << "Error in fork!\n";
+        cerr << "Error in fork!\n";
         exit(EXIT_FAILURE);
     }
 
@@ -141,13 +141,13 @@ void execute(vector<string> tokens, int in_fd, int out_fd) {
 
 // This is called after we fork a child
 void childExecutes(vector<string> tokens, int in_fd, int out_fd) {
-    cout << "Inside child now!\n";
+    cerr << "Inside child now!\n";
 
-    cout << "Just a check on tokens sent\n";
+    cerr << "Just a check on tokens sent\n";
 
     for(auto u: tokens)
-        cout << u << " ";
-    cout << '\n';
+        cerr << u << " ";
+    cerr << '\n';
 
     if(in_fd!=0)
     {
@@ -165,45 +165,66 @@ void childExecutes(vector<string> tokens, int in_fd, int out_fd) {
     old_in_fd = old_out_fd = -1;
 
     int n = (int)tokens.size();
+    int lenOfMainCommand = n;
+
+    vector<string> reqTokens;
+    bool ignoreNext = false;
+
     for(int i = 0; i < n; i++) {
         string token = tokens[i];
-        cout << "At " << i << " " << tokens[i] << '\n';
+        cerr << "At " << i << " " << tokens[i] << '\n';
+        // ./a.out < input.txt > output.txt < redier.txt -n
         if(token == ">") {
-            cout << "Hereeee\n";
+            ignoreNext = true;
+            if(lenOfMainCommand == n)
+                lenOfMainCommand = i;
+            cerr << "Hereeee\n";
             if(i+1 < n){
                 int new_out_fd = open(tokens[i+1].c_str(), O_CREAT | O_TRUNC | O_WRONLY, 0666);
-                cout << "Opened!\n";
+                cerr << "Opened!\n";
                 if(new_out_fd < 0) {
-                    cout << "Error in opening file for writing!\n";
+                    cerr << "Error in opening file for writing!\n";
                 } else {
-                    cout << "Started dup! " << tokens[i+1] << " \n";
+                    cerr << "Started dup! " << tokens[i+1] << " \n";
                     old_out_fd = dup(STDOUT_FILENO);
                     dup2(new_out_fd, STDOUT_FILENO);
-                    cout << "Done dup!\n";
+                    cerr << "Done dup!\n";
                 }
             }
         } else if(token == "<") {
+            ignoreNext = true;
             if(i+1 < n){
                 int new_in_fd = open(tokens[i+1].c_str(), O_RDONLY);
                 if(new_in_fd < 0) {
-                    cout << "Error in open file for reading\n";
+                    cerr << "Error in open file for reading\n";
                 } else {
                     old_in_fd = dup(STDIN_FILENO);
                     dup2(new_in_fd, STDIN_FILENO);
                 }
             }
+        } else {
+            if(ignoreNext == false)
+                reqTokens.push_back(token);
+            ignoreNext = false;
         }
     }
+
+    n = (int)reqTokens.size();
     char **args = new char* [n + 1];
+    /*
+    cat temp.cpp > temp.txt
+    after redirecting
+    cat temp.cpp
+    */
     for(int i = 0; i < n; i++)
     {
-        args[i] = new char[(int)tokens[i].size()];
-        strcpy(args[i], tokens[i].c_str());
+        args[i] = new char[(int)reqTokens[i].size()];
+        strcpy(args[i], reqTokens[i].c_str());
     }
     args[n] = NULL;
     
     if(execvp(args[0], args) < 0) {
-        cout << "Error in execvp!\n";
+        cerr << "Error in execvp!\n";
     }
 
     if(old_out_fd != -1)
@@ -218,12 +239,12 @@ void childExecutes(vector<string> tokens, int in_fd, int out_fd) {
 void cdFunction(vector<string> tokens) {
     // chdir function!
     if((int)tokens.size() != 2) {
-        cout << "Error in chdir function!\n";
+        cerr << "Error in chdir function!\n";
         return;
     }
     if(chdir(tokens[1].c_str())!=0)
     {
-        cout<<"Error: directory not found\n";
+        cerr << "Error: directory not found\n";
         return;
     }
 } 
@@ -231,7 +252,7 @@ void cdFunction(vector<string> tokens) {
 void exitFunction(vector<string> tokens) {
     // exit from shell
     if((int)tokens.size() != 1) {
-        cout << "Error in exit function!\n";
+        cerr << "Error in exit function!\n";
         return;
     }
     exit(0);
@@ -240,17 +261,17 @@ void exitFunction(vector<string> tokens) {
 void helpFunction(vector<string> tokens) {
     // help function
     if((int)tokens.size() != 1) {
-        cout << "Error in help function!\n";
+        cerr << "Error in help function!\n";
         return;
     }
-    cout<<"Help Manual\n";
+    cerr<<"Help Manual\n";
     return;
 }
 
 void historyFunction(vector<string> tokens) {
     // history function
     if((int)tokens.size() != 1) {
-        cout << "Error in history function!\n";
+        cerr << "Error in history function!\n";
         return;
     }
     return;
