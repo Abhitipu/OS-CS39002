@@ -31,7 +31,16 @@ void execute(vector<string> tokens, int in_fd=0, int out_fd=1);
 void signal_callback_handler(int signum) {
    cerr << "Caught signal " << signum << endl;
    // Terminate program
-   exit(signum);
+    if(signum == SIGINT)
+    {
+       printf("\nlol want to exit\n");
+       return;
+    } else if(signum == SIGTSTP)//ctrl+R ka bhi puch le
+    {
+        printf("\nlol want to stop\n");
+        return;
+    }
+    exit(signum);
 }
 
 // We read a line in the shell using this function
@@ -77,9 +86,6 @@ void readline(vector<string> &tokens) {
     if(!temp.empty())
         tokens.push_back(temp);
 
-    // for(auto word: tokens)
-    //     cout << word << " ";
-    // cout << '\n';
     return;
 }
 
@@ -133,21 +139,29 @@ void execute(vector<string> tokens, int in_fd, int out_fd) {
     if(fork_status == 0) {
         childExecutes(tokens, in_fd, out_fd);
     } else {
-        if(tokens.back() != "&")
-        // parent waits for the child
-            wait(NULL);     
+        if(tokens.back() != "&") {
+            // parent waits for the child
+            int status;
+            do{
+                int wpid = waitpid(fork_status,&status,WUNTRACED);
+            }while(!WIFEXITED(status) && !WIFSIGNALED(status) && !WIFSTOPPED(status));
+        }
+        else
+        {
+            printf("Not waiting\n");
+        }
     }
 }
 
 // This is called after we fork a child
 void childExecutes(vector<string> tokens, int in_fd, int out_fd) {
-    cerr << "Inside child now!\n";
+    // cerr << "Inside child now!\n";
 
-    cerr << "Just a check on tokens sent\n";
+    // cerr << "Just a check on tokens sent\n";
 
-    for(auto u: tokens)
-        cerr << u << " ";
-    cerr << '\n';
+    // for(auto u: tokens)
+    //     cerr << u << " ";
+    // cerr << '\n';
 
     if(in_fd!=0)
     {
@@ -161,9 +175,6 @@ void childExecutes(vector<string> tokens, int in_fd, int out_fd) {
         close(out_fd);
     }
 
-    int old_in_fd, old_out_fd;
-    old_in_fd = old_out_fd = -1;
-
     int n = (int)tokens.size();
     int lenOfMainCommand = n;
 
@@ -172,23 +183,17 @@ void childExecutes(vector<string> tokens, int in_fd, int out_fd) {
 
     for(int i = 0; i < n; i++) {
         string token = tokens[i];
-        cerr << "At " << i << " " << tokens[i] << '\n';
-        // ./a.out < input.txt > output.txt < redier.txt -n
+        // cerr << "At " << i << " " << tokens[i] << '\n';
         if(token == ">") {
             ignoreNext = true;
             if(lenOfMainCommand == n)
                 lenOfMainCommand = i;
-            cerr << "Hereeee\n";
             if(i+1 < n){
                 int new_out_fd = open(tokens[i+1].c_str(), O_CREAT | O_TRUNC | O_WRONLY, 0666);
-                cerr << "Opened!\n";
                 if(new_out_fd < 0) {
                     cerr << "Error in opening file for writing!\n";
                 } else {
-                    cerr << "Started dup! " << tokens[i+1] << " \n";
-                    old_out_fd = dup(STDOUT_FILENO);
                     dup2(new_out_fd, STDOUT_FILENO);
-                    cerr << "Done dup!\n";
                 }
             }
         } else if(token == "<") {
@@ -198,7 +203,6 @@ void childExecutes(vector<string> tokens, int in_fd, int out_fd) {
                 if(new_in_fd < 0) {
                     cerr << "Error in open file for reading\n";
                 } else {
-                    old_in_fd = dup(STDIN_FILENO);
                     dup2(new_in_fd, STDIN_FILENO);
                 }
             }
@@ -226,13 +230,7 @@ void childExecutes(vector<string> tokens, int in_fd, int out_fd) {
     if(execvp(args[0], args) < 0) {
         cerr << "Error in execvp!\n";
     }
-
-    if(old_out_fd != -1)
-        dup2(old_out_fd, STDOUT_FILENO);
-    
-    if(old_in_fd != -1)
-        dup2(old_in_fd, STDIN_FILENO);
-    
+    exit(0);
     return;
 }
 
@@ -295,8 +293,8 @@ int main() {
         readline(inp);
         splitCommands(inp);
         inp.clear();
-        fflush(stdin);
-        fflush(stdout);
+        // fflush(stdin);
+        // fflush(stdout);
     }
     return 0;
 }

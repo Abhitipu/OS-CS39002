@@ -17,11 +17,18 @@ int helpfunc(string s) {
     return 1;
 }
 
+int fib(int n) {
+    if(n <= 1)
+        return n;
+    return fib(n - 1) + fib(n - 2);
+}
+
 int main() {
     cout << "Hello world!\n";
-    mp["cd"] = cdfunc;
-    mp["help"] = helpfunc;
+    // mp["cd"] = cdfunc;
+    // mp["help"] = helpfunc;
 
-    mp["help"]("checker");
+    // mp["help"]("checker");
+    cout << fib(45) << '\n';
     return 0;
 }
