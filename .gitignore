@@ -3,3 +3,6 @@
 *.gz
 *.files
 *.out.txt
+files_mod/
+temp/
+.vscode/
