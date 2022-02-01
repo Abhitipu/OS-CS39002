@@ -1,0 +1,7 @@
+history
+g++ -o t temp.cpp
+./t
+history
+exit
+history
+exit

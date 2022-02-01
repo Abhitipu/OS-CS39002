@@ -7,6 +7,9 @@
 #include <algorithm>
 #include <functional>
 #include <map>
+#include <fstream>
+#include <cassert>
+#include <deque>
 
 #include <signal.h>
 #include <sys/types.h>
@@ -15,10 +18,9 @@
 #include <fcntl.h>
 #include <string.h>
 
-const int HISTORY_SIZE = 10'000;
-const int DISP_HISTORY = 1'000;
-
 using namespace std;
+
+
 
 // Useful for the inbult shell functions
 map<string, function<void(vector<string>)>> builtInFunctions;
@@ -41,6 +43,69 @@ void signal_callback_handler(int signum) {
         return;
     }
     exit(signum);
+}
+
+// shell history:
+const string bashHistoryFile = "bash_history.txt";
+deque <string> bashHistory;
+const int HISTORY_SIZE = 10'000;
+const int DISP_HISTORY = 1'000;
+
+void parse_history() {
+    // accha thik hai
+    // redirect kar loon? ok fopen wala c++ fin<< jaisa rehta hai
+    ifstream infile;
+    infile.open(bashHistoryFile);
+    if(infile.fail()) {
+        cerr << "Failed to open bash history file!\n";
+        return;
+    }
+
+    string temp;
+    while(getline(infile, temp))
+        bashHistory.push_back(temp);
+    
+    assert((int)bashHistory.size() <= HISTORY_SIZE);
+
+    infile.close();
+    return;
+}
+
+void update_history() {
+    ofstream fout;
+    fout.open(bashHistoryFile, ofstream::trunc);
+    if(fout.is_open())
+    {
+        for(auto cmd: bashHistory) {
+            fout << cmd << '\n';
+        }
+        // thik hai
+    }
+    else{
+        cerr<<"Error while opening\n";
+    }
+    fout.close();
+    return;
+}
+
+// ab display history
+void add_history(const vector<string> &tokens) {
+    string cmd = "";
+    int n = (int) tokens.size();
+    for(int i = 0; i < n; ++i)
+    {
+        cmd = cmd + (tokens[i]);
+        if(i < n-1)
+        {
+            cmd.push_back(' ');
+        }
+    }
+    bashHistory.push_back(cmd);
+    
+    // pop the first element if size limit is exceeded
+    if((int)bashHistory.size() > HISTORY_SIZE)
+        bashHistory.pop_front();
+    return;
 }
 
 // We read a line in the shell using this function
@@ -85,8 +150,19 @@ void readline(vector<string> &tokens) {
 
     if(!temp.empty())
         tokens.push_back(temp);
-
+    
+    // Haan file mein
     return;
+    // shell builtin.. so builtin function mein hoga?
+    // Naa child mein hi.. read write bhi karna padega
+    // Maybe append bhi
+    // so har ek command ke baad change karna padega
+    
+    // Implementation details sahi hai
+    // Pehle ek file se read karenge
+    // Uske baad ek vector mein rakhenge
+    // Then vector mein hi sab operation karenge
+    // At the end waapas file mein daalke exit kardenge
 }
 
 // Here we split on a pipe and then manage the input and output file descriptors
@@ -249,6 +325,10 @@ void cdFunction(vector<string> tokens) {
 
 void exitFunction(vector<string> tokens) {
     // exit from shell
+    
+    // ye tu karde? thik parse and update kar deta hu
+    // write back to the file here
+    update_history();
     if((int)tokens.size() != 1) {
         cerr << "Error in exit function!\n";
         return;
@@ -272,6 +352,12 @@ void historyFunction(vector<string> tokens) {
         cerr << "Error in history function!\n";
         return;
     }
+    int end = min((int)bashHistory.size(), 1000);
+    int start = max(0, end - 1000);
+    for(int i = start; i< end; ++i)
+    {
+        cout << i << ". " << bashHistory[i] << "\n";
+    }
     return;
 }
 
@@ -286,11 +372,14 @@ int main() {
     builtInFunctions["exit"] = exitFunction;
     builtInFunctions["history"] = historyFunction;
 
+    // parse history here for the first time
+    parse_history();
     vector<string> inp;
 
     while(1) {
         cout << ">>>";
         readline(inp);
+        add_history(inp);
         splitCommands(inp);
         inp.clear();
         // fflush(stdin);
