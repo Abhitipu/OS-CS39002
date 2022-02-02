@@ -265,16 +265,23 @@ void readline(vector<string> &tokens) {
                 } else {
                     cout << '\n';
                     for(int i = 0; i < n; i++) {
-                        cout << i + 1 << ". " << matches[i] << " ";
+                        cout << i + 1 << ". " << matches[i] << "\n";
                     }
                     cout << '\n';
                     cout << "\n>>>";
-                    int choice;
+                    string mychoice;
                     while(1) {
                         cout << "Enter your choice from 1 to " << n << ": ";
-                        cin >> choice;
-
-                        getchar();
+                        cin >> mychoice;
+                        int choice;
+                        try {
+                            choice = stoi(mychoice);
+                        } catch(exception& e) {
+                            cout << "Invalid choice! " << e.what() << '\n';
+                            continue;
+                        }
+                        // getchar();
+                        cin.ignore(); 
                         if(choice < 1 || choice > n) {
                             cout << "Enter a valid choice\n";
                         } else {
