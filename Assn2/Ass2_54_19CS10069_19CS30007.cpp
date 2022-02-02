@@ -17,10 +17,50 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <string.h>
+#include <termios.h>
+#include <dirent.h>
 
 using namespace std;
 
+/*
+Known bugs:
+1.  ft <enter>
+    ft <tab>
 
+*/
+// non canonical input mode
+// https://www.gnu.org/software/libc/manual/html_node/Noncanon-Example.html
+// https://www.mkssoftware.com/docs/man5/struct_termios.5.asp
+struct termios saved_attributes;
+
+void reset_input_mode (void)
+{
+  tcsetattr (STDIN_FILENO, TCSANOW, &saved_attributes);
+}
+
+void set_input_mode (void)
+{
+    struct termios tattr;
+    char *name;
+
+    /* Make sure stdin is a terminal. */
+    if (!isatty (STDIN_FILENO))
+    {
+        fprintf (stderr, "Not a terminal.\n");
+        exit (EXIT_FAILURE);
+    }
+
+    /* Save the terminal attributes so we can restore them later. */
+    tcgetattr (STDIN_FILENO, &saved_attributes);
+    atexit (reset_input_mode);
+
+    /* Set the terminal modes. */
+    tcgetattr (STDIN_FILENO, &tattr);
+    tattr.c_lflag &= ~(ICANON); /* Clear ICANON and ECHO. */
+    tattr.c_cc[VMIN] = 1;   // 1 byte
+    tattr.c_cc[VTIME] = 0;  // timer is NULL
+    tcsetattr (STDIN_FILENO, TCSAFLUSH, &tattr);
+}
 
 // Useful for the inbult shell functions
 map<string, function<void(vector<string>)>> builtInFunctions;
@@ -108,6 +148,37 @@ void add_history(const vector<string> &tokens) {
     return;
 }
 
+int match_substring(string& toMatch, string& filename) {
+    int n = min(toMatch.length(), filename.length());
+    int i;
+    for(i = 0; i < n && toMatch[i] == filename[i]; i++);
+    return i;
+}
+
+vector<string> search_directory(string toMatch) {
+    vector<string> matches;
+    DIR *dir;
+    struct dirent *dp;
+    string filename;
+    dir = opendir(".");
+
+    int best = 0;
+    while ((dp=readdir(dir)) != NULL) {
+        // printf("%s\n", dp->d_name);
+        filename = dp->d_name;
+        int cur = match_substring(toMatch, filename);
+        if(cur == best && cur != 0) {
+            matches.push_back(filename);
+        } else if(cur > best) {
+            best = cur;
+            matches.clear();
+            matches.push_back(filename);
+        }
+    }
+    closedir(dir);
+    return matches;
+}
+
 // We read a line in the shell using this function
 void readline(vector<string> &tokens) {
     string temp = "";
@@ -121,7 +192,47 @@ void readline(vector<string> &tokens) {
 
         // tabs
         if(c == '\t') {
-            cerr << "Tabbed! Feature yet to be added!\n";
+            // cerr << "Tabbed! Feature yet to be added!\n";
+            vector<string> matches = search_directory(temp);
+
+            int n = (int)matches.size(); 
+            if(n > 0) {
+                if(n == 1) {
+                    temp.clear();
+                    tokens.push_back(matches[0]);
+                    cout<<"\n>>>";
+                    for(auto u : tokens)
+                    {
+                        cout<<u<<" ";
+                    }
+                } else {
+                    cout << '\n';
+                    for(int i = 0; i < n; i++) {
+                        cout << i + 1 << ". " << matches[i] << " ";
+                    }
+                    cout << '\n';
+                    cout << "Enter your choice from 1 to " << n << ": ";
+                    int choice;
+                    while(1) {
+                        cin >> choice;
+
+                        getchar();
+                        if(choice < 1 || choice > n) {
+                            cout << "Enter a valid choice\n";
+                        } else {
+                            cout << ">>>";
+                            for(auto u: tokens) {
+                                cout << u << " ";
+                            }
+                            temp.clear();
+                            tokens.push_back(matches[choice - 1]);
+                            cout << tokens.back() << ' ';
+                            break;
+                        }
+                    }
+                }
+            } 
+            
             // auto complete
             // if one choice : print
 
@@ -143,6 +254,14 @@ void readline(vector<string> &tokens) {
             temp += c;
             tokens.push_back(temp);
             temp = "";
+        } else if((int)c == 18) {
+            // ctrl + R
+            // Search here
+        } else if((int)c == 24) {
+            // ctrl + X : Feature 1
+            temp.clear();
+            tokens.clear();
+            cout << "\n>>>";
         } else {
             temp += c;
         } 
@@ -151,18 +270,7 @@ void readline(vector<string> &tokens) {
     if(!temp.empty())
         tokens.push_back(temp);
     
-    // Haan file mein
     return;
-    // shell builtin.. so builtin function mein hoga?
-    // Naa child mein hi.. read write bhi karna padega
-    // Maybe append bhi
-    // so har ek command ke baad change karna padega
-    
-    // Implementation details sahi hai
-    // Pehle ek file se read karenge
-    // Uske baad ek vector mein rakhenge
-    // Then vector mein hi sab operation karenge
-    // At the end waapas file mein daalke exit kardenge
 }
 
 // Here we split on a pipe and then manage the input and output file descriptors
@@ -362,6 +470,7 @@ void historyFunction(vector<string> tokens) {
 }
 
 int main() {
+    set_input_mode ();
     // Register signal callback handlers
     signal(SIGINT, signal_callback_handler);    // ctrl + C
     signal(SIGTSTP, signal_callback_handler);   // ctrl + Z
@@ -375,7 +484,6 @@ int main() {
     // parse history here for the first time
     parse_history();
     vector<string> inp;
-
     while(1) {
         cout << ">>>";
         readline(inp);

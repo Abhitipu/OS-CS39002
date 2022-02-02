@@ -5,3 +5,21 @@ history
 exit
 history
 exit
+sl
+clear
+sl
+clear
+ls
+clear
+du -h
+clear
+exit
+history
+clear
+exit
+ftpC.c exit
+exit
+ft
+exit
+cat t.txt
+exit
