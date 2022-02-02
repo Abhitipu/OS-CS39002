@@ -395,9 +395,43 @@ void readline(vector<string> &tokens) {
 }
 
 // Here we split on a pipe and then manage the input and output file descriptors
+// {"multiwatch" "[" "cmd1" "," "cmd2" "," ... "cmdN" "]"}
 void splitCommands(vector<string> tokens) {
     vector<string> temp;
+    if((int)tokens.size()>0 && tokens[0] == "multiWatch")
+    {
+        fd_set my_fd;
+        FD_ZERO(&my_fd);
 
+        for(auto u: tokens) {
+            if(u == "[" || u == "," || u == "]")
+                continue;
+            int fork_status = fork();
+            if(fork_status == 0) {
+                // this will write to .temp.pid.txt
+                // childExecutes();
+            } else {
+                // store the name of files
+
+            }
+            // make a fork : this is a command
+            // write mode (send)
+            // write command as command + " > .temp.pid.txt";
+            // call the childExecute function from here
+        }
+
+        int status;
+        while(true) {
+            // select from fd_Set 
+            // open files in read mode (fd((s)) ) (recv)
+            
+            if(wait(&status) <= 0)
+                break;
+            // select 
+        }
+        return;
+    }
+    
     int in_fd = 0, out_fd = 1;
     int pipefd[2];
     for(auto token: tokens) {

@@ -47,3 +47,9 @@ sl
 clear
 history
 exit
+cat temp.cpp temp.txt t.txt tt.t.
+cat t.txt
+exit
+cat temp.txt t.txt temp.cpp
+cat temp.txt
+exit
