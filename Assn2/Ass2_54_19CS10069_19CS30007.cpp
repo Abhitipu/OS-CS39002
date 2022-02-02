@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <functional>
 #include <map>
+#include <set>
 #include <fstream>
 #include <cassert>
 #include <deque>
@@ -179,6 +180,62 @@ vector<string> search_directory(string toMatch) {
     return matches;
 }
 
+vector<int> z_function(string s) {
+    int n = (int) s.length();
+    vector<int> z(n);
+    for (int i = 1, l = 0, r = 0; i < n; ++i) {
+        if (i <= r)
+            z[i] = min (r - i + 1, z[i - l]);
+        while (i + z[i] < n && s[z[i]] == s[i + z[i]])
+            ++z[i];
+        if (i + z[i] - 1 > r)
+            l = i, r = i + z[i] - 1;
+    }
+    return z;
+}
+
+vector<string> longest_substring_match(string toMatch) {
+    set<string> matches;
+    int best = 3;
+
+    for(auto cmd: bashHistory) {
+        string temp = toMatch + "$" + cmd;
+        int n = toMatch.length();
+        int m = cmd.length();
+
+        vector<int> z_arr = z_function(temp);
+
+        assert((int)z_arr.size() == n + m + 1);
+        int cur_best = 3;
+
+        for(int i = n + 1; i < n + m + 1; i++)
+            cur_best = max(cur_best, z_arr[i]);
+
+        if(cur_best == best) {
+            matches.insert(cmd);
+        } else if(cur_best > best) {
+            best = cur_best;
+            matches.clear();
+            matches.insert(cmd);
+        }
+    }
+    return vector<string>{matches.begin(), matches.end()};
+}
+/*
+string func()
+{
+    char c;
+    string toSearch;
+    while(1) {
+        cin.get(c);
+        if(c == '\n') {
+            break;
+        }
+        toSearch += c;
+    }
+    return toSearch;
+}*/
+
 // We read a line in the shell using this function
 void readline(vector<string> &tokens) {
     string temp = "";
@@ -211,9 +268,10 @@ void readline(vector<string> &tokens) {
                         cout << i + 1 << ". " << matches[i] << " ";
                     }
                     cout << '\n';
-                    cout << "Enter your choice from 1 to " << n << ": ";
+                    cout << "\n>>>";
                     int choice;
                     while(1) {
+                        cout << "Enter your choice from 1 to " << n << ": ";
                         cin >> choice;
 
                         getchar();
@@ -232,15 +290,6 @@ void readline(vector<string> &tokens) {
                     }
                 }
             } 
-            
-            // auto complete
-            // if one choice : print
-
-            // if more : list
-            // 1. 
-            // 2. 
-
-            // User will select : print
         } else if(c == ' ') {
             if(!temp.empty()) {
                 tokens.push_back(temp);
@@ -255,8 +304,73 @@ void readline(vector<string> &tokens) {
             tokens.push_back(temp);
             temp = "";
         } else if((int)c == 18) {
-            // ctrl + R
             // Search here
+            temp.clear();
+            tokens.clear();
+            cout << "\nEnter command for searching: ";
+            string toSearch;
+            while(1) {
+                cin.get(c);
+                if(c == '\n') {
+                    break;
+                }
+                toSearch += c;
+            }
+            vector<string> matches = longest_substring_match(toSearch);
+            
+            if((int)matches.size() == 0) {
+                cout << "No match for searched item in history\n";
+                cout<< ">>>";
+            } else {
+                int n = matches.size();
+                int idx;
+                if(n == 1) {
+                    cout << "\n>>>" << matches[0] << " ";
+                    idx = 0;
+                } else {
+                    for(int i = 0; i < n; i++) {
+                        cout << i + 1 << ". " << matches[i] << "\n";
+                    }
+                    cout << '\n';
+                    string temp;
+                    while(1) {
+                        cout << "Enter a choice from 1 to " << n << ": ";
+                        cin >> temp;
+                        int choice;
+                        try {
+                            choice = stoi(temp);
+                        } catch(exception& e) {
+                            cout << "Invalid choice! " << e.what() << '\n';
+                            continue;
+                        }
+                        // getchar();
+                        cin.ignore(); 
+
+                        if(choice < 1 || choice > n) {
+                            cout << "Invalid choice!\n";
+                        } else {
+                            cout << "\n>>>";
+                            cout << matches[choice - 1] << ' ';
+                            idx = choice - 1;
+                            break;
+                        }
+                    }
+                }
+
+                // tokenize matches[idx]
+                string word;
+                for(auto u: matches[idx]) {
+                    if(u == ' ' && !word.empty()) {
+                        tokens.push_back(word);
+                        word.clear();
+                    }
+                    else
+                        word += u;
+                }
+                if(!word.empty())
+                    tokens.push_back(word);
+            }
+
         } else if((int)c == 24) {
             // ctrl + X : Feature 1
             temp.clear();
@@ -339,14 +453,6 @@ void execute(vector<string> tokens, int in_fd, int out_fd) {
 
 // This is called after we fork a child
 void childExecutes(vector<string> tokens, int in_fd, int out_fd) {
-    // cerr << "Inside child now!\n";
-
-    // cerr << "Just a check on tokens sent\n";
-
-    // for(auto u: tokens)
-    //     cerr << u << " ";
-    // cerr << '\n';
-
     if(in_fd!=0)
     {
         dup2(in_fd, 0);
@@ -399,11 +505,6 @@ void childExecutes(vector<string> tokens, int in_fd, int out_fd) {
 
     n = (int)reqTokens.size();
     char **args = new char* [n + 1];
-    /*
-    cat temp.cpp > temp.txt
-    after redirecting
-    cat temp.cpp
-    */
     for(int i = 0; i < n; i++)
     {
         args[i] = new char[(int)reqTokens[i].size()];
@@ -436,7 +537,7 @@ void exitFunction(vector<string> tokens) {
     
     // ye tu karde? thik parse and update kar deta hu
     // write back to the file here
-    update_history();
+    // update_history();
     if((int)tokens.size() != 1) {
         cerr << "Error in exit function!\n";
         return;
@@ -470,7 +571,9 @@ void historyFunction(vector<string> tokens) {
 }
 
 int main() {
+    // read inputs in a non canninical manner
     set_input_mode ();
+    
     // Register signal callback handlers
     signal(SIGINT, signal_callback_handler);    // ctrl + C
     signal(SIGTSTP, signal_callback_handler);   // ctrl + Z
@@ -483,6 +586,12 @@ int main() {
 
     // parse history here for the first time
     parse_history();
+
+    // registers update_history with exit call
+    if(atexit(update_history) != 0){
+        cerr<<"Error in atexit()\n";
+    }
+    
     vector<string> inp;
     while(1) {
         cout << ">>>";
@@ -490,8 +599,6 @@ int main() {
         add_history(inp);
         splitCommands(inp);
         inp.clear();
-        // fflush(stdin);
-        // fflush(stdout);
     }
     return 0;
 }

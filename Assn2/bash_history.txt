@@ -23,3 +23,27 @@ ft
 exit
 cat t.txt
 exit
+history
+cat t.txt | wc -w
+cat t.txt | wc -w | wc
+cat t.txt | wc -w | wc
+history
+exit
+cat t.txt | wc -w | wc
+cat t.txt | wc -w | wc -l
+exit
+history
+cat t.txt | wc -w
+exit
+history
+sl
+clear
+cat temp.cpp | wc -w
+history
+exit
+history
+exit
+sl
+clear
+history
+exit
