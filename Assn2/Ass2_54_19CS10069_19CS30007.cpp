@@ -484,6 +484,10 @@ void execute(vector<string> tokens, int in_fd, int out_fd) {
             do{
                 int wpid = waitpid(fork_status,&status,WUNTRACED);
             }while(!WIFEXITED(status) && !WIFSIGNALED(status) && !WIFSTOPPED(status));
+            if(WIFSTOPPED(status))
+            {
+                kill(fork_status, SIGCONT);
+            }
         }
         else
         {
