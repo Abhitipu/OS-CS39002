@@ -33,6 +33,7 @@ Known bugs:
 // non canonical input mode
 // https://www.gnu.org/software/libc/manual/html_node/Noncanon-Example.html
 // https://www.mkssoftware.com/docs/man5/struct_termios.5.asp
+
 struct termios saved_attributes;
 
 void reset_input_mode (void)
@@ -408,6 +409,8 @@ void readline(vector<string> &tokens) {
     return;
 }
 /// stckexchng
+///*
+/*
 bool IsProcessAlive(int ProcessId)
 {
     // Wait for child process, this should clean up defunct processes
@@ -425,6 +428,7 @@ bool IsProcessAlive(int ProcessId)
     // If kill didn't fail the process is still running
     return true;
 }
+*/
 
 ///
 
@@ -487,11 +491,13 @@ void splitCommands(vector<string> tokens) {
 
         // capture the inputs using 
 
-        fd_set myfd;
+        fd_set myfd, myfdcopy;
         FD_ZERO(&myfd);
+
         int max_fd = 0;
         for(auto key_value : pid_to_fd){
             FD_SET(key_value.second, &myfd);
+            FD_SET(key_value.second, &myfdcopy);
             max_fd = max(max_fd, key_value.second);
         }
 
@@ -501,12 +507,10 @@ void splitCommands(vector<string> tokens) {
                 cout<<"Successfully executed multiWatch\n";
                 break;
             }
-            FD_ZERO(&myfd);
-            int max_fd = 0;
-            for(auto key_value : pid_to_fd){
-                FD_SET(key_value.second, &myfd);
-                max_fd = max(max_fd, key_value.second);
-            }
+
+            // since select is a destructive call!
+            myfd = myfdcopy;
+
             int select_status = select(max_fd + 1, &myfd, NULL, NULL, NULL);
             if(select_status < 0) {
                 perror("Error in select!\n");
@@ -519,30 +523,18 @@ void splitCommands(vector<string> tokens) {
                 int fd = p.second;
 
                 if(FD_ISSET(fd, &myfd)) {
-                    
-                    // int status;
-                    // int wait_pid_ret = waitpid(pid, &status, WNOHANG);
-                    // cout<<wait_pid_ret << " " <<status<<"\n";
-                    // if(WIFEXITED(status) || WIFSIGNALED(status))
-                    // {
-                    //     cout<<pid << " exited\n";
-                    //     if(wait_pid_ret > 0) {
-                    //         cout << "Hogyaaaaaaaa!!!!*******************************\n";
-                    //         pids_to_remove.push_back(pid);
-                    //         continue;
-                    //     }
-                    // }
-                    // if(WIFCONTINUED(status))
-                    // {
-                    //     cout<<pid <<" continued\n";
-                    // }
-
                     char buf[1000];
                     bzero(buf, sizeof(buf));
                     int read_status = read(fd, buf, sizeof(buf)-1);
                     if(read_status < 0) {
                         perror("Error in read!\n");
                         exit(-1);
+                    }
+
+                    if(read_status == 0) {
+                        FD_CLR(fd, &myfdcopy);
+                        pids_to_remove.push_back(pid);
+                        continue;
                     }
                     
                     cout << '\n';
@@ -563,32 +555,17 @@ void splitCommands(vector<string> tokens) {
                         cout << "--";
                     cout << '\n';
                 }
-                // int status;
-                // int wait_pid_ret = waitpid(pid, &status, WNOHANG);
-                // cout<<wait_pid_ret << " " <<status<<"\n";
-                // cout<<"Stck exng "<<IsProcessAlive(pid)<<"\n";
-                if(!IsProcessAlive(pid))
-                        pids_to_remove.push_back(pid);
-                /*if(WIFEXITED(status) || WIFSIGNALED(status))
-                {
-                    cout<<pid << " exited\n";
-                    if(wait_pid_ret > 0)
-                        pids_to_remove.push_back(pid);
-                }
-                if(WIFCONTINUED(status))
-                {
-                    cout<<pid <<" continued\n";
-                }*/
+
+                // if(!IsProcessAlive(pid))
+                        // pids_to_remove.push_back(pid);
             }
 
             for(auto to_delete: pids_to_remove)
             {
                 int fd = pid_to_fd[to_delete];
-                FD_CLR(fd, &myfd); 
                 pid_to_fd.erase(to_delete);
                 pid_to_cmd.erase(to_delete);
             }
-            
         }
         return;
     }
