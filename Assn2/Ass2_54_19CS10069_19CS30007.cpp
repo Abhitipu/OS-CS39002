@@ -20,6 +20,7 @@
 #include <string.h>
 #include <termios.h>
 #include <dirent.h>
+#include <time.h>
 
 using namespace std;
 
@@ -61,6 +62,18 @@ void set_input_mode (void)
     tattr.c_cc[VMIN] = 1;   // 1 byte
     tattr.c_cc[VTIME] = 0;  // timer is NULL
     tcsetattr (STDIN_FILENO, TCSAFLUSH, &tattr);
+}
+
+// show current time
+void showtime() {
+    time_t rawtime;
+    struct tm * timeinfo;
+    char buffer [80];
+    time (&rawtime);
+    timeinfo = localtime(&rawtime);
+    strftime (buffer,80,"Now it's %I:%M:%S%p.",timeinfo);
+    // strftime(buf, sizeof(buf), "%a %Y-%m-%d %H:%M:%S", &ts);
+    cerr << buffer << '\n';
 }
 
 // Useful for the inbult shell functions
@@ -221,6 +234,7 @@ vector<string> longest_substring_match(string toMatch) {
     }
     return vector<string>{matches.begin(), matches.end()};
 }
+
 /*
 string func()
 {
@@ -239,7 +253,7 @@ string func()
 // We read a line in the shell using this function
 void readline(vector<string> &tokens) {
     string temp = "";
-
+    string symbols = "<>&|\",[]";
     while(true) {
         char c;
         cin.get(c);
@@ -302,7 +316,7 @@ void readline(vector<string> &tokens) {
                 tokens.push_back(temp);
                 temp = "";
             }
-        } else if(c == '>' || c == '<' || c == '|' || c == '&') {
+        } else if(c == '>' || c == '<' || c == '|' || c == '&' || c == '\"' || c == ',' || c == '[' || c == ']') {
             if(!temp.empty()) {
                 tokens.push_back(temp);
                 temp = "";
@@ -393,6 +407,26 @@ void readline(vector<string> &tokens) {
     
     return;
 }
+/// stckexchng
+bool IsProcessAlive(int ProcessId)
+{
+    // Wait for child process, this should clean up defunct processes
+    waitpid(ProcessId, nullptr, WNOHANG);
+    // kill failed let's see why..
+    if (kill(ProcessId, 0) == -1)
+    {
+        // First of all kill may fail with EPERM if we run as a different user and we have no access, so let's make sure the errno is ESRCH (Process not found!)
+        if (errno != ESRCH)
+        {
+            return true;
+        }
+        return false;
+    }
+    // If kill didn't fail the process is still running
+    return true;
+}
+
+///
 
 // Here we split on a pipe and then manage the input and output file descriptors
 // {"multiwatch" "[" "cmd1" "," "cmd2" "," ... "cmdN" "]"}
@@ -400,38 +434,165 @@ void splitCommands(vector<string> tokens) {
     vector<string> temp;
     if((int)tokens.size()>0 && tokens[0] == "multiWatch")
     {
-        fd_set my_fd;
-        FD_ZERO(&my_fd);
+        vector<vector<string>> commands;
+        int n = tokens.size();
+        bool started = false;
 
-        for(auto u: tokens) {
-            if(u == "[" || u == "," || u == "]")
-                continue;
-            int fork_status = fork();
-            if(fork_status == 0) {
-                // this will write to .temp.pid.txt
-                // childExecutes();
-            } else {
-                // store the name of files
-
+        vector<string> temp;
+        for(int i = 2; i < n - 1; i++) {
+            string cur = tokens[i];
+            if(cur == "\"") {
+                if(started) {
+                    if(!temp.empty())
+                        commands.push_back(temp);
+                } else {
+                    temp.clear();
+                }
+                started = !started;
+            } else if(cur != ",") {
+                temp.push_back(cur);
             }
-            // make a fork : this is a command
-            // write mode (send)
-            // write command as command + " > .temp.pid.txt";
-            // call the childExecute function from here
         }
 
-        int status;
-        while(true) {
-            // select from fd_Set 
-            // open files in read mode (fd((s)) ) (recv)
-            
-            if(wait(&status) <= 0)
+        // map pid to command, map pid to fd ( pipe [0])
+
+        int cnt = 100;
+    
+        map <int, vector<string>> pid_to_cmd;
+        map <int, int> pid_to_fd;
+        
+        for(auto cmd: commands) {
+            int in_fd = 0, out_fd = 1;
+            int pipefd[2];
+                
+            if(pipe(pipefd) == -1)
+            {
+                cerr << "Error in pipe!\n";
                 break;
-            // select 
+            }
+            // send output to pipefd[1], 
+            // later catch that from pipefd[0]
+            // fork()
+            int cid;
+            if((cid = fork()) == 0){
+                cout<<"Entered inside fork :  "<< cmd[0]<<"\n";
+                childExecutes(cmd, in_fd, pipefd[1]);
+                exit(0);
+            }
+            close(pipefd[1]);
+            in_fd = pipefd[0]; // capture this in a map (pid => ) or vector
+            pid_to_fd.insert({cid, in_fd});
+            pid_to_cmd.insert({cid, cmd});
+        }
+
+        // capture the inputs using 
+
+        fd_set myfd;
+        FD_ZERO(&myfd);
+        int max_fd = 0;
+        for(auto key_value : pid_to_fd){
+            FD_SET(key_value.second, &myfd);
+            max_fd = max(max_fd, key_value.second);
+        }
+
+        while(cnt--) {
+            if(pid_to_fd.empty())
+            {
+                cout<<"Successfully executed multiWatch\n";
+                break;
+            }
+            FD_ZERO(&myfd);
+            int max_fd = 0;
+            for(auto key_value : pid_to_fd){
+                FD_SET(key_value.second, &myfd);
+                max_fd = max(max_fd, key_value.second);
+            }
+            int select_status = select(max_fd + 1, &myfd, NULL, NULL, NULL);
+            if(select_status < 0) {
+                perror("Error in select!\n");
+                exit(-1);
+            }
+
+            vector <int> pids_to_remove;
+            for(auto p : pid_to_fd) {
+                int pid = p.first;
+                int fd = p.second;
+
+                if(FD_ISSET(fd, &myfd)) {
+                    
+                    // int status;
+                    // int wait_pid_ret = waitpid(pid, &status, WNOHANG);
+                    // cout<<wait_pid_ret << " " <<status<<"\n";
+                    // if(WIFEXITED(status) || WIFSIGNALED(status))
+                    // {
+                    //     cout<<pid << " exited\n";
+                    //     if(wait_pid_ret > 0) {
+                    //         cout << "Hogyaaaaaaaa!!!!*******************************\n";
+                    //         pids_to_remove.push_back(pid);
+                    //         continue;
+                    //     }
+                    // }
+                    // if(WIFCONTINUED(status))
+                    // {
+                    //     cout<<pid <<" continued\n";
+                    // }
+
+                    char buf[1000];
+                    bzero(buf, sizeof(buf));
+                    int read_status = read(fd, buf, sizeof(buf)-1);
+                    if(read_status < 0) {
+                        perror("Error in read!\n");
+                        exit(-1);
+                    }
+                    
+                    cout << '\n';
+                    for(auto u: pid_to_cmd[pid])
+                        cout << u << " ";
+
+                    cout << ", ";
+                    showtime();
+                    for(int i = 0; i < 15; i++)
+                        cout << "--";
+                    cout<<"\n";
+                    
+                    
+                    cout<<"\n"<<buf<<"\n";
+
+                    
+                    for(int i = 0; i < 15; i++)
+                        cout << "--";
+                    cout << '\n';
+                }
+                // int status;
+                // int wait_pid_ret = waitpid(pid, &status, WNOHANG);
+                // cout<<wait_pid_ret << " " <<status<<"\n";
+                // cout<<"Stck exng "<<IsProcessAlive(pid)<<"\n";
+                if(!IsProcessAlive(pid))
+                        pids_to_remove.push_back(pid);
+                /*if(WIFEXITED(status) || WIFSIGNALED(status))
+                {
+                    cout<<pid << " exited\n";
+                    if(wait_pid_ret > 0)
+                        pids_to_remove.push_back(pid);
+                }
+                if(WIFCONTINUED(status))
+                {
+                    cout<<pid <<" continued\n";
+                }*/
+            }
+
+            for(auto to_delete: pids_to_remove)
+            {
+                int fd = pid_to_fd[to_delete];
+                FD_CLR(fd, &myfd); 
+                pid_to_fd.erase(to_delete);
+                pid_to_cmd.erase(to_delete);
+            }
+            
         }
         return;
     }
-    
+
     int in_fd = 0, out_fd = 1;
     int pipefd[2];
     for(auto token: tokens) {
@@ -454,6 +615,11 @@ void splitCommands(vector<string> tokens) {
     
     if(!temp.empty())
         execute(temp, in_fd, out_fd);
+    return;
+}
+
+void multiWatchHandler() {
+    // copy and paste the multiwatch handler here!\n
     return;
 }
 
