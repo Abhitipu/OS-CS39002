@@ -24,6 +24,7 @@
 
 #define BACK_SPACE 127
 #define CTRL_R 18
+#define EXECVP_ERR 87
 
 using namespace std;
 
@@ -36,6 +37,8 @@ Known bugs:
 // non canonical input mode
 // https://www.gnu.org/software/libc/manual/html_node/Noncanon-Example.html
 // https://www.mkssoftware.com/docs/man5/struct_termios.5.asp
+
+void custom_exit(int exit_code = EXIT_SUCCESS);
 
 struct termios saved_attributes;
 
@@ -53,12 +56,12 @@ void set_input_mode (void)
     if (!isatty (STDIN_FILENO))
     {
         fprintf (stderr, "Not a terminal.\n");
-        exit (EXIT_FAILURE);
+        custom_exit (EXIT_FAILURE);
     }
 
     /* Save the terminal attributes so we can restore them later. */
     tcgetattr (STDIN_FILENO, &saved_attributes);
-    atexit (reset_input_mode);
+    // atexit (reset_input_mode);
 
     /* Set the terminal modes. */
     tcgetattr (STDIN_FILENO, &tattr);
@@ -100,7 +103,7 @@ void signal_callback_handler(int signum) {
         printf("\nlol want to stop\n");
         return;
     }
-    exit(signum);
+    custom_exit(signum);
 }
 
 // shell history:
@@ -487,7 +490,7 @@ void splitCommands(vector<string> tokens) {
             if((cid = fork()) == 0){
                 cout<<"Entered inside fork :  "<< cmd[0]<<"\n";
                 childExecutes(cmd, in_fd, pipefd[1]);
-                exit(0);
+                custom_exit(EXECVP_ERR); // this should be terminate or quick exit, we don't want to 
             }
             close(pipefd[1]);
             in_fd = pipefd[0]; // capture this in a map (pid => ) or vector
@@ -520,7 +523,7 @@ void splitCommands(vector<string> tokens) {
             int select_status = select(max_fd + 1, &myfd, NULL, NULL, NULL);
             if(select_status < 0) {
                 perror("Error in select!\n");
-                exit(-1);
+                custom_exit(-1);
             }
 
             vector <int> pids_to_remove;
@@ -534,7 +537,7 @@ void splitCommands(vector<string> tokens) {
                     int read_status = read(fd, buf, sizeof(buf)-1);
                     if(read_status < 0) {
                         perror("Error in read!\n");
-                        exit(-1);
+                        custom_exit(-1);
                     }
 
                     if(read_status == 0) {
@@ -569,6 +572,11 @@ void splitCommands(vector<string> tokens) {
             for(auto to_delete: pids_to_remove)
             {
                 int fd = pid_to_fd[to_delete];
+                if(kill(to_delete, SIGKILL) < 0)
+                {
+                    perror("kill()");
+                }
+                close(pid_to_fd[to_delete]);
                 pid_to_fd.erase(to_delete);
                 pid_to_cmd.erase(to_delete);
             }
@@ -621,7 +629,7 @@ void execute(vector<string> tokens, int in_fd, int out_fd) {
     int fork_status = fork();
     if(fork_status < 0) {
         cerr << "Error in fork!\n";
-        exit(EXIT_FAILURE);
+        custom_exit(EXIT_FAILURE);
     }
 
     if(fork_status == 0) {
@@ -708,8 +716,11 @@ void childExecutes(vector<string> tokens, int in_fd, int out_fd) {
     
     if(execvp(args[0], args) < 0) {
         cerr << "Error in execvp!\n";
+        perror("Execvp()");
+        custom_exit(EXECVP_ERR);
     }
-    exit(0);
+    cout<<"This should never be printed\n";
+    custom_exit(EXECVP_ERR);
     return;
 }
 
@@ -736,7 +747,7 @@ void exitFunction(vector<string> tokens) {
         cerr << "Error in exit function!\n";
         return;
     }
-    exit(0);
+    custom_exit(0);
 }
 
 void helpFunction(vector<string> tokens) {
@@ -764,6 +775,17 @@ void historyFunction(vector<string> tokens) {
     return;
 }
 
+void custom_exit(int exit_code)
+{
+    if(exit_code != EXECVP_ERR)
+    {
+        update_history();
+        reset_input_mode();
+    }
+    exit(exit_code);
+}
+
+
 int main() {
     // read inputs in a non canninical manner
     set_input_mode ();
@@ -782,9 +804,9 @@ int main() {
     parse_history();
 
     // registers update_history with exit call
-    if(atexit(update_history) != 0){
-        cerr<<"Error in atexit()\n";
-    }
+    // if(atexit(update_history) != 0){
+    //     cerr<<"Error in atexit()\n";
+    // }
     
     vector<string> inp;
     while(1) {
