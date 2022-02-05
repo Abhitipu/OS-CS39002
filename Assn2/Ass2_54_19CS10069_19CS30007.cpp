@@ -28,12 +28,6 @@
 
 using namespace std;
 
-/*
-Known bugs:
-1.  ft <enter>
-    ft <tab>
-
-*/
 // non canonical input mode
 // https://www.gnu.org/software/libc/manual/html_node/Noncanon-Example.html
 // https://www.mkssoftware.com/docs/man5/struct_termios.5.asp
@@ -307,13 +301,17 @@ void readline(vector<string> &tokens) {
                         if(choice < 1 || choice > n) {
                             cout << "Enter a valid choice\n";
                         } else {
+                            temp.clear();
                             cout << ">>>";
                             for(auto u: tokens) {
                                 cout << u << " ";
+                                temp += u;
+                                temp += " ";
                             }
-                            temp.clear();
                             tokens.push_back(matches[choice - 1]);
                             cout << tokens.back() << ' ';
+                            temp += tokens.back();
+                            temp += ' ';
                             break;
                         }
                     }
@@ -403,7 +401,9 @@ void readline(vector<string> &tokens) {
                             cout << "Invalid choice!\n";
                         } else {
                             cout << "\n>>>";
+                            temp.clear();
                             cout << matches[choice - 1] << ' ';
+                            temp = matches[choice - 1] + ' ';
                             idx = choice - 1;
                             break;
                         }
