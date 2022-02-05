@@ -16,5 +16,5 @@ prac: $(testfile)
 	./prac
 
 clean:
-	rm -f sibashell shell t output.txt prac
+	rm -f sibashell shell t output.txt prac temp3 temp2
 

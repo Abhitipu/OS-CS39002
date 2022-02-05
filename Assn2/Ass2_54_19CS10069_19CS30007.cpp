@@ -22,6 +22,9 @@
 #include <dirent.h>
 #include <time.h>
 
+#define BACK_SPACE 127
+#define CTRL_R 18
+
 using namespace std;
 
 /*
@@ -59,7 +62,7 @@ void set_input_mode (void)
 
     /* Set the terminal modes. */
     tcgetattr (STDIN_FILENO, &tattr);
-    tattr.c_lflag &= ~(ICANON); /* Clear ICANON and ECHO. */
+    tattr.c_lflag &= ~(ICANON|ECHO); /* Clear ICANON and ECHO. */
     tattr.c_cc[VMIN] = 1;   // 1 byte
     tattr.c_cc[VTIME] = 0;  // timer is NULL
     tcsetattr (STDIN_FILENO, TCSAFLUSH, &tattr);
@@ -107,8 +110,6 @@ const int HISTORY_SIZE = 10'000;
 const int DISP_HISTORY = 1'000;
 
 void parse_history() {
-    // accha thik hai
-    // redirect kar loon? ok fopen wala c++ fin<< jaisa rehta hai
     ifstream infile;
     infile.open(bashHistoryFile);
     if(infile.fail()) {
@@ -134,12 +135,11 @@ void update_history() {
         for(auto cmd: bashHistory) {
             fout << cmd << '\n';
         }
-        // thik hai
+        fout.close();
     }
     else{
         cerr<<"Error while opening\n";
     }
-    fout.close();
     return;
 }
 
@@ -177,12 +177,12 @@ vector<string> search_directory(string toMatch) {
     string filename;
     dir = opendir(".");
 
-    int best = 0;
+    int best = 1;
     while ((dp=readdir(dir)) != NULL) {
         // printf("%s\n", dp->d_name);
         filename = dp->d_name;
         int cur = match_substring(toMatch, filename);
-        if(cur == best && cur != 0) {
+        if(cur == best) {
             matches.push_back(filename);
         } else if(cur > best) {
             best = cur;
@@ -220,7 +220,7 @@ vector<string> longest_substring_match(string toMatch) {
         vector<int> z_arr = z_function(temp);
 
         assert((int)z_arr.size() == n + m + 1);
-        int cur_best = 3;
+        int cur_best = 0;
 
         for(int i = n + 1; i < n + m + 1; i++)
             cur_best = max(cur_best, z_arr[i]);
@@ -236,21 +236,6 @@ vector<string> longest_substring_match(string toMatch) {
     return vector<string>{matches.begin(), matches.end()};
 }
 
-/*
-string func()
-{
-    char c;
-    string toSearch;
-    while(1) {
-        cin.get(c);
-        if(c == '\n') {
-            break;
-        }
-        toSearch += c;
-    }
-    return toSearch;
-}*/
-
 // We read a line in the shell using this function
 void readline(vector<string> &tokens) {
     string temp = "";
@@ -259,11 +244,19 @@ void readline(vector<string> &tokens) {
         char c;
         cin.get(c);
 
-        if(c == '\n')
+        if(c == '\n'){
+            cout << c;
             break;
+        }
 
+        else if(c == BACK_SPACE) {
+            if(!temp.empty()) {
+                temp.pop_back();
+                cout << "\b \b";
+            }
+        }
         // tabs
-        if(c == '\t') {
+        else if(c == '\t') {
             // cerr << "Tabbed! Feature yet to be added!\n";
             vector<string> matches = search_directory(temp);
 
@@ -287,7 +280,19 @@ void readline(vector<string> &tokens) {
                     string mychoice;
                     while(1) {
                         cout << "Enter your choice from 1 to " << n << ": ";
-                        cin >> mychoice;
+                        char c;
+                        while(cin.get(c) && c != '\n') {
+                            if((int)c == BACK_SPACE) {
+                                if(!mychoice.empty()) {
+                                    mychoice.pop_back();
+                                    cout << "\b \b";
+                                }
+                            } else {
+                                mychoice += c;
+                                cout << c;
+                            }
+                        }
+                        cout << '\n';
                         int choice;
                         try {
                             choice = stoi(mychoice);
@@ -296,7 +301,6 @@ void readline(vector<string> &tokens) {
                             continue;
                         }
                         // getchar();
-                        cin.ignore(); 
                         if(choice < 1 || choice > n) {
                             cout << "Enter a valid choice\n";
                         } else {
@@ -312,20 +316,25 @@ void readline(vector<string> &tokens) {
                     }
                 }
             } 
-        } else if(c == ' ') {
+        } 
+        else if(c == ' ') {
             if(!temp.empty()) {
                 tokens.push_back(temp);
-                temp = "";
+                temp.clear();
             }
-        } else if(c == '>' || c == '<' || c == '|' || c == '&' || c == '\"' || c == ',' || c == '[' || c == ']') {
+            cout << c;
+        } 
+        else if(symbols.find(c) != string :: npos) {
+            // for punctuations
             if(!temp.empty()) {
                 tokens.push_back(temp);
-                temp = "";
+                temp.clear();
             }
             temp += c;
             tokens.push_back(temp);
-            temp = "";
-        } else if((int)c == 18) {
+            temp.clear();
+            cout << c;
+        } else if((int)c == CTRL_R) {
             // Search here
             temp.clear();
             tokens.clear();
@@ -335,9 +344,17 @@ void readline(vector<string> &tokens) {
                 cin.get(c);
                 if(c == '\n') {
                     break;
+                } else if(c == BACK_SPACE) {
+                    if(!toSearch.empty()) {
+                        toSearch.pop_back();
+                        cout << "\b \b";
+                    }
+                } else {
+                    toSearch += c;
+                    cout << c;
                 }
-                toSearch += c;
             }
+            cout << '\n';
             vector<string> matches = longest_substring_match(toSearch);
             
             if((int)matches.size() == 0) {
@@ -354,19 +371,30 @@ void readline(vector<string> &tokens) {
                         cout << i + 1 << ". " << matches[i] << "\n";
                     }
                     cout << '\n';
-                    string temp;
                     while(1) {
                         cout << "Enter a choice from 1 to " << n << ": ";
-                        cin >> temp;
+                        string mychoice;
+                        char c;
+                        while(cin.get(c) && c != '\n') {
+                            if(c == BACK_SPACE) {
+                                if(!mychoice.empty()) {
+                                    mychoice.pop_back();
+                                    cout << "\b \b";
+                                }
+                            } else {
+                                mychoice += c;
+                                cout << c;
+                            }
+                        }
+                        cout << '\n';
                         int choice;
                         try {
-                            choice = stoi(temp);
+                            choice = stoi(mychoice);
                         } catch(exception& e) {
                             cout << "Invalid choice! " << e.what() << '\n';
                             continue;
                         }
                         // getchar();
-                        cin.ignore(); 
 
                         if(choice < 1 || choice > n) {
                             cout << "Invalid choice!\n";
@@ -400,6 +428,7 @@ void readline(vector<string> &tokens) {
             cout << "\n>>>";
         } else {
             temp += c;
+            cout << c;
         } 
     }
 
@@ -408,29 +437,6 @@ void readline(vector<string> &tokens) {
     
     return;
 }
-/// stckexchng
-///*
-/*
-bool IsProcessAlive(int ProcessId)
-{
-    // Wait for child process, this should clean up defunct processes
-    waitpid(ProcessId, nullptr, WNOHANG);
-    // kill failed let's see why..
-    if (kill(ProcessId, 0) == -1)
-    {
-        // First of all kill may fail with EPERM if we run as a different user and we have no access, so let's make sure the errno is ESRCH (Process not found!)
-        if (errno != ESRCH)
-        {
-            return true;
-        }
-        return false;
-    }
-    // If kill didn't fail the process is still running
-    return true;
-}
-*/
-
-///
 
 // Here we split on a pipe and then manage the input and output file descriptors
 // {"multiwatch" "[" "cmd1" "," "cmd2" "," ... "cmdN" "]"}
