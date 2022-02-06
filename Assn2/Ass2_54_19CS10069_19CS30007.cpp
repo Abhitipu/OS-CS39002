@@ -28,12 +28,12 @@
 
 using namespace std;
 
+void custom_exit(int exit_code = EXIT_SUCCESS);
+void multiWatchHandler(vector<string>& tokens);
+
 // non canonical input mode
 // https://www.gnu.org/software/libc/manual/html_node/Noncanon-Example.html
 // https://www.mkssoftware.com/docs/man5/struct_termios.5.asp
-
-void custom_exit(int exit_code = EXIT_SUCCESS);
-
 struct termios saved_attributes;
 
 void reset_input_mode (void)
@@ -90,11 +90,11 @@ void signal_callback_handler(int signum) {
    // Terminate program
     if(signum == SIGINT)
     {
-       printf("\nlol want to exit\n");
+       printf("\nExit Command\n");
        return;
     } else if(signum == SIGTSTP)//ctrl+R ka bhi puch le
     {
-        printf("\nlol want to stop\n");
+        printf("\nStop Command\n");
         return;
     }
     custom_exit(signum);
@@ -106,24 +106,23 @@ deque <string> bashHistory;
 const int HISTORY_SIZE = 10'000;
 const int DISP_HISTORY = 1'000;
 
+// retrive data from bash_history file
 void parse_history() {
     ifstream infile;
     infile.open(bashHistoryFile);
-    if(infile.fail()) {
-        cerr << "Failed to open bash history file!\n";
-        return;
+    if(infile.is_open()) {    
+        string temp;
+        while(getline(infile, temp))
+            bashHistory.push_back(temp);
+        
+        assert((int)bashHistory.size() <= HISTORY_SIZE);
+
+        infile.close();
     }
-
-    string temp;
-    while(getline(infile, temp))
-        bashHistory.push_back(temp);
-    
-    assert((int)bashHistory.size() <= HISTORY_SIZE);
-
-    infile.close();
     return;
 }
 
+// update history after completion
 void update_history() {
     ofstream fout;
     fout.open(bashHistoryFile, ofstream::trunc);
@@ -140,7 +139,7 @@ void update_history() {
     return;
 }
 
-// ab display history
+// add display history
 void add_history(const vector<string> &tokens) {
     string cmd = "";
     int n = (int) tokens.size();
@@ -160,6 +159,7 @@ void add_history(const vector<string> &tokens) {
     return;
 }
 
+// This returns the longest matching prefix (Tabs)
 int match_substring(string& toMatch, string& filename) {
     int n = min(toMatch.length(), filename.length());
     int i;
@@ -167,6 +167,7 @@ int match_substring(string& toMatch, string& filename) {
     return i;
 }
 
+// This searches the directory for the given file
 vector<string> search_directory(string toMatch) {
     vector<string> matches;
     DIR *dir;
@@ -191,6 +192,7 @@ vector<string> search_directory(string toMatch) {
     return matches;
 }
 
+// The z algorithm used for string matching with linear complexity
 vector<int> z_function(string s) {
     int n = (int) s.length();
     vector<int> z(n);
@@ -205,11 +207,19 @@ vector<int> z_function(string s) {
     return z;
 }
 
+// Searching the bash history for the matching commands
 vector<string> longest_substring_match(string toMatch) {
     set<string> matches;
     int best = 3;
 
     for(auto cmd: bashHistory) {
+        // exact match
+        if(cmd == toMatch) {
+            matches.clear();
+            matches.insert(cmd);
+            break;
+        }
+
         string temp = toMatch + "$" + cmd;
         int n = toMatch.length();
         int m = cmd.length();
@@ -236,7 +246,9 @@ vector<string> longest_substring_match(string toMatch) {
 // We read a line in the shell using this function
 void readline(vector<string> &tokens) {
     string temp = "";
+    // More delimiters
     string symbols = "<>&|\",[]";
+    
     while(true) {
         char c;
         cin.get(c);
@@ -245,21 +257,14 @@ void readline(vector<string> &tokens) {
             cout << c;
             break;
         }
-
-        else if(c == BACK_SPACE) {
-            if(!temp.empty()) {
-                temp.pop_back();
-                cout << "\b \b";
-            }
-        }
         // tabs
         else if(c == '\t') {
-            // cerr << "Tabbed! Feature yet to be added!\n";
             vector<string> matches = search_directory(temp);
 
             int n = (int)matches.size(); 
             if(n > 0) {
                 if(n == 1) {
+                    // Single match
                     temp.clear();
                     tokens.push_back(matches[0]);
                     cout<<"\n>>>";
@@ -268,6 +273,7 @@ void readline(vector<string> &tokens) {
                         cout<<u<<" ";
                     }
                 } else {
+                    // Multiple matches
                     cout << '\n';
                     for(int i = 0; i < n; i++) {
                         cout << i + 1 << ". " << matches[i] << "\n";
@@ -280,10 +286,7 @@ void readline(vector<string> &tokens) {
                         char c;
                         while(cin.get(c) && c != '\n') {
                             if((int)c == BACK_SPACE) {
-                                if(!mychoice.empty()) {
-                                    mychoice.pop_back();
-                                    cout << "\b \b";
-                                }
+                                // ignore backspaces
                             } else {
                                 mychoice += c;
                                 cout << c;
@@ -305,13 +308,9 @@ void readline(vector<string> &tokens) {
                             cout << ">>>";
                             for(auto u: tokens) {
                                 cout << u << " ";
-                                temp += u;
-                                temp += " ";
                             }
                             tokens.push_back(matches[choice - 1]);
                             cout << tokens.back() << ' ';
-                            temp += tokens.back();
-                            temp += ' ';
                             break;
                         }
                     }
@@ -319,6 +318,7 @@ void readline(vector<string> &tokens) {
             } 
         } 
         else if(c == ' ') {
+            // Space is out main delimiter
             if(!temp.empty()) {
                 tokens.push_back(temp);
                 temp.clear();
@@ -326,7 +326,7 @@ void readline(vector<string> &tokens) {
             cout << c;
         } 
         else if(symbols.find(c) != string :: npos) {
-            // for punctuations
+            // The secondary delimiters
             if(!temp.empty()) {
                 tokens.push_back(temp);
                 temp.clear();
@@ -336,7 +336,7 @@ void readline(vector<string> &tokens) {
             temp.clear();
             cout << c;
         } else if((int)c == CTRL_R) {
-            // Search here
+            // Search in bash history
             temp.clear();
             tokens.clear();
             cout << "\nEnter command for searching: ";
@@ -346,10 +346,7 @@ void readline(vector<string> &tokens) {
                 if(c == '\n') {
                     break;
                 } else if(c == BACK_SPACE) {
-                    if(!toSearch.empty()) {
-                        toSearch.pop_back();
-                        cout << "\b \b";
-                    }
+                    // ignore backspaces
                 } else {
                     toSearch += c;
                     cout << c;
@@ -359,14 +356,18 @@ void readline(vector<string> &tokens) {
             vector<string> matches = longest_substring_match(toSearch);
             
             if((int)matches.size() == 0) {
+                // No matches
                 cout << "No match for searched item in history\n";
                 cout<< ">>>";
             } else {
+                // Matches found
                 int n = matches.size();
                 int idx;
                 if(n == 1) {
+                    // Exactly one match
                     cout << "\n>>>" << matches[0] << " ";
                     idx = 0;
+                    temp.clear();
                 } else {
                     for(int i = 0; i < n; i++) {
                         cout << i + 1 << ". " << matches[i] << "\n";
@@ -378,10 +379,7 @@ void readline(vector<string> &tokens) {
                         char c;
                         while(cin.get(c) && c != '\n') {
                             if(c == BACK_SPACE) {
-                                if(!mychoice.empty()) {
-                                    mychoice.pop_back();
-                                    cout << "\b \b";
-                                }
+                                // ignore
                             } else {
                                 mychoice += c;
                                 cout << c;
@@ -395,7 +393,6 @@ void readline(vector<string> &tokens) {
                             cout << "Invalid choice! " << e.what() << '\n';
                             continue;
                         }
-                        // getchar();
 
                         if(choice < 1 || choice > n) {
                             cout << "Invalid choice!\n";
@@ -403,14 +400,12 @@ void readline(vector<string> &tokens) {
                             cout << "\n>>>";
                             temp.clear();
                             cout << matches[choice - 1] << ' ';
-                            temp = matches[choice - 1] + ' ';
                             idx = choice - 1;
                             break;
                         }
                     }
                 }
 
-                // tokenize matches[idx]
                 string word;
                 for(auto u: matches[idx]) {
                     if(u == ' ' && !word.empty()) {
@@ -441,146 +436,11 @@ void readline(vector<string> &tokens) {
     return;
 }
 
-// Here we split on a pipe and then manage the input and output file descriptors
-// {"multiwatch" "[" "cmd1" "," "cmd2" "," ... "cmdN" "]"}
 void splitCommands(vector<string> tokens) {
     vector<string> temp;
     if((int)tokens.size()>0 && tokens[0] == "multiWatch")
     {
-        vector<vector<string>> commands;
-        int n = tokens.size();
-        bool started = false;
-
-        vector<string> temp;
-        for(int i = 2; i < n - 1; i++) {
-            string cur = tokens[i];
-            if(cur == "\"") {
-                if(started) {
-                    if(!temp.empty())
-                        commands.push_back(temp);
-                } else {
-                    temp.clear();
-                }
-                started = !started;
-            } else if(cur != ",") {
-                temp.push_back(cur);
-            }
-        }
-
-        // map pid to command, map pid to fd ( pipe [0])
-
-        int cnt = 100;
-    
-        map <int, vector<string>> pid_to_cmd;
-        map <int, int> pid_to_fd;
-        
-        for(auto cmd: commands) {
-            int in_fd = 0, out_fd = 1;
-            int pipefd[2];
-                
-            if(pipe(pipefd) == -1)
-            {
-                cerr << "Error in pipe!\n";
-                break;
-            }
-            // send output to pipefd[1], 
-            // later catch that from pipefd[0]
-            // fork()
-            int cid;
-            if((cid = fork()) == 0){
-                cout<<"Entered inside fork :  "<< cmd[0]<<"\n";
-                childExecutes(cmd, in_fd, pipefd[1]);
-                custom_exit(EXECVP_ERR); // this should be terminate or quick exit, we don't want to 
-            }
-            close(pipefd[1]);
-            in_fd = pipefd[0]; // capture this in a map (pid => ) or vector
-            pid_to_fd.insert({cid, in_fd});
-            pid_to_cmd.insert({cid, cmd});
-        }
-
-        // capture the inputs using 
-
-        fd_set myfd, myfdcopy;
-        FD_ZERO(&myfd);
-
-        int max_fd = 0;
-        for(auto key_value : pid_to_fd){
-            FD_SET(key_value.second, &myfd);
-            FD_SET(key_value.second, &myfdcopy);
-            max_fd = max(max_fd, key_value.second);
-        }
-
-        while(cnt--) {
-            if(pid_to_fd.empty())
-            {
-                cout<<"Successfully executed multiWatch\n";
-                break;
-            }
-
-            // since select is a destructive call!
-            myfd = myfdcopy;
-
-            int select_status = select(max_fd + 1, &myfd, NULL, NULL, NULL);
-            if(select_status < 0) {
-                perror("Error in select!\n");
-                custom_exit(-1);
-            }
-
-            vector <int> pids_to_remove;
-            for(auto p : pid_to_fd) {
-                int pid = p.first;
-                int fd = p.second;
-
-                if(FD_ISSET(fd, &myfd)) {
-                    char buf[1000];
-                    bzero(buf, sizeof(buf));
-                    int read_status = read(fd, buf, sizeof(buf)-1);
-                    if(read_status < 0) {
-                        perror("Error in read!\n");
-                        custom_exit(-1);
-                    }
-
-                    if(read_status == 0) {
-                        FD_CLR(fd, &myfdcopy);
-                        pids_to_remove.push_back(pid);
-                        continue;
-                    }
-                    
-                    cout << '\n';
-                    for(auto u: pid_to_cmd[pid])
-                        cout << u << " ";
-
-                    cout << ", ";
-                    showtime();
-                    for(int i = 0; i < 15; i++)
-                        cout << "--";
-                    cout<<"\n";
-                    
-                    
-                    cout<<"\n"<<buf<<"\n";
-
-                    
-                    for(int i = 0; i < 15; i++)
-                        cout << "--";
-                    cout << '\n';
-                }
-
-                // if(!IsProcessAlive(pid))
-                        // pids_to_remove.push_back(pid);
-            }
-
-            for(auto to_delete: pids_to_remove)
-            {
-                int fd = pid_to_fd[to_delete];
-                if(kill(to_delete, SIGKILL) < 0)
-                {
-                    perror("kill()");
-                }
-                close(pid_to_fd[to_delete]);
-                pid_to_fd.erase(to_delete);
-                pid_to_cmd.erase(to_delete);
-            }
-        }
+        multiWatchHandler(tokens);
         return;
     }
 
@@ -609,8 +469,137 @@ void splitCommands(vector<string> tokens) {
     return;
 }
 
-void multiWatchHandler() {
+// {"multiwatch" "[" "cmd1" "," "cmd2" "," ... "cmdN" "]"}
+// Special function for handling multi watch
+void multiWatchHandler(vector<string>& tokens) {
     // copy and paste the multiwatch handler here!\n
+    vector<vector<string>> commands;
+    int n = tokens.size();
+    bool started = false;
+    
+    vector<string> temp;
+    for(int i = 2; i < n - 1; i++) {
+        string cur = tokens[i];
+        if(cur == "\"") {
+            if(started) {
+                if(!temp.empty())
+                    commands.push_back(temp);
+            } else {
+                temp.clear();
+            }
+            started = !started;
+        } else if(cur != ",") {
+            temp.push_back(cur);
+        }
+    }
+
+    // map pid to command, map pid to fd (pipe [0])
+
+    int cnt = 100;
+
+    map <int, vector<string>> pid_to_cmd;
+    map <int, int> pid_to_fd;
+    
+    for(auto cmd: commands) {
+        int in_fd = 0, out_fd = 1;
+        int pipefd[2];
+            
+        if(pipe(pipefd) == -1)
+        {
+            cerr << "Error in pipe!\n";
+            break;
+        }
+        // send output to pipefd[1], 
+        // later catch that from pipefd[0]
+        // fork()
+        int cid;
+        if((cid = fork()) == 0){
+            cout<<"Entered inside fork :  "<< cmd[0]<<"\n";
+            childExecutes(cmd, in_fd, pipefd[1]);
+            custom_exit(EXECVP_ERR); // this should be terminate or quick exit, we don't want to 
+        }
+        close(pipefd[1]);
+        in_fd = pipefd[0]; // capture this in a map (pid => ) or vector
+        pid_to_fd.insert({cid, in_fd});
+        pid_to_cmd.insert({cid, cmd});
+    }
+
+    fd_set myfd, myfdcopy;
+    FD_ZERO(&myfd);
+
+    int max_fd = 0;
+    for(auto key_value : pid_to_fd){
+        FD_SET(key_value.second, &myfd);
+        FD_SET(key_value.second, &myfdcopy);
+        max_fd = max(max_fd, key_value.second);
+    }
+
+    while(cnt--) {
+        if(pid_to_fd.empty())
+        {
+            cout<<"Successfully executed multiWatch\n";
+            break;
+        }
+
+        // since select is a destructive call!
+        myfd = myfdcopy;
+
+        int select_status = select(max_fd + 1, &myfd, NULL, NULL, NULL);
+        if(select_status < 0) {
+            perror("Error in select!\n");
+            custom_exit(-1);
+        }
+
+        vector <int> pids_to_remove;
+        for(auto p : pid_to_fd) {
+            int pid = p.first;
+            int fd = p.second;
+
+            if(FD_ISSET(fd, &myfd)) {
+                char buf[1000];
+                bzero(buf, sizeof(buf));
+                int read_status = read(fd, buf, sizeof(buf)-1);
+                if(read_status < 0) {
+                    perror("Error in read!\n");
+                    custom_exit(-1);
+                }
+
+                if(read_status == 0) {
+                    FD_CLR(fd, &myfdcopy);
+                    pids_to_remove.push_back(pid);
+                    continue;
+                }
+                
+                cout << '\n';
+                for(auto u: pid_to_cmd[pid])
+                    cout << u << " ";
+
+                cout << ", ";
+                showtime();
+                for(int i = 0; i < 15; i++)
+                    cout << "--";
+                cout<<"\n";
+                
+                cout<<"\n"<<buf<<"\n";
+                
+                for(int i = 0; i < 15; i++)
+                    cout << "--";
+                cout << '\n';
+            }
+        }
+
+        for(auto to_delete: pids_to_remove)
+        {
+            int fd = pid_to_fd[to_delete];
+            if(kill(to_delete, SIGKILL) < 0)
+            {
+                perror("kill()");
+            }
+            close(pid_to_fd[to_delete]);
+            pid_to_fd.erase(to_delete);
+            pid_to_cmd.erase(to_delete);
+        }
+    }
     return;
 }
 
@@ -724,6 +713,7 @@ void childExecutes(vector<string> tokens, int in_fd, int out_fd) {
     return;
 }
 
+// shell builtin cd function
 void cdFunction(vector<string> tokens) {
     // chdir function!
     if((int)tokens.size() != 2) {
@@ -735,13 +725,10 @@ void cdFunction(vector<string> tokens) {
         cerr << "Error: directory not found\n";
         return;
     }
-} 
+}
 
+// shell exit function
 void exitFunction(vector<string> tokens) {
-    // exit from shell
-    
-    // ye tu karde? thik parse and update kar deta hu
-    // write back to the file here
     // update_history();
     if((int)tokens.size() != 1) {
         cerr << "Error in exit function!\n";
@@ -750,16 +737,23 @@ void exitFunction(vector<string> tokens) {
     custom_exit(0);
 }
 
+// shell inbuilt function help function 
 void helpFunction(vector<string> tokens) {
     // help function
     if((int)tokens.size() != 1) {
         cerr << "Error in help function!\n";
         return;
     }
-    cerr<<"Help Manual\n";
+    cout<<"Help Manual\n";
+    cout<<"1. history - shows last 1000 commands\n";
+    cout<<"2. cd - change directory\n";
+    cout<<"3. exit - exit the shell\n";
+    cout<<"4. help - shows help manual\n";
+    cout<<"5. ctrl-x - cancels the current typed command\n";
     return;
 }
 
+// shell builtin history function, prints last 1000 commands
 void historyFunction(vector<string> tokens) {
     // history function
     if((int)tokens.size() != 1) {
@@ -775,6 +769,7 @@ void historyFunction(vector<string> tokens) {
     return;
 }
 
+// exit and based on exitcode call update_history and reset_input_mode
 void custom_exit(int exit_code)
 {
     if(exit_code != EXECVP_ERR)
@@ -785,7 +780,7 @@ void custom_exit(int exit_code)
     exit(exit_code);
 }
 
-
+// main function
 int main() {
     // read inputs in a non canninical manner
     set_input_mode ();
@@ -803,11 +798,7 @@ int main() {
     // parse history here for the first time
     parse_history();
 
-    // registers update_history with exit call
-    // if(atexit(update_history) != 0){
-    //     cerr<<"Error in atexit()\n";
-    // }
-    
+    // stores the input as a vector of strings    
     vector<string> inp;
     while(1) {
         cout << ">>>";
