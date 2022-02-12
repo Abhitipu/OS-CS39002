@@ -38,8 +38,9 @@ struct job {
         }
         resultIdx = -1;
         // all ones , that means all of them needs to be completed       
-        status.all();
+        status.set();
         // status.flip();
+        
     }
 
     void print() {
@@ -54,10 +55,21 @@ struct jobQueue
     int size; // job created
     int jobCreated;
     int totalJobs;
+    int jobsDone;
 
-    jobQueue(int _totalJobs=0) {
+    jobQueue() {
+        // producerPtr = workerPtr = 0;
+        // jobCreated = size = 0;
+        // totalJobs = 0;
+        // size = 0;
+    }
+
+    void setTotalJobs(int _totalJobs) {
         producerPtr = workerPtr = 0;
         jobCreated = size = 0;
+        totalJobs = 0;
+        size = 0;
+        jobsDone = 0;
         totalJobs = _totalJobs;
     }
 
@@ -71,10 +83,16 @@ struct jobQueue
     }
     inline bool isJobFinished()
     {
-        return (jobCreated == totalJobs);
+        cout<<"Total jobs : "<<totalJobs<<"\n";
+        cout<<"jobs Created : "<<jobCreated<<"\n";
+        return (jobCreated >= totalJobs);
     }
     bool createJob(int _producerNumber, int seed = 0, bool zero = false) {
-        if(size == SIZE) {
+        if(isJobFinished())
+        {
+            return true;
+        }
+        if(size + 2 >= SIZE) {
             // size + 1 == SIZE
             return false;
         }
@@ -86,10 +104,9 @@ struct jobQueue
     }
 
     bool completeJob() {
+        cout<<"CUr Size : "<<size<<endl;
         if(size == 0)
             return false;
-        if(jobCreated == totalJobs)     // 1
-            return true;
         
         job &curJob = jobs[workerPtr];
         job &nextJob = jobs[(workerPtr + 1)%SIZE];
@@ -107,8 +124,15 @@ struct jobQueue
         job &resJob = jobs[resIdx];
         
         size_t firstOn = curJob.status._Find_first();
+        cout << firstOn << '\n';
+        if(firstOn == curJob.status.size())
+        {
+            cout<<"All jobs are occupied\n";
+            return false;
+        }
+        ///
         int i = firstOn & 1, j = firstOn & 2, k = firstOn & 4;
-
+        cout<<"i,j,k "<<i<<", "<<j<<", "<<k<<endl;
         // Compute D (i, j, k) = A(i, k) * B(k, j)
 
         int row1 = (N / 2)*i + (N / 2);
@@ -124,12 +148,14 @@ struct jobQueue
                 }
             }
         }
+        cout<<"**************************first ON " << firstOn<<endl;
         curJob.status.flip(firstOn);
         nextJob.status.flip(firstOn);
 
         if(curJob.status.none()) {
             // all done
             size -= 2;
+            jobsDone++;
             curJob = job();
             nextJob = job();
             workerPtr = (workerPtr + 2)%SIZE;
@@ -151,19 +177,21 @@ void producer(int producerId, jobQueue *Q) {
     //      Increase job_counter
 
     while(!Q->isJobFinished()) {
+        // mutex lock
         int waitTime = rand()%4;
         sleep(waitTime);
         if(Q->createJob(producerId, producerId)) {
-            cout << producerId << " successfully created job! : )\n";
+            cout << producerId << "(producer) successfully created job! : )\n";
         } else {
-            cout << producerId << " couldnt create job.. trying again\n"; 
+            cout << producerId << "(producer) couldnt create job.. trying again\n"; 
         }
+        // mutex unlock
     }
     return;
 }
 
 void worker(int workerId, jobQueue *Q) {
-    // wait: if q is full or empty ? or all 8 blocks are already taken
+    // wait: if q is full or empty ? o
     // wait if 1 matrix only and all jobs done?
     
     // Worker:
@@ -171,12 +199,13 @@ void worker(int workerId, jobQueue *Q) {
     // 2. Retrieve 2 blocks of the first 2 matrices
 
     while(!(Q->isJobFinished())) {
+        // mutex
         int waitTime = rand()%4;
         sleep(waitTime);
         if(Q->completeJob()) {
-            cout << workerId << " successfully complete job! : )\n";
+            cout << workerId << "(worker) successfully complete job! : )\n";
         } else {
-            cout << workerId << " couldnt complete job.. trying again\n"; 
+            cout << workerId << "(worker)  couldnt complete job.. trying again\n"; 
         }
     }
     return ;
@@ -185,9 +214,11 @@ void worker(int workerId, jobQueue *Q) {
 int main(int argc, char *argv[]) {
     // Create nP, nW processes
     int nP, nW;
-    cin >> nP >> nW;
+    nP = 2, nW = 2;
+    // cin >> nP >> nW;
     int nMatrices;
-    cin >> nMatrices;
+    nMatrices = 2;
+    // cin >> nMatrices;
 
     // SHM queue https://2k8618.blogspot.com/2011/02/matrix-multiplication-using-shared.html
     // SHM job_created
@@ -200,11 +231,15 @@ int main(int argc, char *argv[]) {
     int shmid1 = shmget(shmkey,sizeof(jobQueue),0666|IPC_CREAT);
     jobQueue *sharedJobQ;
     sharedJobQ = (jobQueue*) shmat(shmid1, NULL, 0);
+    
+    sharedJobQ->setTotalJobs(nMatrices);
     // shared
     for(int i = 0; i < nP ; i++) {
         int fork_status = fork();
         if(fork_status == 0) {
+            cout<< "Producer "<<i<<" created\n";
             producer(i, sharedJobQ);
+            cout<< "Producer "<<i<<" exited\n";
             shmdt((void *)sharedJobQ);
             exit(0);            
         }
@@ -213,7 +248,9 @@ int main(int argc, char *argv[]) {
     for(int i = 0; i < nW; i++) {
         int fork_status = fork();
         if(fork_status == 0) {
+            cout<< "Worker "<<i<<" created\n";
             worker(i, sharedJobQ);
+            cout<< "Worker "<<i<<" exited\n";
             shmdt((void *)sharedJobQ);
             exit(0);
         }
