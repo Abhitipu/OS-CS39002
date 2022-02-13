@@ -1,4 +1,4 @@
-Enter no of rows and columns in the first matrix: Enter no of rows and columns in the second matrix: Enter values for first matrix
+Enter values for first matrix
 Enter values for second matrix
 Matrix A: 
    5   -2    3   -6 

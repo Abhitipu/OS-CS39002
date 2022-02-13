@@ -34,46 +34,53 @@ void mult(void* arg) {
 int main(int argc, char *argv[]) {
     int r1, c1, r2, c2;
     
-    cout << "Enter no of rows and columns in the first matrix: ";
+    // cout << "Enter no of rows and columns in the first matrix: ";
     cin >> r1 >> c1;
     
-    cout << "Enter no of rows and columns in the second matrix: ";
+    // cout << "Enter no of rows and columns in the second matrix: ";
     cin >> r2 >> c2;
     
     try {
-        assert(c1 = r2);
+        assert(c1 == r2);
     } catch (exception& e) {
         cout << "Exception caught! " << e.what() << '\n';
         exit(-1);
     }
 
-    /* 
-    the size (in bytes) of shared memory object 
-    const int SIZE1 = r1 * c1 * sizeof(double);
-    const int SIZE2 = r2 * c2 * sizeof(double);
-    const int SIZE3 = r1 * c2 * sizeof(double);
-    */
-    size_t SIZE = (r1 * c1 + r2 * c2 + r1 * c2) * sizeof(double);
-    int shmid = shmget(IPC_PRIVATE, SIZE, IPC_CREAT | 0666);
-    double* sharedMem = (double*)shmat(shmid, NULL, 0);
+    // Matrix Data
+    size_t SIZE1 = (r1 * c1) * sizeof(double);
+    int shmid1 = shmget(IPC_PRIVATE, SIZE1, IPC_CREAT | 0666);
+    double* sharedMem1 = (double*)shmat(shmid1, NULL, 0);
 
+    // Array of Pointers
+    size_t PSIZE1 = (r1) * sizeof(double*);
+    int pshmid1 = shmget(IPC_PRIVATE, PSIZE1, IPC_CREAT | 0666);
+    double** A = (double**)shmat(pshmid1, NULL, 0);
 
-    size_t SIZE2 = (2 * r1 + r2) * sizeof(double*);
+    size_t SIZE2 = (r2 * c2) * sizeof(double);
     int shmid2 = shmget(IPC_PRIVATE, SIZE2, IPC_CREAT | 0666);
-    double** sharedMemPtr = (double**)shmat(shmid2, NULL, 0);
+    double* sharedMem2 = (double*)shmat(shmid2, NULL, 0);
+
+    size_t PSIZE2 = (r2) * sizeof(double*);
+    int pshmid2 = shmget(IPC_PRIVATE, PSIZE2, IPC_CREAT | 0666);
+    double** B = (double**)shmat(pshmid2, NULL, 0);
+
+    size_t SIZE3 = (r1 * c2) * sizeof(double);
+    int shmid3 = shmget(IPC_PRIVATE, SIZE3, IPC_CREAT | 0666);
+    double* sharedMem3 = (double*)shmat(shmid3, NULL, 0);
+
+    size_t PSIZE3 = (r1) * sizeof(double*);
+    int pshmid3 = shmget(IPC_PRIVATE, PSIZE3, IPC_CREAT | 0666);
+    double** C = (double**)shmat(pshmid3, NULL, 0);
 
     for(int i = 0; i < r1; i++)
-        sharedMemPtr[i] = sharedMem + i * c1;
+        A[i] = sharedMem1 + i * c1;
 
     for(int i = 0; i < r2; i++)
-        sharedMemPtr[i + r1] = sharedMem + r1 * c1 + i * c2;
+        B[i] = sharedMem2 + i * c2;
 
     for(int i = 0; i < r1; i++)
-        sharedMemPtr[i + r1 + r2] = sharedMem + r1 * c1 + r2 * c2 + i * c2;
-
-    double **A = sharedMemPtr;
-    double **B = sharedMemPtr + r1;
-    double **C = sharedMemPtr + r1 + r2;
+        C[i] = sharedMem3 + i * c2;
 
     cout << "Enter values for first matrix\n";
     for(int i = 0; i < r1; i++) {
@@ -144,10 +151,21 @@ int main(int argc, char *argv[]) {
         // cout << "All tests passed!\n";
     }
 
-    shmdt((void *)sharedMem);
-    shmdt((void *)sharedMemPtr);
-    shmctl(shmid, IPC_RMID, NULL);
+    shmdt((void *)sharedMem1);
+    shmdt((void *)sharedMem2);
+    shmdt((void *)sharedMem3);
+    
+    shmdt((void *)A);
+    shmdt((void *)B);
+    shmdt((void *)C);
+    
+    shmctl(shmid1, IPC_RMID, NULL);
     shmctl(shmid2, IPC_RMID, NULL);
+    shmctl(shmid3, IPC_RMID, NULL);
+    
+    shmctl(pshmid1, IPC_RMID, NULL);
+    shmctl(pshmid2, IPC_RMID, NULL);
+    shmctl(pshmid3, IPC_RMID, NULL);
     
     return 0;
 }
