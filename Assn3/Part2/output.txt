@@ -1,0 +1,129 @@
+Producer 1 created
+Total jobs : 2
+jobs Created : 0
+Total jobs : 2
+jobs Created : 0
+producer Number 1
+-7 6 -6 -6 
+1 -1 1 2 
+-7 -2 -8 0 
+-8 1 -8 1 
+1(producer) successfully created job! : )
+Total jobs : 2
+jobs Created : 1
+Total jobs : 2
+jobs Created : 1
+producer Number 1
+-7 6 -6 -6 
+1 -1 1 2 
+-7 -2 -8 0 
+-8 1 -8 1 
+1(producer) successfully created job! : )
+Total jobs : 2
+jobs Created : 2
+Producer 1 exited
+Worker 0 created
+Total jobs : 2
+jobsDone : 0
+Total jobs : 2
+jobsDone : 0
+CUr Size : 2
+Producer 0 created
+Total jobs : 2
+jobs Created : 0
+Total jobs : 2
+jobs Created : 0
+Total jobs : 2
+jobs Created : 2
+0(producer) successfully created job! : )
+Total jobs : 2
+jobs Created : 2
+Producer 0 exited
+0
+i,j,k 0, 0, 0
+55 -48 
+-8 7 
+**************************first ON 0
+Worker 1 created
+Total jobs : 2
+jobsDone : 0
+Total jobs : 2
+jobsDone : 0
+CUr Size : 3
+1
+i,j,k 1, 0, 0
+47 -40 
+57 -49 
+**************************first ON 1
+1(worker) successfully completed job! : )
+Total jobs : 2
+jobsDone : 0
+CUr Size : 3
+2
+i,j,k 0, 1, 0
+48 54 
+-7 -8 
+**************************first ON 2
+0(worker) successfully completed job! : )
+Total jobs : 2
+jobsDone : 0
+CUr Size : 3
+3
+i,j,k 1, 1, 0
+40 38 
+49 50 
+**************************first ON 3
+1(worker) successfully completed job! : )
+Total jobs : 2
+jobsDone : 0
+CUr Size : 3
+4
+i,j,k 0, 0, 1
+145 -42 
+-31 7 
+**************************first ON 4
+0(worker) successfully completed job! : )
+Total jobs : 2
+jobsDone : 0
+CUr Size : 3
+5
+i,j,k 1, 0, 1
+103 -24 
+105 -32 
+**************************first ON 5
+1(worker) successfully completed job! : )
+Total jobs : 2
+jobsDone : 0
+CUr Size : 3
+6
+i,j,k 0, 1, 1
+144 48 
+-31 -6 
+**************************first ON 6
+0(worker) successfully completed job! : )
+Total jobs : 2
+jobsDone : 0
+CUr Size : 3
+7
+i,j,k 1, 1, 1
+104 38 
+105 51 
+**************************first ON 7
+Job Done worked id :0, worker 2: 1
+producer Number -10
+145 -42 144 48 
+-31 7 -31 -6 
+103 -24 104 38 
+105 -32 105 51 
+0(worker) successfully completed job! : )
+Total jobs : 2
+jobsDone : 1
+Worker 0 exited
+1(worker) successfully completed job! : )
+Total jobs : 2
+jobsDone : 0
+CUr Size : 1
+1(worker)  couldnt complete job.. trying again
+Total jobs : 2
+jobsDone : 1
+Worker 1 exited
