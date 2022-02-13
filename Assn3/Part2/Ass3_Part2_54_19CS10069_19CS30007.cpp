@@ -10,8 +10,12 @@
 #include <sys/wait.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
+#include <pthread.h>
 
 using namespace std;
+
+// pthread_mutex_t pmutex; // lock
+pthread_mutexattr_t mattr;
 
 const int SIZE = 8;
 const int N = 4;
@@ -73,7 +77,7 @@ void printJob(job* J) {
 void initJob(job* J, int _producerNumber = -1, int _matrixId = -1, int seed = 0, bool zero = false) {
     J->producerNumber = _producerNumber;
     J->matrixId = _matrixId;
-    srand(seed);
+    srand(seed + _producerNumber + _matrixId);
     for(int i = 0; i < N; i++) {
         for(int j = 0; j < N; j++) {
             J->matrix[i][j] = (zero) ? 0 : (rand()%19 - 9);
@@ -83,7 +87,6 @@ void initJob(job* J, int _producerNumber = -1, int _matrixId = -1, int seed = 0,
     // all ones , that means all of them needs to be completed       
     custom_set(J->status);
     return;
-    // status.flip();
 }
 
 struct jobQueue
@@ -94,7 +97,7 @@ struct jobQueue
     int jobCreated;
     int totalJobs;
     int jobsDone;
-    int mutex;    
+    pthread_mutex_t mutex_lock;  
 };
 
 int getrandId() {
@@ -109,12 +112,22 @@ int getrandId() {
 void jobQueueInit(int _totalJobs, jobQueue* Q) {
     // mutex lock
     Q->producerPtr = Q->workerPtr = 0;
-    Q->jobCreated = Q->size = 0;
-    Q->totalJobs = 0;
+    Q->jobCreated = 0;
     Q->size = 0;
     Q->jobsDone = 0;
     Q->totalJobs = _totalJobs;
-    Q->mutex = 0;
+    // pthread_mutexattr_t mattr;
+    pthread_mutexattr_init(&mattr);
+    
+    // pthread_mutexattr_settype(&mattr, PTHREAD_MUTEX_ERRORCHECK_NP);
+    if(pthread_mutexattr_setpshared(&mattr, PTHREAD_PROCESS_SHARED)!=0){
+    	printf("Lock sharing Unsuccessful\n");
+    	exit(1);
+    }
+    if(pthread_mutex_init(&(Q->mutex_lock), &mattr)!=0){
+    	printf("Error : mutex_lock init() failed\n");
+    	exit(1);
+    }
     // mutex lock
 }
 
@@ -141,6 +154,7 @@ bool createJob(jobQueue* Q, int _producerNumber, int seed = 0, bool zero = false
     }
     initJob(&(Q->jobs[Q->producerPtr]),_producerNumber, getrandId(), seed, zero);
     printJob(&Q->jobs[Q->producerPtr]);
+    cout<<"Cur Size : "<<Q->size<<endl;
     Q->producerPtr = (Q->producerPtr + 1)%SIZE;
     (Q->jobCreated)++;
     (Q->size)++;
@@ -148,7 +162,7 @@ bool createJob(jobQueue* Q, int _producerNumber, int seed = 0, bool zero = false
 }
 
 bool completeJob(jobQueue* Q) {
-    cout<<"CUr Size : "<<Q->size<<endl;
+    cout<<"Cur Size : "<<Q->size<<endl;
     if(Q->size < 2)
         return false;
     
@@ -207,11 +221,9 @@ bool completeJob(jobQueue* Q) {
             }
             cout<< resJob.matrix[row][col] <<" ";
         }
-            cout<<"\n";
+        cout<<"\n";
     }
     cout<<"**************************first ON " << firstOn<<endl;
-    // custom_flip(curJob.status, firstOn);
-    // custom_flip(nextJob.status, firstOn);
 
     if(curJob.status == 0) {
         // all done
@@ -243,15 +255,19 @@ void producer(int producerId, jobQueue *Q) {
         
         int waitTime = rand()%4;
         sleep(waitTime);
-        if(Q->mutex != 0)
-            continue;
-        Q->mutex = 1;
+        if(pthread_mutex_lock(&(Q->mutex_lock))<0)
+        {
+            perror("Mutex Lock");
+        }
         if(createJob(Q, producerId, producerId)) {
             cout << producerId << "(producer) successfully created job! : )\n";
         } else {
             cout << producerId << "(producer) couldnt create job.. trying again\n"; 
         }
-        Q->mutex = 0;
+        if(pthread_mutex_unlock(&(Q->mutex_lock))<0)
+        {
+            perror("Mutex Unlock");
+        }
         // mutex unlock
     }
     return;
@@ -270,15 +286,19 @@ void worker(int workerId, jobQueue *Q) {
         
         int waitTime = rand()%4;
         sleep(waitTime);
-        if(Q->mutex != 0)
-            continue;
-        Q->mutex = 1;
+        if(pthread_mutex_lock(&(Q->mutex_lock))<0)
+        {
+            perror("Mutex Lock");
+        }
         if(completeJob(Q)) {
             cout << workerId << "(worker) successfully completed job! : )\n";
         } else {
             cout << workerId << "(worker)  couldnt complete job.. trying again\n"; 
         }
-        Q->mutex = 0;
+        if(pthread_mutex_unlock(&(Q->mutex_lock))<0)
+        {
+            perror("Mutex Unlock");
+        }
     }
     return ;
 }
@@ -296,15 +316,18 @@ int main(int argc, char *argv[]) {
     // SHM job_created
 
     // https://pubs.opengroup.org/onlinepubs/007908775/xsh/pthread_mutexattr_setpshared.html
+    // https://stackoverflow.com/questions/20325146/share-condition-variable-mutex-between-processes-does-mutex-have-to-locked-be
 
 
     // Create (SHM) shared memory: shared among all
     // 1. queue: finite size (SIZE)
     // 2. job_created counter : no of matrices gen
+
     key_t shmkey = 154;
     int shmid1 = shmget(shmkey,sizeof(jobQueue),0666|IPC_CREAT);
     jobQueue *sharedJobQ;
     sharedJobQ = (jobQueue*) shmat(shmid1, NULL, 0);
+    // pmutex = (jobQueue*) shmat(shmid1, NULL, 0);
     
     jobQueueInit(nMatrices, sharedJobQ);
     // shared
@@ -332,7 +355,59 @@ int main(int argc, char *argv[]) {
     // check this : wait until 1 matrix and all jobs completed?
     while(wait(NULL) > 0);
  
+    pthread_mutex_destroy(&(sharedJobQ->mutex_lock));
+    pthread_mutexattr_destroy(&mattr);
+
     shmdt((void *)sharedJobQ);
     shmctl(shmid1, IPC_RMID, NULL);
     return 0;
 }
+
+/*
+typedef struct _SHM{
+	pthread_mutex_t lock;
+	queue job_q;
+	int job_created;
+}SHM;
+
+SHM * data;
+
+void mem_init(){
+	data->job_created = 0;
+    pthread_mutexattr_t mattr;
+    pthread_mutexattr_init(&mattr);
+    
+    // pthread_mutexattr_settype(&mattr, PTHREAD_MUTEX_ERRORCHECK_NP);
+    if(pthread_mutexattr_setpshared(&mattr, PTHREAD_PROCESS_SHARED)!=0){
+    	printf("Lock sharing Unsuccessful\n");
+    	exit(1);
+    }
+    if(pthread_mutex_init(&(data->lock), &mattr)!=0){
+    	printf("Error : mutex_lock init() failed\n");
+    	exit(1);
+    }
+   	(data->job_q).front = 0;
+   	(data->job_q).rear = 0;
+   	(data->job_q).cur_size = 0; 
+}
+
+#include <pthread.h>
+
+pthread_mutex_t pmutex;
+pthread_mutexattr_t attrmutex;
+
+//  Initialise attribute to mutex. 
+
+
+//  Allocate memory to pmutex here.
+&pmutex = shmat()
+
+// Initialise mutex.
+pthread_mutex_init(&pmutex, &attrmutex);
+
+// Use the mutex.
+
+// Clean up.
+pthread_mutex_destroy(&pmutex);
+pthread_mutexattr_destroy(&attrmutex); 
+*/
