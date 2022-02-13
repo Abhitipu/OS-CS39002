@@ -22,10 +22,7 @@ const int N = 4;
 const int resultantMatrixProducer = -10;
 set<int> matrixId;
 
-
-
 // bitset function
-
 void custom_set(uint8_t &bitset)
 {
     bitset = 255;
@@ -66,7 +63,10 @@ struct job {
 };
 
 void printJob(job* J) {
-    cout<< "producer Number "<< J->producerNumber<<"\n";
+    cout<<"----------------------------Print Job----------------------------\n";
+    cout<< "Producer Number : "<< J->producerNumber<<"\n";
+    cout<<"Matrix Id : "<<J->matrixId<<"\n";
+    cout<<"Status : "<<(uint)(J->status)<<"\n";
     for(int i = 0; i < N; i++) {
         for(int j = 0; j < N; j++)
             cout << J->matrix[i][j] << " ";
@@ -77,7 +77,7 @@ void printJob(job* J) {
 void initJob(job* J, int _producerNumber = -1, int _matrixId = -1, int seed = 0, bool zero = false) {
     J->producerNumber = _producerNumber;
     J->matrixId = _matrixId;
-    srand(seed + _producerNumber + _matrixId);
+    // srand(seed);
     for(int i = 0; i < N; i++) {
         for(int j = 0; j < N; j++) {
             J->matrix[i][j] = (zero) ? 0 : (rand()%19 - 9);
@@ -89,6 +89,24 @@ void initJob(job* J, int _producerNumber = -1, int _matrixId = -1, int seed = 0,
     return;
 }
 
+void copyJob(job* src, job* dest)
+{
+    if(src == NULL || dest == NULL ) {
+        cout<<"Null pointer in copyJob\n";
+        return ;
+    }
+    dest->producerNumber = src->producerNumber;
+    dest->status = src->status;
+    dest->matrixId = src->matrixId;
+    dest->resultIdx = src->resultIdx;
+    for(int i = 0; i < N; i++) {
+        for(int j = 0; j < N; j++) {
+            dest->matrix[i][j] = src->matrix[i][j];
+        }
+    }
+    return;
+}
+
 struct jobQueue
 {
     job jobs[SIZE];
@@ -97,6 +115,7 @@ struct jobQueue
     int jobCreated;
     int totalJobs;
     int jobsDone;
+    int curSegCounter; // counts how many segments have been merged to resultant matrix (0 to 8)
     pthread_mutex_t mutex_lock;  
 };
 
@@ -116,189 +135,239 @@ void jobQueueInit(int _totalJobs, jobQueue* Q) {
     Q->size = 0;
     Q->jobsDone = 0;
     Q->totalJobs = _totalJobs;
+    Q->curSegCounter = 0;
     // pthread_mutexattr_t mattr;
     pthread_mutexattr_init(&mattr);
     
     // pthread_mutexattr_settype(&mattr, PTHREAD_MUTEX_ERRORCHECK_NP);
     if(pthread_mutexattr_setpshared(&mattr, PTHREAD_PROCESS_SHARED)!=0){
-    	printf("Lock sharing Unsuccessful\n");
+    	cerr<<"Lock sharing Unsuccessful\n";
     	exit(1);
     }
     if(pthread_mutex_init(&(Q->mutex_lock), &mattr)!=0){
-    	printf("Error : mutex_lock init() failed\n");
+    	cerr<<"Error : mutex_lock init() failed\n";
     	exit(1);
     }
     // mutex lock
 }
 
 inline bool isJobFinished(jobQueue* Q) {
-    cout<<"Total jobs : "<<Q->totalJobs<<"\n";
-    cout<<"jobsDone : "<<Q->jobsDone<<"\n";
+    cerr<<"Total jobs : "<<Q->totalJobs<<"\n";
+    cerr<<"jobsDone : "<<Q->jobsDone<<"\n";
     return (Q->jobsDone >= Q->totalJobs - 1) && (Q->size == 1);
 }
 
 inline bool isJobCreated(jobQueue* Q) {
-    cout<<"Total jobs : "<<Q->totalJobs<<"\n";
-    cout<<"jobs Created : "<<Q->jobCreated<<"\n";
+    cerr<<"Total jobs : "<<Q->totalJobs<<"\n";
+    cerr<<"jobs Created : "<<Q->jobCreated<<"\n";
     return (Q->jobCreated >= Q->totalJobs);
 }
 
-bool createJob(jobQueue* Q, int _producerNumber, int seed = 0, bool zero = false) {
-    if(isJobCreated(Q))
+void createJob(jobQueue* Q, job* newJob, int _producerNumber, int seed = 0, bool zero = false) {
+
+    // Keep at least one empty space in queue to avoid deadlock
+    while(Q->size + 1 >= SIZE)cerr<<"I am Alive (Producer createjob)\n";;
+
+    if(pthread_mutex_lock(&(Q->mutex_lock))!=0)
     {
-        return true;
+        cerr<<"Mutex Lock Error\n";
+        exit(1);
     }
-    if(Q->size + 2 >= SIZE) {
-        // size + 1 == SIZE
-        return false;
+
+    // check if more jobs are to be created
+    if(isJobCreated(Q)) {
+        if(pthread_mutex_unlock(&(Q->mutex_lock))!=0) {
+            cerr<<"Mutex Unlock Error\n";
+            exit(1);
+        }
+        return;
     }
-    initJob(&(Q->jobs[Q->producerPtr]),_producerNumber, getrandId(), seed, zero);
-    printJob(&Q->jobs[Q->producerPtr]);
-    cout<<"Cur Size : "<<Q->size<<endl;
+
+    cerr<<"Cur Size : "<<Q->size<<endl;
+    
+    // copy job
+    copyJob(newJob, &(Q->jobs[Q->producerPtr]));
+    // Q->jobs[Q->producerPtr] = *newJob;
+    
+    // increment producerPtr, jobCreated and queue size
     Q->producerPtr = (Q->producerPtr + 1)%SIZE;
     (Q->jobCreated)++;
     (Q->size)++;
-    return true;
+    
+    // print details
+    cout << newJob->producerNumber << "(producer) successfully created job with matrixid " << newJob->matrixId <<  "\n";
+    cout << "Current process id is: " << getpid() << '\n';
+    printJob(newJob);
+    
+    if(pthread_mutex_unlock(&(Q->mutex_lock))!=0)
+    {
+        cerr<<"Mutex Unlock Error\n";
+        exit(1);
+    }
+
+    return;
 }
 
-bool completeJob(jobQueue* Q) {
+void completeJob(jobQueue* Q) {
     cout<<"Cur Size : "<<Q->size<<endl;
-    if(Q->size < 2)
-        return false;
+
+    // Q->size >= 2 or not all blocks are accessed and jobs still not finished
+
+    // when to wait
+    // 1)Q->size is 0 
+    // 2)Q->size is 1 but all jobs not done
+    // 3)Q->size > 1 but all accesses are made
     
-    // Mem access : mutex lock
+    while((Q->size == 0) || ( Q->size > 1 && Q->jobs[Q->workerPtr].status == 0) || (Q->size == 1 && !(isJobFinished(Q))))cerr<<"I am Alive (Worker completejob)\n";;
+    
+    // <-> wait 
+    if(pthread_mutex_lock(&(Q->mutex_lock))!=0)
+    {
+        cerr<<"Mutex Lock Error\n";
+        exit(1);
+    }
+    
+    // if it is finished
+    if(isJobFinished(Q)) {
+        if(pthread_mutex_unlock(&(Q->mutex_lock))!=0)
+        {
+            cerr<<"Mutex Unlock Error\n";
+            exit(1);
+        }
+        return;
+    }
+
     int workerPtr = Q->workerPtr;
     int producerPtr = Q->producerPtr;
     job &curJob = Q->jobs[workerPtr];
     job &nextJob = Q->jobs[(workerPtr + 1)%SIZE];
-    // Mutex unlock
+    
     
     if(curJob.resultIdx == -1) {
-        if(Q->size == SIZE)
-            return false;
-        curJob.resultIdx = Q->jobs[workerPtr].resultIdx = Q->jobs[(workerPtr + 1)%SIZE].resultIdx = producerPtr;
+        // the first operation on the two matrices
+
+        curJob.resultIdx = nextJob.resultIdx = producerPtr;
         initJob(&(Q->jobs[producerPtr]), resultantMatrixProducer, getrandId(), 0, true); 
-        producerPtr = (producerPtr + 1)%SIZE;
+        Q->producerPtr = (Q->producerPtr + 1)%SIZE;
         // C S
         // (Q->jobsDone)++;
         (Q->size)++;
     }
+    
+    size_t firstOn = custom_find_first_one(curJob.status);
+    
+    custom_flip(curJob.status, firstOn);
+    custom_flip(nextJob.status, firstOn);
+
+    
+    if(pthread_mutex_unlock(&(Q->mutex_lock))!=0)
+    {
+        cerr<<"Mutex Unlock Error\n";
+        exit(1);
+    }
 
     int resIdx = curJob.resultIdx;
     job &resJob = Q->jobs[resIdx];
-        
-    size_t firstOn = custom_find_first_one(curJob.status);
-    
-    for(int i = 0; i < SIZE; i++) {
-        if((curJob.status >> i)&1) {
-            firstOn = i;
-            break;
-        }
+
+    if(pthread_mutex_unlock(&(Q->mutex_lock))!=0)
+    {
+        cerr<<"Mutex Unlock Error\n";
+        exit(1);
     }
+
+
     cout << firstOn << '\n';
     if(firstOn == SIZE)
     {
         cout<<"All jobs are occupied\n";
-        return false;
+        return;
     }
     ///
-    int i = firstOn & 1, j = (firstOn >> 1)&1 , k = (firstOn>>2) & 1;
-    cout<<"i,j,k "<<i<<", "<<j<<", "<<k<<endl;
-    custom_flip(curJob.status, firstOn);
-    custom_flip(nextJob.status, firstOn);
     // Compute D (i, j, k) = A(i, k) * B(k, j)
 
+    int i = firstOn & 1, j = (firstOn >> 1)&1 , k = (firstOn>>2) & 1;
     int row1 = (N / 2)*i + (N / 2);
     int col2 = (N / 2)*j + (N / 2);
     int col1 = (N / 2)*k + (N / 2);
     
+    int temp[N / 2][N / 2]; 
     for(int row = (N / 2)*i; row < row1; row++) {
         for(int col = (N / 2)*j; col < col2; col++) {
-            // resJob.matrix[row][col] = 0;
+            temp[row - (N / 2)*i][col - (N / 2)*j] = 0;
             for(int cur = (N / 2)*k; cur < col1; cur++) {
-                // mutex
-                resJob.matrix[row][col] += curJob.matrix[row][cur] * nextJob.matrix[cur][col];  
+                temp[row - (N / 2)*i][col - (N / 2)*j] += curJob.matrix[row][cur] * nextJob.matrix[cur][col];  
             }
-            cout<< resJob.matrix[row][col] <<" ";
+        }
+    }
+
+    if(pthread_mutex_lock(&(Q->mutex_lock))!=0)
+    {
+        cerr<<"Mutex Lock Error\n";
+        exit(1);
+    }
+    
+    cout<<"i,j,k "<<i<<", "<<j<<", "<<k<<endl;
+
+    for(int row = (N / 2)*i; row < row1; row++) {
+        for(int col = (N / 2)*j; col < col2; col++) {
+            resJob.matrix[row][col] += temp[row - (N / 2)*i][col - (N / 2)*j];
+            cout << resJob.matrix[row][col] << " ";
+            // cout<<resJob.matrix[row][col]<<"\n";
         }
         cout<<"\n";
     }
+
+    Q->curSegCounter++;
     cout<<"**************************first ON " << firstOn<<endl;
 
-    if(curJob.status == 0) {
+    if(Q->curSegCounter == SIZE) {
         // all done
+        Q->curSegCounter = 0;
         Q->size -= 2;
         (Q->jobsDone)++;
         cout<<"Job Done worked id :"<<Q->workerPtr<< ", worker 2: "<< Q->workerPtr + 1 << "\n";
         printJob(&Q->jobs[resIdx]);
-        initJob(&Q->jobs[workerPtr]);
-        initJob(&Q->jobs[(workerPtr+1)%SIZE]);
+        // initJob(&Q->jobs[workerPtr]);
+        // initJob(&Q->jobs[(workerPtr+1)%SIZE]);
         Q->workerPtr = (Q->workerPtr + 2)%SIZE;
     }
-    return true;
-}
-/////////////////////////////
-void producer(int producerId, jobQueue *Q) {
-    // if queue not full and jobs fully not created
-    // create a job and push into q
-    
-    // Producer: 
-    // 1. generate random job
-    // 2. Wait for 0-3 s
-    // 3. Try to insert in queue
-    //      Wait until queue is full : 
-    //      Print job details
-    //      Increase job_counter
 
+    if(pthread_mutex_unlock(&(Q->mutex_lock))!=0)
+    {
+        cerr<<"Mutex Unlock Error\n";
+        exit(1);
+    }
+    return;
+}
+
+void producer(int producerId, jobQueue *Q) {
+    srand(time(NULL) + producerId);
     while(!isJobCreated(Q)) {
-        // mutex lock
-        
+        // 1. init random job
+        job* newJob = new job;
+        cerr<<"I am Alive (Producer)\n";
+        initJob(newJob, producerId, getrandId(), time(NULL));
+
+        // 2. Wait for a random time b/w 0-3 seconds
         int waitTime = rand()%4;
         sleep(waitTime);
-        if(pthread_mutex_lock(&(Q->mutex_lock))<0)
-        {
-            perror("Mutex Lock");
-        }
-        if(createJob(Q, producerId, producerId)) {
-            cout << producerId << "(producer) successfully created job! : )\n";
-        } else {
-            cout << producerId << "(producer) couldnt create job.. trying again\n"; 
-        }
-        if(pthread_mutex_unlock(&(Q->mutex_lock))<0)
-        {
-            perror("Mutex Unlock");
-        }
-        // mutex unlock
+        
+        // 3. Try to insert into the job queue
+        createJob(Q, newJob, producerId, producerId);
     }
     return;
 }
 
 void worker(int workerId, jobQueue *Q) {
-    // wait: if q is full or empty ? o
-    // wait if 1 matrix only and all jobs done?
-    
-    // Worker:
-    // 1. Wait for 0-3 s
-    // 2. Retrieve 2 blocks of the first 2 matrices
-
+    srand(time(NULL) + workerId);
     while(!isJobFinished(Q)) {
-        // mutex
-        
+        cerr<<"I am Alive (Worker)\n";
+        // 1. wait for 0-3 seconds
         int waitTime = rand()%4;
         sleep(waitTime);
-        if(pthread_mutex_lock(&(Q->mutex_lock))<0)
-        {
-            perror("Mutex Lock");
-        }
-        if(completeJob(Q)) {
-            cout << workerId << "(worker) successfully completed job! : )\n";
-        } else {
-            cout << workerId << "(worker)  couldnt complete job.. trying again\n"; 
-        }
-        if(pthread_mutex_unlock(&(Q->mutex_lock))<0)
-        {
-            perror("Mutex Unlock");
-        }
+
+        // 2. Retrive first 2 blocks and multiply the reqd part
+        completeJob(Q);
     }
     return ;
 }
@@ -311,13 +380,6 @@ int main(int argc, char *argv[]) {
     int nMatrices;
     nMatrices = 2;
     // cin >> nMatrices;
-
-    // SHM queue https://2k8618.blogspot.com/2011/02/matrix-multiplication-using-shared.html
-    // SHM job_created
-
-    // https://pubs.opengroup.org/onlinepubs/007908775/xsh/pthread_mutexattr_setpshared.html
-    // https://stackoverflow.com/questions/20325146/share-condition-variable-mutex-between-processes-does-mutex-have-to-locked-be
-
 
     // Create (SHM) shared memory: shared among all
     // 1. queue: finite size (SIZE)
@@ -362,52 +424,3 @@ int main(int argc, char *argv[]) {
     shmctl(shmid1, IPC_RMID, NULL);
     return 0;
 }
-
-/*
-typedef struct _SHM{
-	pthread_mutex_t lock;
-	queue job_q;
-	int job_created;
-}SHM;
-
-SHM * data;
-
-void mem_init(){
-	data->job_created = 0;
-    pthread_mutexattr_t mattr;
-    pthread_mutexattr_init(&mattr);
-    
-    // pthread_mutexattr_settype(&mattr, PTHREAD_MUTEX_ERRORCHECK_NP);
-    if(pthread_mutexattr_setpshared(&mattr, PTHREAD_PROCESS_SHARED)!=0){
-    	printf("Lock sharing Unsuccessful\n");
-    	exit(1);
-    }
-    if(pthread_mutex_init(&(data->lock), &mattr)!=0){
-    	printf("Error : mutex_lock init() failed\n");
-    	exit(1);
-    }
-   	(data->job_q).front = 0;
-   	(data->job_q).rear = 0;
-   	(data->job_q).cur_size = 0; 
-}
-
-#include <pthread.h>
-
-pthread_mutex_t pmutex;
-pthread_mutexattr_t attrmutex;
-
-//  Initialise attribute to mutex. 
-
-
-//  Allocate memory to pmutex here.
-&pmutex = shmat()
-
-// Initialise mutex.
-pthread_mutex_init(&pmutex, &attrmutex);
-
-// Use the mutex.
-
-// Clean up.
-pthread_mutex_destroy(&pmutex);
-pthread_mutexattr_destroy(&attrmutex); 
-*/

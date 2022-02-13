@@ -1,125 +1,86 @@
-Producer 1 created
-Total jobs : 2
-jobs Created : 0
-Total jobs : 2
-jobs Created : 0
-producer Number 1
-9 -5 -9 0 
-6 -9 3 6 
--7 8 -9 3 
-3 -7 5 5 
-Cur Size : 0
 Producer 0 created
-Total jobs : 2
-jobs Created : 0
-Total jobs : 2
-jobs Created : 1
-producer Number 0
-5 -2 3 -6 
-0 8 -1 0 
-6 -6 -5 6 
-5 7 0 8 
-Cur Size : 1
-0(producer) successfully created job! : )
-Total jobs : 2
-jobs Created : 2
-Producer 0 exited
+0(producer) successfully created job with matrixid 54892
+Current process id is: 12819
+----------------------------Print Job----------------------------
+Producer Number : 0
+Matrix Id : 54892
+Status : 255
+4 0 6 5 
+-5 4 -4 -8 
+-3 6 0 4 
+9 5 -9 5 
+Producer 1 created
+1(producer) successfully created job with matrixid 58570
+Current process id is: 12820
+----------------------------Print Job----------------------------
+Producer Number : 1
+Matrix Id : 58570
+Status : 255
+6 7 -8 -8 
+8 -5 8 -7 
+-2 -2 8 -8 
+-5 -3 -8 1 
+Producer 1 exited
 Worker 0 created
-Total jobs : 2
-jobsDone : 0
+Producer 0 exited
+Worker 1 created
 Cur Size : 2
 0
 i,j,k 0, 0, 0
-45 -58 
-30 -84 
+24 28 
+2 -55 
 **************************first ON 0
-Worker 1 created
-Total jobs : 2
-jobsDone : 0
 Cur Size : 3
 1
 i,j,k 1, 0, 0
--35 78 
-15 -62 
+30 -51 
+94 38 
 **************************first ON 1
-1(worker) successfully completed job! : )
-Total jobs : 2
-jobsDone : 0
+Cur Size : 3
 Cur Size : 3
 2
 i,j,k 0, 1, 0
-32 -54 
-27 -36 
+-32 -32 
+72 12 
 **************************first ON 2
-0(worker) successfully completed job! : )
-Total jobs : 2
-jobsDone : 0
-Cur Size : 3
 3
 i,j,k 1, 1, 0
--29 42 
-16 -18 
+72 -18 
+-32 -107 
 **************************first ON 3
-1(producer) successfully created job! : )
-Total jobs : 2
-jobs Created : 1
-Total jobs : 2
-jobs Created : 2
-1(producer) successfully created job! : )
-Total jobs : 2
-jobs Created : 2
-Producer 1 exited
-1(worker) successfully completed job! : )
-Total jobs : 2
-jobsDone : 0
 Cur Size : 3
 4
 i,j,k 0, 0, 1
--9 -4 
-78 -60 
+-13 1 
+50 -23 
 **************************first ON 4
-0(worker) successfully completed job! : )
-Total jobs : 2
-jobsDone : 0
+Cur Size : 3
 Cur Size : 3
 5
 i,j,k 1, 0, 1
--74 153 
-70 -57 
+10 -63 
+87 41 
 **************************first ON 5
-1(worker) successfully completed job! : )
-Total jobs : 2
-jobsDone : 0
-Cur Size : 3
 6
 i,j,k 0, 1, 1
-77 -108 
-12 30 
+-24 -75 
+104 36 
 **************************first ON 6
-1(worker) successfully completed job! : )
-Total jobs : 2
-jobsDone : 0
+Cur Size : 3
 Cur Size : 3
 7
 i,j,k 1, 1, 1
-16 12 
--9 52 
+40 -14 
+-144 -30 
 **************************first ON 7
 Job Done worked id :0, worker 2: 1
-producer Number -10
--9 -4 77 -108 
-78 -60 12 30 
--74 153 16 12 
-70 -57 -9 52 
-1(worker) successfully completed job! : )
-Total jobs : 2
-jobsDone : 1
+----------------------------Print Job----------------------------
+Producer Number : -10
+Matrix Id : 3191
+Status : 255
+-13 1 -24 -75 
+50 -23 104 36 
+10 -63 40 -14 
+87 41 -144 -30 
 Worker 1 exited
-0(worker) successfully completed job! : )
-Total jobs : 2
-jobsDone : 0
-Cur Size : 1
-0(worker)  couldnt complete job.. trying again
-Total jobs : 2
-jobsDone : 1
 Worker 0 exited
