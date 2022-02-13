@@ -1,6 +1,6 @@
 a.out: Ass3_Part1*.cpp
 	g++ -o prog1 Ass3_Part1*.cpp -lrt
-	./prog1
+	./prog1 < input.txt > output.txt
 
 ref: sir.c
 	cc -o ref sir.c -lrt
