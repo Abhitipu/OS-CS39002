@@ -166,7 +166,10 @@ inline bool isJobCreated(jobQueue* Q) {
 void createJob(jobQueue* Q, job* newJob, int _producerNumber, int seed = 0, bool zero = false) {
 
     // Keep at least one empty space in queue to avoid deadlock
-    while(Q->size + 1 >= SIZE)cerr<<"I am Alive (Producer createjob)\n";;
+    while(Q->size + 1 >= SIZE){
+        cerr<<"I am Alive (Producer createjob)\n";
+        return;
+    }
 
     if(pthread_mutex_lock(&(Q->mutex_lock))!=0)
     {
@@ -218,7 +221,10 @@ void completeJob(jobQueue* Q) {
     // 2)Q->size is 1 but all jobs not done
     // 3)Q->size > 1 but all accesses are made
     
-    while((Q->size == 0) || ( Q->size > 1 && Q->jobs[Q->workerPtr].status == 0) || (Q->size == 1 && !(isJobFinished(Q))))cerr<<"I am Alive (Worker completejob)\n";;
+    while((Q->size == 0) || ( Q->size > 1 && Q->jobs[Q->workerPtr].status == 0) || (Q->size == 1 && !(isJobFinished(Q)))){
+        cerr<<"I am Alive (Worker completejob)\n";
+        return;
+    }
     
     // <-> wait 
     if(pthread_mutex_lock(&(Q->mutex_lock))!=0)
@@ -375,10 +381,10 @@ void worker(int workerId, jobQueue *Q) {
 int main(int argc, char *argv[]) {
     // Create nP, nW processes
     int nP, nW;
-    nP = 2, nW = 2;
+    nP = 5, nW = 10;
     // cin >> nP >> nW;
     int nMatrices;
-    nMatrices = 2;
+    nMatrices = 4;
     // cin >> nMatrices;
 
     // Create (SHM) shared memory: shared among all
