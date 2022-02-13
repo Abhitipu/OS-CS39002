@@ -6,6 +6,7 @@
 #include <sys/shm.h>
 #include <cassert>
 
+// TODO : REMOVE THISSSSSSSS
 #define double int
 
 using namespace std;
