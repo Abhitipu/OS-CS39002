@@ -15,7 +15,7 @@
 using namespace std;
 
 pthread_mutexattr_t mattr; 
-pthread_mutex_t mutex_lock;
+pthread_mutex_t *mutex_lock;
 
 typedef struct _process_data {
     double **A;
@@ -27,7 +27,7 @@ typedef struct _process_data {
 void mult(void* arg, int* cur, int* best) {
     // void * arg : ProcessData
     
-    if(pthread_mutex_lock(&mutex_lock)) {
+    if(pthread_mutex_lock(mutex_lock)) {
         cout << "Mutex lock error!\n";
         exit(-1);
     }
@@ -36,7 +36,7 @@ void mult(void* arg, int* cur, int* best) {
     if(int(*cur) > int(*best))
         *best = *cur;
 
-    if(pthread_mutex_unlock(&mutex_lock)) {
+    if(pthread_mutex_unlock(mutex_lock)) {
         cout << "Mutex unlock error\n";
         exit(-1);
     }
@@ -56,12 +56,14 @@ void mult(void* arg, int* cur, int* best) {
 int main(int argc, char *argv[]) {
 
     pthread_mutexattr_init(&mattr);
+    int mlockId = shmget(IPC_PRIVATE, sizeof(pthread_mutex_t), IPC_CREAT|0666);
+    mutex_lock = (pthread_mutex_t*)shmat(mlockId, NULL, 0);
     
     if(pthread_mutexattr_setpshared(&mattr, PTHREAD_PROCESS_SHARED)!=0){
     	cerr<<"Lock sharing Unsuccessful\n";
     	exit(1);
     }
-    if(pthread_mutex_init(&mutex_lock, &mattr)!=0){
+    if(pthread_mutex_init(mutex_lock, &mattr)!=0){
     	cerr<<"Error : mutex_lock init() failed\n";
     	exit(1);
     }
@@ -150,7 +152,11 @@ int main(int argc, char *argv[]) {
             procdata->r = r1, procdata->c = c2;
             
             fork_status = fork();
-            if(fork_status == 0) {
+            if(fork_status < 0) {
+                cerr << "Error in fork!" << endl;
+                exit(-1);
+            }
+            else if(fork_status == 0) {
                 mult(procdata, cur, best);
             }
         }
@@ -197,19 +203,32 @@ int main(int argc, char *argv[]) {
 
         cout << "A maximum of " << *best << " processes ran concurrently." << endl;
 
-        pthread_mutex_destroy(&mutex_lock);
+        pthread_mutex_destroy(mutex_lock);
         pthread_mutexattr_destroy(&mattr);
         // cout << "All tests passed!\n";
     } else {
-        if(pthread_mutex_lock(&mutex_lock)) {
+        if(pthread_mutex_lock(mutex_lock)) {
             cout << "Error in mutex lock!\n";
             exit(-1);
         }
         (*cur)--;
-        if(pthread_mutex_unlock(&mutex_lock)) {
+        if(pthread_mutex_unlock(mutex_lock)) {
             cout << "Error in mutex unlock!\n";
             exit(-1);
         }
+        shmdt((void *)sharedMem1);
+        shmdt((void *)sharedMem2);
+        shmdt((void *)sharedMem3);
+
+        shmdt((void *)A);
+        shmdt((void *)B);
+        shmdt((void *)C);
+        
+        shmdt((void *)cur);
+        shmdt((void *)best);
+
+        shmdt((void *)mutex_lock);
+        exit(0);
     }
 
     shmdt((void *)sharedMem1);
@@ -223,6 +242,8 @@ int main(int argc, char *argv[]) {
     shmdt((void *)cur);
     shmdt((void *)best);
 
+    shmdt((void *)mutex_lock);
+
     shmctl(shmid1, IPC_RMID, NULL);
     shmctl(shmid2, IPC_RMID, NULL);
     shmctl(shmid3, IPC_RMID, NULL);
@@ -233,6 +254,8 @@ int main(int argc, char *argv[]) {
     
     shmctl(shmCurId, IPC_RMID, NULL);
     shmctl(shmBestId, IPC_RMID, NULL);
+
+    shmctl(mlockId, IPC_RMID, NULL);
 
     return 0;
 }
