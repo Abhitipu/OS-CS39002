@@ -29,6 +29,7 @@ void custom_set(uint8_t &bitset)
     return;
 }
 
+// To find the block to be multiplied : using first set bit
 size_t custom_find_first_one(uint8_t bitset)
 {
     size_t i;
@@ -43,6 +44,7 @@ size_t custom_find_first_one(uint8_t bitset)
     return i;
 }
 
+// flip a bit
 void custom_flip(uint8_t &bitset, int flip)
 {
     if(flip <0 || flip > 7 ) 
@@ -62,6 +64,7 @@ struct job {
     int resultIdx;      // where the resultant matrix is stored
 };
 
+// Print a job
 void printJob(job* J) {
     cout<<"----------------------------Print Job----------------------------\n";
     cout<< "Producer Number : "<< ((J->producerNumber == resultantMatrixProducer) ? "Generated as resultant": to_string(J->producerNumber)) <<"\n";
@@ -78,6 +81,7 @@ void printJob(job* J) {
     cout<<"----------------------------Printed-----------------------------"<<endl;
 }
 
+// initialize a job
 void initJob(job* J, int _producerNumber = -1, int _matrixId = -1, int seed = 0, bool zero = false) {
     J->producerNumber = _producerNumber;
     J->matrixId = _matrixId;
@@ -93,6 +97,7 @@ void initJob(job* J, int _producerNumber = -1, int _matrixId = -1, int seed = 0,
     return;
 }
 
+// Create a Copy 
 void copyJob(job* src, job* dest)
 {
     if(src == NULL || dest == NULL ) {
@@ -111,6 +116,7 @@ void copyJob(job* src, job* dest)
     return;
 }
 
+// The required shared mem segment
 struct SHM
 {
     job jobs[SIZE];             // the queue
@@ -123,6 +129,7 @@ struct SHM
     pthread_mutex_t mutex_lock; // for mutual exclusion 
 };
 
+// Function to return random ids for matrices
 int getrandId() {
     int ans = -1;
     do {
@@ -132,6 +139,7 @@ int getrandId() {
     return ans;
 }
 
+// SHM initializer : called only by the parent
 void SHMInit(int _totalJobs, SHM* Q) {
     Q->producerPtr = Q->workerPtr = 0;
     Q->jobCreated = 0;
@@ -152,14 +160,17 @@ void SHMInit(int _totalJobs, SHM* Q) {
     }
 }
 
+// Check if workers' jobs are complete
 inline bool isJobFinished(SHM* Q) {
     return (Q->jobsDone >= Q->totalJobs - 1) && (Q->size == 1);
 }
 
+// Check if producers' jobs are complete
 inline bool isJobCreated(SHM* Q) {
     return (Q->jobCreated >= Q->totalJobs);
 }
 
+// Creation of a job
 void createJob(SHM* Q, job* newJob, int _producerNumber, int seed = 0, bool zero = false) {
 
     // Keep at least one empty space in queue to avoid deadlock

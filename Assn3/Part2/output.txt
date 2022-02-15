@@ -1,0 +1,250 @@
+3 (producer) successfully created job with matrixid 92084
+Current process id is: 63007
+----------------------------Print Job----------------------------
+Producer Number : 3
+Matrix Id : 92084
+Status : 255
+----------------------------Printed-----------------------------
+6 (producer) successfully created job with matrixid 78651
+Current process id is: 63010
+----------------------------Print Job----------------------------
+Producer Number : 6
+Matrix Id : 78651
+Status : 255
+----------------------------Printed-----------------------------
+5 (producer) successfully created job with matrixid 25807
+Current process id is: 63009
+----------------------------Print Job----------------------------
+Producer Number : 5
+Matrix Id : 25807
+Status : 255
+----------------------------Printed-----------------------------
+---------------------Job Description for Worker 7-----------------------
+Reading from matrices 92084 and 78651
+Worker 7 is computing D(0, 0, 0) for 49145
+
+Working on matrices 92084 and 78651
+Worker 7 is copying/adding to C(0, 0) in 49145
+Status 1/8 segments done
+4 (producer) successfully created job with matrixid 46174
+Current process id is: 63008
+----------------------------Print Job----------------------------
+Producer Number : 4
+Matrix Id : 46174
+Status : 255
+----------------------------Printed-----------------------------
+---------------------Job Description for Worker 4-----------------------
+Reading from matrices 92084 and 78651
+Worker 4 is computing D(1, 0, 0) for 49145
+
+Working on matrices 92084 and 78651
+Worker 4 is copying/adding to C(1, 0) in 49145
+Status 2/8 segments done
+---------------------Job Description for Worker 4-----------------------
+Reading from matrices 92084 and 78651
+Worker 4 is computing D(0, 1, 0) for 49145
+
+Working on matrices 92084 and 78651
+Worker 4 is copying/adding to C(0, 1) in 49145
+Status 3/8 segments done
+---------------------Job Description for Worker 4-----------------------
+Reading from matrices 92084 and 78651
+Worker 4 is computing D(1, 1, 0) for 49145
+
+Working on matrices 92084 and 78651
+Worker 4 is copying/adding to C(1, 1) in 49145
+Status 4/8 segments done
+---------------------Job Description for Worker 0-----------------------
+Reading from matrices 92084 and 78651
+Worker 0 is computing D(0, 0, 1) for 49145
+
+---------------------Job Description for Worker 6-----------------------
+Reading from matrices 92084 and 78651
+Worker 6 is computing D(1, 0, 1) for 49145
+
+Working on matrices 92084 and 78651
+Worker 6 is copying/adding to C(1, 0) in 49145
+Status 5/8 segments done
+---------------------Job Description for Worker 1-----------------------
+Reading from matrices 92084 and 78651
+Worker 1 is computing D(0, 1, 1) for 49145
+
+Working on matrices 92084 and 78651
+Worker 1 is copying/adding to C(0, 1) in 49145
+Status 6/8 segments done
+---------------------Job Description for Worker 2-----------------------
+Reading from matrices 92084 and 78651
+Worker 2 is computing D(1, 1, 1) for 49145
+
+Working on matrices 92084 and 78651
+Worker 0 is copying/adding to C(0, 0) in 49145
+Status 7/8 segments done
+Working on matrices 92084 and 78651
+Worker 2 is copying/adding to C(1, 1) in 49145
+Status 8/8 segments done
+
+***************************RESULT CHECK******************************
+----------------------------Print Job----------------------------
+Producer Number : 3
+Matrix Id : 92084
+Status : 0
+----------------------------Printed-----------------------------
+----------------------------Print Job----------------------------
+Producer Number : 6
+Matrix Id : 78651
+Status : 0
+----------------------------Printed-----------------------------
+----------------------------Print Job----------------------------
+Producer Number : Generated as resultant
+Matrix Id : 49145
+Status : 255
+----------------------------Printed-----------------------------
+---------------------Job Description for Worker 2-----------------------
+Reading from matrices 25807 and 49145
+Worker 2 is computing D(0, 0, 0) for 73074
+
+Working on matrices 25807 and 49145
+Worker 2 is copying/adding to C(0, 0) in 73074
+Status 1/8 segments done
+---------------------Job Description for Worker 6-----------------------
+Reading from matrices 25807 and 49145
+Worker 6 is computing D(1, 0, 0) for 73074
+
+---------------------Job Description for Worker 1-----------------------
+Reading from matrices 25807 and 49145
+Worker 1 is computing D(0, 1, 0) for 73074
+
+Working on matrices 25807 and 49145
+Worker 1 is copying/adding to C(0, 1) in 73074
+Status 2/8 segments done
+Working on matrices 25807 and 49145
+Worker 6 is copying/adding to C(1, 0) in 73074
+Status 3/8 segments done
+---------------------Job Description for Worker 7-----------------------
+Reading from matrices 25807 and 49145
+Worker 7 is computing D(1, 1, 0) for 73074
+
+Working on matrices 25807 and 49145
+Worker 7 is copying/adding to C(1, 1) in 73074
+Status 4/8 segments done
+---------------------Job Description for Worker 3-----------------------
+Reading from matrices 25807 and 49145
+Worker 3 is computing D(0, 0, 1) for 73074
+
+Working on matrices 25807 and 49145
+Worker 3 is copying/adding to C(0, 0) in 73074
+Status 5/8 segments done
+---------------------Job Description for Worker 7-----------------------
+Reading from matrices 25807 and 49145
+Worker 7 is computing D(1, 0, 1) for 73074
+
+Working on matrices 25807 and 49145
+Worker 7 is copying/adding to C(1, 0) in 73074
+Status 6/8 segments done
+---------------------Job Description for Worker 0-----------------------
+Reading from matrices 25807 and 49145
+Worker 0 is computing D(0, 1, 1) for 73074
+
+Working on matrices 25807 and 49145
+Worker 0 is copying/adding to C(0, 1) in 73074
+Status 7/8 segments done
+---------------------Job Description for Worker 0-----------------------
+Reading from matrices 25807 and 49145
+Worker 0 is computing D(1, 1, 1) for 73074
+
+Working on matrices 25807 and 49145
+Worker 0 is copying/adding to C(1, 1) in 73074
+Status 8/8 segments done
+
+***************************RESULT CHECK******************************
+----------------------------Print Job----------------------------
+Producer Number : 5
+Matrix Id : 25807
+Status : 0
+----------------------------Printed-----------------------------
+----------------------------Print Job----------------------------
+Producer Number : Generated as resultant
+Matrix Id : 49145
+Status : 0
+----------------------------Printed-----------------------------
+----------------------------Print Job----------------------------
+Producer Number : Generated as resultant
+Matrix Id : 73074
+Status : 255
+----------------------------Printed-----------------------------
+---------------------Job Description for Worker 5-----------------------
+Reading from matrices 46174 and 73074
+Worker 5 is computing D(0, 0, 0) for 74666
+
+Working on matrices 46174 and 73074
+Worker 5 is copying/adding to C(0, 0) in 74666
+Status 1/8 segments done
+---------------------Job Description for Worker 6-----------------------
+Reading from matrices 46174 and 73074
+Worker 6 is computing D(1, 0, 0) for 74666
+
+Working on matrices 46174 and 73074
+Worker 6 is copying/adding to C(1, 0) in 74666
+Status 2/8 segments done
+---------------------Job Description for Worker 3-----------------------
+Reading from matrices 46174 and 73074
+Worker 3 is computing D(0, 1, 0) for 74666
+
+Working on matrices 46174 and 73074
+Worker 3 is copying/adding to C(0, 1) in 74666
+Status 3/8 segments done
+---------------------Job Description for Worker 2-----------------------
+Reading from matrices 46174 and 73074
+Worker 2 is computing D(1, 1, 0) for 74666
+
+---------------------Job Description for Worker 3-----------------------
+Reading from matrices 46174 and 73074
+Worker 3 is computing D(0, 0, 1) for 74666
+
+Working on matrices 46174 and 73074
+Worker 3 is copying/adding to C(0, 0) in 74666
+Status 4/8 segments done
+Working on matrices 46174 and 73074
+Worker 2 is copying/adding to C(1, 1) in 74666
+Status 5/8 segments done
+---------------------Job Description for Worker 4-----------------------
+Reading from matrices 46174 and 73074
+Worker 4 is computing D(1, 0, 1) for 74666
+
+Working on matrices 46174 and 73074
+Worker 4 is copying/adding to C(1, 0) in 74666
+Status 6/8 segments done
+---------------------Job Description for Worker 5-----------------------
+Reading from matrices 46174 and 73074
+Worker 5 is computing D(0, 1, 1) for 74666
+
+Working on matrices 46174 and 73074
+Worker 5 is copying/adding to C(0, 1) in 74666
+Status 7/8 segments done
+---------------------Job Description for Worker 6-----------------------
+Reading from matrices 46174 and 73074
+Worker 6 is computing D(1, 1, 1) for 74666
+
+Working on matrices 46174 and 73074
+Worker 6 is copying/adding to C(1, 1) in 74666
+Status 8/8 segments done
+
+***************************RESULT CHECK******************************
+----------------------------Print Job----------------------------
+Producer Number : 4
+Matrix Id : 46174
+Status : 0
+----------------------------Printed-----------------------------
+----------------------------Print Job----------------------------
+Producer Number : Generated as resultant
+Matrix Id : 73074
+Status : 0
+----------------------------Printed-----------------------------
+----------------------------Print Job----------------------------
+Producer Number : Generated as resultant
+Matrix Id : 74666
+Status : 255
+----------------------------Printed-----------------------------
+Total time taken in seconds: 4.98128
+Total time taken in seconds: 5
+Trace = -505229

@@ -9,9 +9,6 @@
 
 #include <pthread.h>
 
-// TODO : REMOVE THISSSSSSSS
-#define double int
-
 using namespace std;
 
 pthread_mutexattr_t mattr; 
@@ -55,6 +52,7 @@ void mult(void* arg, int* cur, int* best) {
 
 int main(int argc, char *argv[]) {
 
+    // For counting no of concurrent processes
     pthread_mutexattr_init(&mattr);
     int mlockId = shmget(IPC_PRIVATE, sizeof(pthread_mutex_t), IPC_CREAT|0666);
     mutex_lock = (pthread_mutex_t*)shmat(mlockId, NULL, 0);
@@ -70,12 +68,13 @@ int main(int argc, char *argv[]) {
 
     int r1, c1, r2, c2;
     
-    // cout << "Enter no of rows and columns in the first matrix: ";
+    cout << "Enter no of rows and columns in the first matrix: ";
     cin >> r1 >> c1;
     
-    // cout << "Enter no of rows and columns in the second matrix: ";
+    cout << "Enter no of rows and columns in the second matrix: ";
     cin >> r2 >> c2;
     
+    // The basic requirement for matrix multiplication
     try {
         assert(c1 == r2);
     } catch (exception& e) {
@@ -83,7 +82,7 @@ int main(int argc, char *argv[]) {
         exit(-1);
     }
 
-
+    // Allocating shared memory
 
     // Matrix Data
     size_t SIZE1 = (r1 * c1) * sizeof(double);
@@ -133,7 +132,6 @@ int main(int argc, char *argv[]) {
             cin >> B[i][j];
         }
     }
-    
 
     int shmCurId = shmget(IPC_PRIVATE, sizeof(int), 0666|IPC_CREAT);
     int *cur = (int*) shmat(shmCurId, NULL, 0);
@@ -170,11 +168,11 @@ int main(int argc, char *argv[]) {
     if(fork_status != 0) {
         // only for parent
         while(wait(NULL) > 0);
-
+        
         cout << "Matrix A: \n";
         for(int i = 0; i < r1; i++) {
             for(int j = 0; j < c1; j++) {
-                printf("%4d ", A[i][j]);
+                printf("%4.2f ", A[i][j]);
             }
             cout << '\n';
         }
@@ -183,7 +181,7 @@ int main(int argc, char *argv[]) {
         cout << "Matrix B: \n";
         for(int i = 0; i < r2; i++) {
             for(int j = 0; j < c2; j++) {
-                printf("%4d ", B[i][j]);
+                printf("%4.2f ", B[i][j]);
             }
             cout << '\n';
         }
@@ -192,26 +190,15 @@ int main(int argc, char *argv[]) {
         cout << "Matrix C: \n";
         for(int i = 0; i < r1; i++) {
             for(int j = 0; j < c2; j++) {
-                printf("%4d ", C[i][j]);
-                // int cur = 0;
-                // for(int k = 0; k < c1; k++) {
-                //     cur += getIndex(A, i, k, r1, c1) * getIndex(B, k, j, r2, c2);
-                //     // cur += A[i][k]*B[k][j];
-                // }
-                // assert(cur == check);
+                printf("%4.2f ", C[i][j]);
             }
             cout << '\n';
         }
-
-        // assert(*cur == 1);
-        cout << "Currently running: " << *cur << " processes\n";
-
         cout << "A maximum of " << *best << " processes ran concurrently." << endl;
-
         pthread_mutex_destroy(mutex_lock);
         pthread_mutexattr_destroy(&mattr);
-        // cout << "All tests passed!\n";
     } else {
+        // the children processes
         if(pthread_mutex_lock(mutex_lock)) {
             cout << "Error in mutex lock!\n";
             exit(-1);
@@ -224,6 +211,7 @@ int main(int argc, char *argv[]) {
         exit(0);
     }
 
+    // deallocation 
     shmdt((void *)sharedMem1);
     shmdt((void *)sharedMem2);
     shmdt((void *)sharedMem3);
