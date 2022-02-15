@@ -1,14 +1,14 @@
-a.out: Ass3_Part1*.cpp
-	g++ -o prog1 Ass3_Part1*.cpp -lpthread
+runprog2: prog1
 	./prog1 < genout.txt > output.txt
 
-ref: sir.c
-	cc -o ref sir.c -lrt
-	./ref
+prog1: Ass3_Part1*.cpp
+	g++ -o prog1 Ass3_Part1*.cpp -lpthread
 
 gen: gen.cpp
 	g++ -o gen gen.cpp 
+
+rungen: gen
 	./gen > genout.txt
 
 clean:
-	rm -f ref prog1 genout.txt gen
+	rm -f prog1 genout.txt gen output.txt

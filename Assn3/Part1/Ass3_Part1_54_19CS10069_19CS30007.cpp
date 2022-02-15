@@ -9,6 +9,10 @@
 
 #include <pthread.h>
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 0f8c6abb6e3d5de8ce5ca3b2f3828488a4a68e47
 using namespace std;
 
 pthread_mutexattr_t mattr; 
@@ -154,7 +158,7 @@ int main(int argc, char *argv[]) {
                 cout << "At " << i * c2 + j + 1 << '\n';
                 cout<<"Errno "<< errno <<"\n";
                 cout<<"EAGAIN "<<EAGAIN<<", ENOMEM "<<ENOMEM<<"\n"; 
-                perror("Error in fork\n");
+                perror("Error in fork()");
                 
                 fflush(stdout);
                 exit(-1);
@@ -172,7 +176,11 @@ int main(int argc, char *argv[]) {
         cout << "Matrix A: \n";
         for(int i = 0; i < r1; i++) {
             for(int j = 0; j < c1; j++) {
+<<<<<<< HEAD
                 printf("%4.2f ", A[i][j]);
+=======
+                printf("%4.f ", A[i][j]);
+>>>>>>> 0f8c6abb6e3d5de8ce5ca3b2f3828488a4a68e47
             }
             cout << '\n';
         }
@@ -181,7 +189,11 @@ int main(int argc, char *argv[]) {
         cout << "Matrix B: \n";
         for(int i = 0; i < r2; i++) {
             for(int j = 0; j < c2; j++) {
+<<<<<<< HEAD
                 printf("%4.2f ", B[i][j]);
+=======
+                printf("%4.f ", B[i][j]);
+>>>>>>> 0f8c6abb6e3d5de8ce5ca3b2f3828488a4a68e47
             }
             cout << '\n';
         }
@@ -190,7 +202,11 @@ int main(int argc, char *argv[]) {
         cout << "Matrix C: \n";
         for(int i = 0; i < r1; i++) {
             for(int j = 0; j < c2; j++) {
+<<<<<<< HEAD
                 printf("%4.2f ", C[i][j]);
+=======
+                printf("%4.f ", C[i][j]);
+>>>>>>> 0f8c6abb6e3d5de8ce5ca3b2f3828488a4a68e47
             }
             cout << '\n';
         }
