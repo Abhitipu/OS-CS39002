@@ -17,7 +17,7 @@ using namespace std;
 pthread_mutexattr_t mattr; 
 
 const int SIZE = 8;
-const int N = 20;
+const int N = 8;
 const int MAX_PRINT_SIZE = 10;
 const int resultantMatrixProducer = -10;
 set<int> matrixId;
@@ -57,7 +57,7 @@ void custom_flip(uint8_t &bitset, int flip)
 struct job {
     int producerNumber;
     uint8_t status;     // 8 bits for representing multiplication status
-    int matrix[N][N];   // -9 <= matrix[i][j] <= 9
+    double matrix[N][N];   // -9 <= matrix[i][j] <= 9 DOUBLE OR INT
     int matrixId;       // rand(1...1e5)
     int resultIdx;      // where the resultant matrix is stored
 };
@@ -71,7 +71,7 @@ void printJob(job* J) {
     if(N < MAX_PRINT_SIZE) {
         for(int i = 0; i < N; i++) {
             for(int j = 0; j < N; j++)
-                cout << J->matrix[i][j] << " ";
+                printf("%4.f ", J->matrix[i][j]);
             cout << '\n'; 
         }
     }
@@ -292,7 +292,7 @@ void completeJob(SHM* Q, int workerNo) {
     int col2 = (N / 2)*j + (N / 2);
     int col1 = (N / 2)*k + (N / 2);
     
-    int temp[N / 2][N / 2]; 
+    double temp[N / 2][N / 2];  // DOUBLE OR INT
     for(int row = (N / 2)*i; row < row1; row++) {
         for(int col = (N / 2)*j; col < col2; col++) {
             temp[row - (N / 2)*i][col - (N / 2)*j] = 0;
@@ -334,6 +334,7 @@ void completeJob(SHM* Q, int workerNo) {
         Q->curSegCounter = 0;
         Q->size -= 2;
         (Q->jobsDone)++;
+        cout<<"Jobs completed : "<<Q->jobsDone<< " / "<< Q->totalJobs -1<<endl;
         // cout<<"Job Done worked id :"<<Q->workerPtr<< ", worker 2: "<< Q->workerPtr + 1 << "\n";
         Q->workerPtr = (Q->workerPtr + 2)%SIZE;
     }
@@ -434,7 +435,7 @@ int main(int argc, char *argv[]) {
 
     // wait until 1 matrix and all jobs completed
     while(!isJobFinished(sharedJobQ));
-    int trace = 0;
+    double trace = 0; // DOUBLE OR INT
 
     for(int i=0; i< N; ++i)
     {
@@ -443,7 +444,7 @@ int main(int argc, char *argv[]) {
 
     clock_t end = clock();
     double seconds = (float)(end - start) / CLOCKS_PER_SEC;
-    cout << "Total time taken in seconds: " << seconds << '\n';
+    cout << "Total time taken(CPU Clock) in seconds: " << seconds << '\n';
     time_t end_time = time(NULL);
     time_t duration = end_time - start_time;
     cout<< "Total time taken in seconds: "<<duration<<endl;
