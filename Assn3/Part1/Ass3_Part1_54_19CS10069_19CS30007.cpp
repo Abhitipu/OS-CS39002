@@ -6,10 +6,15 @@
 #include <sys/shm.h>
 #include <cassert>
 
+#include <pthread.h>
+
 // TODO : REMOVE THISSSSSSSS
 #define double int
 
 using namespace std;
+
+pthread_mutexattr_t mattr; 
+pthread_mutex_t mutex_lock;
 
 typedef struct _process_data {
     double **A;
@@ -18,8 +23,25 @@ typedef struct _process_data {
     int veclen, i, j, r, c;
 } ProcessData;
 
-void mult(void* arg) {
+void mult(void* arg, int* cur, int* best) {
     // void * arg : ProcessData
+    
+    if(pthread_mutex_lock(&mutex_lock)) {
+        cout << "Mutex lock error!\n";
+        exit(-1);
+    }
+
+    (*cur)++;
+    cout << "Currently running " << *cur << " processes " << endl;
+    cout << "Current best is " << *best << endl;
+    if((*cur) > (*best))
+        *best = *cur;
+
+    if(pthread_mutex_unlock(&mutex_lock)) {
+        cout << "Mutex unlock error\n";
+        exit(-1);
+    }
+
     ProcessData* procData = (ProcessData *)arg;
     int idx= 0;
     double ans = 0.0;
@@ -33,6 +55,18 @@ void mult(void* arg) {
 }
 
 int main(int argc, char *argv[]) {
+
+    pthread_mutexattr_init(&mattr);
+    
+    if(pthread_mutexattr_setpshared(&mattr, PTHREAD_PROCESS_SHARED)!=0){
+    	cerr<<"Lock sharing Unsuccessful\n";
+    	exit(1);
+    }
+    if(pthread_mutex_init(&mutex_lock, &mattr)!=0){
+    	cerr<<"Error : mutex_lock init() failed\n";
+    	exit(1);
+    }
+
     int r1, c1, r2, c2;
     
     // cout << "Enter no of rows and columns in the first matrix: ";
@@ -47,6 +81,8 @@ int main(int argc, char *argv[]) {
         cout << "Exception caught! " << e.what() << '\n';
         exit(-1);
     }
+
+
 
     // Matrix Data
     size_t SIZE1 = (r1 * c1) * sizeof(double);
@@ -97,6 +133,15 @@ int main(int argc, char *argv[]) {
         }
     }
     
+
+    int shmCurId = shmget(IPC_PRIVATE, sizeof(int), 0666|IPC_CREAT);
+    int *cur = (int*) shmat(shmCurId, NULL, 0);
+
+    int shmBestId = shmget(IPC_PRIVATE, sizeof(int), 0666|IPC_CREAT);
+    int *best = (int*) shmat(shmCurId, NULL, 0);
+
+    *cur = *best = 1; // only one parent process
+
     int fork_status = 1;
 
     for(int i = 0; i < r1 && fork_status !=0; i++) {
@@ -108,7 +153,7 @@ int main(int argc, char *argv[]) {
             
             fork_status = fork();
             if(fork_status == 0) {
-                mult(procdata);
+                mult(procdata, cur, best);
             }
         }
     }
@@ -149,17 +194,34 @@ int main(int argc, char *argv[]) {
             cout << '\n';
         }
 
+        cout << "A maximum of " << *best << " processes ran concurrently." << endl;
+
+        pthread_mutex_destroy(&mutex_lock);
+        pthread_mutexattr_destroy(&mattr);
         // cout << "All tests passed!\n";
+    } else {
+        if(pthread_mutex_lock(&mutex_lock)) {
+            cout << "Error in mutex lock!\n";
+            exit(-1);
+        }
+        (*cur)--;
+        if(pthread_mutex_unlock(&mutex_lock)) {
+            cout << "Error in mutex unlock!\n";
+            exit(-1);
+        }
     }
 
     shmdt((void *)sharedMem1);
     shmdt((void *)sharedMem2);
     shmdt((void *)sharedMem3);
-    
+
     shmdt((void *)A);
     shmdt((void *)B);
     shmdt((void *)C);
     
+    shmdt((void *)cur);
+    shmdt((void *)best);
+
     shmctl(shmid1, IPC_RMID, NULL);
     shmctl(shmid2, IPC_RMID, NULL);
     shmctl(shmid3, IPC_RMID, NULL);
@@ -168,5 +230,8 @@ int main(int argc, char *argv[]) {
     shmctl(pshmid2, IPC_RMID, NULL);
     shmctl(pshmid3, IPC_RMID, NULL);
     
+    shmctl(shmCurId, IPC_RMID, NULL);
+    shmctl(shmBestId, IPC_RMID, NULL);
+
     return 0;
 }
