@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cassert>
 #include <sys/types.h>
 #include <sys/unistd.h>
 #include <sys/wait.h>
@@ -32,9 +33,7 @@ void mult(void* arg, int* cur, int* best) {
     }
 
     (*cur)++;
-    cout << "Currently running " << *cur << " processes " << endl;
-    cout << "Current best is " << *best << endl;
-    if((*cur) > (*best))
+    if(int(*cur) > int(*best))
         *best = *cur;
 
     if(pthread_mutex_unlock(&mutex_lock)) {
@@ -138,10 +137,9 @@ int main(int argc, char *argv[]) {
     int *cur = (int*) shmat(shmCurId, NULL, 0);
 
     int shmBestId = shmget(IPC_PRIVATE, sizeof(int), 0666|IPC_CREAT);
-    int *best = (int*) shmat(shmCurId, NULL, 0);
+    int *best = (int*) shmat(shmBestId, NULL, 0);
 
-    *cur = *best = 1; // only one parent process
-
+    *cur = *best = 1;
     int fork_status = 1;
 
     for(int i = 0; i < r1 && fork_status !=0; i++) {
@@ -193,6 +191,9 @@ int main(int argc, char *argv[]) {
             }
             cout << '\n';
         }
+
+        // assert(*cur == 1);
+        cout << "Currently running: " << *cur << " processes\n";
 
         cout << "A maximum of " << *best << " processes ran concurrently." << endl;
 
