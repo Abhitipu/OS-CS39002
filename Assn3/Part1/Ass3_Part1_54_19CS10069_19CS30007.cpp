@@ -153,7 +153,12 @@ int main(int argc, char *argv[]) {
             
             fork_status = fork();
             if(fork_status < 0) {
-                cerr << "Error in fork!" << endl;
+                cout << "At " << i * c2 + j + 1 << '\n';
+                cout<<"Errno "<< errno <<"\n";
+                cout<<"EAGAIN "<<EAGAIN<<", ENOMEM "<<ENOMEM<<"\n"; 
+                perror("Error in fork\n");
+                
+                fflush(stdout);
                 exit(-1);
             }
             else if(fork_status == 0) {
@@ -216,18 +221,6 @@ int main(int argc, char *argv[]) {
             cout << "Error in mutex unlock!\n";
             exit(-1);
         }
-        shmdt((void *)sharedMem1);
-        shmdt((void *)sharedMem2);
-        shmdt((void *)sharedMem3);
-
-        shmdt((void *)A);
-        shmdt((void *)B);
-        shmdt((void *)C);
-        
-        shmdt((void *)cur);
-        shmdt((void *)best);
-
-        shmdt((void *)mutex_lock);
         exit(0);
     }
 

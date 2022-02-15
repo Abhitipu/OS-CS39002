@@ -17,7 +17,7 @@ using namespace std;
 pthread_mutexattr_t mattr; 
 
 const int SIZE = 8;
-const int N = 500;
+const int N = 20;
 const int MAX_PRINT_SIZE = 10;
 const int resultantMatrixProducer = -10;
 set<int> matrixId;
@@ -380,13 +380,13 @@ int main(int argc, char *argv[]) {
     // Create nP, nW processes
     int nP, nW;
     cin >> nP >> nW;
-    vector<pid_t> allChildren;
+    // nP = 5, nW = 16;
     int nMatrices;
     // nMatrices = 2;
     cin >> nMatrices;
-    // nP = 5, nW = 16;
 
-
+    time_t start_time;
+    start_time = time(NULL);
     clock_t start = clock();
 
     key_t shmkey = 154;
@@ -396,9 +396,14 @@ int main(int argc, char *argv[]) {
     
     SHMInit(nMatrices, sharedJobQ);
     // shared
+    vector<pid_t> allChildren;
     for(int i = 0; i < nP ; i++) {
         int pid = fork();
-        if(pid == 0) {
+        if(pid < 0) {
+            perror("Error in fork!\n");
+            exit(-1);
+        }
+        else if(pid == 0) {
             cerr<< "Producer "<<i<<" created\n";
             producer(i, sharedJobQ);
             cerr<< "Producer "<<i<<" exited\n";
@@ -411,7 +416,11 @@ int main(int argc, char *argv[]) {
     
     for(int i = 0; i < nW; i++) {
         int pid = fork();
-        if(pid == 0) {
+        if(pid < 0) {
+            perror("Error in fork!\n");
+            exit(-1);
+        }
+        else if(pid == 0) {
             cerr<< "Worker "<<i<<" created\n";
             worker(i, sharedJobQ);
             cerr<< "Worker "<<i<<" exited\n";
@@ -435,6 +444,9 @@ int main(int argc, char *argv[]) {
     clock_t end = clock();
     double seconds = (float)(end - start) / CLOCKS_PER_SEC;
     cout << "Total time taken in seconds: " << seconds << '\n';
+    time_t end_time = time(NULL);
+    time_t duration = end_time - start_time;
+    cout<< "Total time taken in seconds: "<<duration<<endl;
     cout << "Trace = "<<trace<< endl;
     for(auto u: allChildren)
         kill(u, SIGKILL);
