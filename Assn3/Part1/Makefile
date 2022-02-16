@@ -1,4 +1,4 @@
-runprog2: prog1
+runprog1: prog1 genout.txt
 	./prog1 < genout.txt > output.txt
 
 prog1: Ass3_Part1*.cpp
@@ -7,7 +7,7 @@ prog1: Ass3_Part1*.cpp
 gen: gen.cpp
 	g++ -o gen gen.cpp 
 
-rungen: gen
+rungen genout.txt: gen
 	./gen > genout.txt
 
 clean:

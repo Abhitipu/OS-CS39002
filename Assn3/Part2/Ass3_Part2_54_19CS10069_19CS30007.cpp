@@ -17,7 +17,7 @@ using namespace std;
 pthread_mutexattr_t mattr; 
 
 const int SIZE = 8;
-const int N = 8;
+const int N = 1000;
 const int MAX_PRINT_SIZE = 10;
 const int resultantMatrixProducer = -10;
 set<int> matrixId;
@@ -59,7 +59,7 @@ void custom_flip(uint8_t &bitset, int flip)
 struct job {
     int producerNumber;
     uint8_t status;     // 8 bits for representing multiplication status
-    double matrix[N][N];   // -9 <= matrix[i][j] <= 9 DOUBLE OR INT
+    long long matrix[N][N];   // -9 <= matrix[i][j] <= 9
     int matrixId;       // rand(1...1e5)
     int resultIdx;      // where the resultant matrix is stored
 };
@@ -74,7 +74,7 @@ void printJob(job* J) {
     if(N < MAX_PRINT_SIZE) {
         for(int i = 0; i < N; i++) {
             for(int j = 0; j < N; j++)
-                printf("%4.f ", J->matrix[i][j]);
+                printf("%4lld ", J->matrix[i][j]);
             cout << '\n'; 
         }
     }
@@ -303,7 +303,12 @@ void completeJob(SHM* Q, int workerNo) {
     int col2 = (N / 2)*j + (N / 2);
     int col1 = (N / 2)*k + (N / 2);
     
-    double temp[N / 2][N / 2];  // DOUBLE OR INT
+    // long long temp[N / 2][N / 2];
+    long long **temp = new long long* [N / 2];
+    for(int memalloc = 0; memalloc< N/2 ; ++memalloc)
+    {
+        temp[memalloc] = new long long [N/2];
+    }
     for(int row = (N / 2)*i; row < row1; row++) {
         for(int col = (N / 2)*j; col < col2; col++) {
             temp[row - (N / 2)*i][col - (N / 2)*j] = 0;
@@ -316,6 +321,9 @@ void completeJob(SHM* Q, int workerNo) {
     if(pthread_mutex_lock(&(Q->mutex_lock))!=0)
     {
         cerr<<"Mutex Lock Error\n";
+        for(int memalloc =0 ;memalloc < (N/2); ++memalloc)
+            delete []temp[memalloc];
+        delete [] temp;
         exit(1);
     }
     
@@ -349,7 +357,9 @@ void completeJob(SHM* Q, int workerNo) {
         // cout<<"Job Done worked id :"<<Q->workerPtr<< ", worker 2: "<< Q->workerPtr + 1 << "\n";
         Q->workerPtr = (Q->workerPtr + 2)%SIZE;
     }
-
+    for(int memalloc =0 ;memalloc < (N/2); ++memalloc)
+        delete []temp[memalloc];
+    delete [] temp;
     if(pthread_mutex_unlock(&(Q->mutex_lock))!=0)
     {
         cerr<<"Mutex Unlock Error\n";
@@ -446,7 +456,7 @@ int main(int argc, char *argv[]) {
 
     // wait until 1 matrix and all jobs completed
     while(!isJobFinished(sharedJobQ));
-    double trace = 0; // DOUBLE OR INT
+    long long trace = 0;
 
     for(int i=0; i< N; ++i)
     {
