@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <cstdlib>
+#include <cassert>
 
 // Multithreads / multiprocesses
 #include <pthread.h>
@@ -14,7 +15,6 @@
 #include <sys/shm.h>
 #include <sys/types.h>
 
-// For sleep and some keys like IPC_PRIVATE
 #include <unistd.h>
 
 using namespace std;
@@ -23,8 +23,8 @@ pthread_mutexattr_t mattr;
 
 const int MAX_ID = 1e8;
 
-const int MAX_PTIME = 20;       // seconds
-const int MIN_PTIME = 10;
+const int MAX_PTIME = 5;       // seconds
+const int MIN_PTIME = 1;
 
 const int PSLEEP_TIME = 500;    // us
 
@@ -33,14 +33,16 @@ const int MAX_JOBS = 500;
 
 const int MAX_COMPLETION_TIME = 250; // ms
 
+// Bound calculated considering the limits on the number of threads allowed
+const int MAX_PRODUCERS = 500;
+const int MAX_WORKERS = 500;
+
 // status states ?
 const int NOT_CREATED = 0;
 const int NOT_SCHEDULED = 1;   
-const int CREATED = 2;
-const int SCHEDULED = 3;
-const int COMPLETED = 4;
-const int HAS_DEPENDENCY = 5;
-const int PRODUCER_TAKEN = 6;
+const int SCHEDULED = 2;
+const int HAS_DEPENDENCY = 3;
+const int CREATED = 4;
 
 // Array of nodes 
 
@@ -49,17 +51,10 @@ const int PRODUCER_TAKEN = 6;
 struct node {
     int jobId;
     int completionTime;  // maybe change to int in ms ?
-    int numJobs;            // num of dependent jobs
-    int dependentJobs[MAX_JOBS]; // ptr to child 
+    int numJobs;            // num of dependent jobs 
     int parentIdx;          // ptr to parent
     pthread_mutex_t lock;   // for changing status, numJobs : [1.addition 2.completion] of dependentJobs
     int status;             //  
-    // sem_t prwSemMutex;      
-    // sem_t cSemMutex;
-    // int pread_count;
-    /*
-        Add other data if reqd.
-    */
 };
 
 struct joblist {
@@ -71,22 +66,17 @@ struct joblist {
     pthread_mutex_t lock;
 };
 
-
-int getRandomJobId() {
-    // TODO : use a set and prevent repititions
-    return rand() % MAX_ID + 1;
+int getRandomInRange(const int lo, const int hi) {
+    assert(lo<=hi);
+    return rand()%(hi - lo + 1) + lo;
 }
 
 void initJob(node* curJob) {
-    curJob->jobId = getRandomJobId();
+    curJob->jobId = getRandomInRange(0, MAX_ID);
     curJob->numJobs = 0;
     curJob->status = CREATED;
     curJob->parentIdx = -1;
-    for(int i=0; i<MAX_JOBS; ++i)
-    {
-        curJob->dependentJobs[i] = -1;
-    }
-    curJob->completionTime = (rand())%(PSLEEP_TIME + 1);
+    curJob->completionTime = getRandomInRange(0, MAX_COMPLETION_TIME);
 }
 
 void copyJob(node* dest, node* src)
@@ -101,8 +91,6 @@ void copyJob(node* dest, node* src)
     dest->status = src->status;
     dest->parentIdx = src->parentIdx;
     
-    for(int i = 0; i < MAX_JOBS; i++)
-        dest->dependentJobs[i] = src->dependentJobs[i];
     return;
 }
 
@@ -113,16 +101,16 @@ void *producer(void *param)
     // 2.4 It sleeps for 0..500 ms between each addition
 
     joblist* T = (joblist *)param;
-    int timeToRun = rand()%11 + 10; // run for 10 to 20 secs
+    int timeToRun = getRandomInRange(MIN_PTIME, MAX_PTIME); // run for 10 to 20 secs
     cout<<"Time to run : "<<timeToRun<<endl;
     int startTime = time(NULL);
     int curTime = time(NULL);
     while(((curTime = time(NULL)) - startTime) <= timeToRun) {
-        cout << "Jag ghumeyaaaaa thare jaisa...." << endl;
+        cerr << "Jag ghumeyaaaaa thare jaisa...." << endl;
         
         // First we generate a random index and then we do linear probing on the array
         // Until we find a suitable position        
-        int idx = rand() % MAX_JOBS;
+        int idx = getRandomInRange(0, MAX_JOBS - 1);
         int parentJobIdx = -1;
         for(int i = idx, k = 0; k < MAX_JOBS; i++, k++) {
             // TODO : decide what does NOT_SCHEDULED mean
@@ -130,10 +118,10 @@ void *producer(void *param)
             if(i == MAX_JOBS)
                 i = 0;
             pthread_mutex_lock(&(T->jobs[i].lock));
-            if(T->jobs[i].status == NOT_SCHEDULED) {
+            if(T->jobs[i].status == NOT_SCHEDULED || T->jobs[i].status == HAS_DEPENDENCY) {
                 parentJobIdx = i;
                 // A producer is going to add a new dependency
-                T->jobs[i].status = HAS_DEPENDENCY;     // TODO : if
+                T->jobs[i].status = HAS_DEPENDENCY;
                 // no consumer should start work
                 // producers can still add new dependecies
                 break;
@@ -143,19 +131,17 @@ void *producer(void *param)
 
         // we have a job thats NOT scheduled!
         if(parentJobIdx != -1) {
-
-            int idx = rand() % MAX_JOBS;
+            int idx = getRandomInRange(0, MAX_JOBS - 1);
             int newJobIdx = -1;
             for(int i = idx, k = 0; k < MAX_JOBS; i++, k++) {
-                // TODO : decide what does NOT_CREATED mean
-                // TODO : check if we need a mutex lock ? {Probably not}
                 if(i == MAX_JOBS)
                     i = 0;
 
                 pthread_mutex_lock(&(T->jobs[i].lock));
                 if(T->jobs[i].status == NOT_CREATED) {
                     newJobIdx = i;
-                    T->jobs[i].status = CREATED;
+                    T->jobs[i].status = CREATED; 
+                    // 
                     // Producer is going to init it
                     break;
                 }
@@ -176,9 +162,9 @@ void *producer(void *param)
                 copyJob(&newJob, newlyCreatedJob);
                 newJob.parentIdx = parentJobIdx;
                 int numDependentJobs = parentJob.numJobs;
-                parentJob.dependentJobs[numDependentJobs] = newJobIdx;
+                // parentJob.dependentJobs[numDependentJobs] = newJobIdx;
                 parentJob.numJobs++;
-                parentJob.status = NOT_SCHEDULED;  //  consumer can work on it
+                parentJob.status = HAS_DEPENDENCY;  //  consumer can work on it
                 newJob.status = NOT_SCHEDULED;
                 // multiple producer and at most one consumer
                 pthread_mutex_unlock(&(newJob.lock));
@@ -188,27 +174,26 @@ void *producer(void *param)
                 T->totalJobs++;
                 pthread_mutex_unlock(&(T->lock));
                 cout<<"Job : "<<newJob.jobId<<" created with parent "<<newJob.parentIdx<<endl;
-            }  
+            } else {
+                node& parentJob = T->jobs[parentJobIdx];
+                // new job creation unsuccessful
+                pthread_mutex_lock(&(parentJob.lock));            
+                parentJob.status = (parentJob.numJobs == 0) ? NOT_SCHEDULED : HAS_DEPENDENCY;  //  consumer may work on it
+                pthread_mutex_unlock(&(parentJob.lock));
+            }
         }
-        else
-        {
-            node& parentJob = T->jobs[parentJobIdx];
-            // new job creation unsuccessful
-            pthread_mutex_lock(&(parentJob.lock));            
-            parentJob.status = NOT_SCHEDULED;  //  consumer can work on it
-            pthread_mutex_unlock(&(parentJob.lock));
-        }
-
         // Sleep for 0 to 500 ms
-        usleep((rand()%(PSLEEP_TIME + 1)) * 1000);
+        usleep(getRandomInRange(0, PSLEEP_TIME) * 1000);
     }
+    return NULL;
 }
 bool jobsStillLeft(joblist* T )
 {
     // logic for job still left
     // either all jobs are not created or all jobs are not done
     bool res = (!T->allJobsCreated) || (T->jobsDone < T->totalJobs);
-    cout<<"Res "<<res<<"\n";
+    cerr<<"Res "<<res<<"\n";
+    cerr<<"All jobs created "<<T->allJobsCreated<<endl;
     return res;
 }
 void* consumer(void* param)
@@ -221,7 +206,7 @@ void* consumer(void* param)
     bool jobReceived = false;
     while(jobsStillLeft(T))
     {   
-        cout << "Jag ghumeyaaaaa thare jaisa na koiii" << endl;
+        cerr << "Jag ghumeyaaaaa thare jaisa na koiii" << endl;
         bool toWork = false;
         for(int i=0; i<MAX_JOBS;++i)
         {
@@ -229,8 +214,9 @@ void* consumer(void* param)
             node &curJob = T->jobs[i];
             // curJobs.numJobs == 0
             pthread_mutex_lock(&curJob.lock);
-            if(curJob.jobId != -1 && curJob.numJobs == 0 && curJob.status == NOT_SCHEDULED)
+            if(curJob.status == NOT_SCHEDULED)
             {
+                assert(curJob.jobId != -1 && curJob.numJobs == 0);
                 curJob.status = SCHEDULED;
                 toWork = true;
             }
@@ -238,6 +224,7 @@ void* consumer(void* param)
 
             if(toWork){
                 // do the job
+                cout << "Starting job with jobId " << curJob.jobId << endl;
                 usleep(curJob.completionTime*1000);    // 1 ms = 1000 us
                 cout<<"JobId : "<<curJob.jobId<<" completed"<<endl;
                 pthread_mutex_lock(&(T->lock));
@@ -245,23 +232,29 @@ void* consumer(void* param)
                 pthread_mutex_unlock(&(T->lock));
                 
                 pthread_mutex_lock(&(curJob.lock));
-                curJob.status = COMPLETED;
-
+                curJob.status = NOT_CREATED; // space deallocated
+                curJob.jobId = -1;
                 if(curJob.parentIdx != -1)
                 {
                     int parentJobIdx = curJob.parentIdx;
-
+                    node& parentJob = T->jobs[parentJobIdx];
                     // Inform the parent about job completion
-                    pthread_mutex_lock(&(T->jobs[parentJobIdx].lock));
-                    T->jobs[parentJobIdx].numJobs--;
-                    pthread_mutex_unlock(&(T->jobs[parentJobIdx].lock));
+                    pthread_mutex_lock(&(parentJob.lock));
+                    parentJob.numJobs--;
+                    parentJob.status = (parentJob.numJobs == 0) ? NOT_SCHEDULED : HAS_DEPENDENCY;  //  consumer may work on it
+                    pthread_mutex_unlock(&(parentJob.lock));
                 }
                 pthread_mutex_unlock(&(curJob.lock));
                 break;
             }
+            else{
+                cerr<<"I am unemployed :("<<endl;
+            }
         }
+        // TODO : Remove this 
         sleep(5);            
     }
+    return NULL;
 }
 
 
@@ -297,7 +290,10 @@ void initjoblist(joblist *T)
         }
     }
     node &rootjob = T->jobs[0];
-    rootjob.completionTime = (rand())%(PSLEEP_TIME + 1);
+    initJob(&rootjob);
+    rootjob.status = NOT_SCHEDULED;
+    T->totalJobs = 1;
+    rootjob.completionTime = getRandomInRange(0, PSLEEP_TIME);
 
 }
 
@@ -310,10 +306,10 @@ int main() {
    
     int P, Y; 
     cin >> P >> Y;
-
+    initjoblist(T);
     int pid = fork();
     if(pid == 0) {
-
+        sleep(5);
         // Child process (say B) spawns Y (input) consumer threads
         pthread_t pThreadId[Y];
 
@@ -322,10 +318,6 @@ int main() {
 
         for(int i = 0; i < Y; i++)
             pthread_join(pThreadId[i], NULL);
-        
-        pthread_mutex_lock(&(T->lock));
-        T->allJobsCreated = true;
-        pthread_mutex_unlock(&(T->lock));
         
         exit(0);
 
@@ -338,13 +330,15 @@ int main() {
         cout<<"All producer threads created"<<endl;
         for(int i = 0; i < P; i++)
             pthread_join(cThreadId[i], NULL);
+
+        pthread_mutex_lock(&(T->lock));
+        T->allJobsCreated = true;
+        pthread_mutex_unlock(&(T->lock));
+        
         cout<<"All producer threads joined"<<endl;
         wait(NULL);
     }
-
-    // 5.1 Write to the terminal accordingly : post regular updates : job addition, start, completion.
-    // 5.2 Producers stop : allJobsCreated(), Consumers stop : allJobsDone()
-
+    cout<<"Jobs done" <<T->jobsDone<< ", Total jobs : "<< T->totalJobs<<endl;
     pthread_mutex_destroy(&(T->lock));
     for(int i = 0; i < MAX_JOBS; i++)
         pthread_mutex_destroy(&(T->jobs[i].lock));

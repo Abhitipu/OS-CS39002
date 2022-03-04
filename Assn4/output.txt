@@ -1,0 +1,4 @@
+Master process A
+All producer threads created
+Time to run : 1
+Time to run : 4
