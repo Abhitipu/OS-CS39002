@@ -124,6 +124,7 @@ void *producer(void *param)
                 T->jobs[i].status = HAS_DEPENDENCY;
                 // no consumer should start work
                 // producers can still add new dependecies
+                pthread_mutex_unlock(&(T->jobs[i].lock));
                 break;
             }
             pthread_mutex_unlock(&(T->jobs[i].lock));
@@ -143,6 +144,7 @@ void *producer(void *param)
                     T->jobs[i].status = CREATED; 
                     // 
                     // Producer is going to init it
+                    pthread_mutex_unlock(&(T->jobs[i].lock));
                     break;
                 }
                 pthread_mutex_unlock(&(T->jobs[i].lock));
@@ -167,13 +169,13 @@ void *producer(void *param)
                 parentJob.status = HAS_DEPENDENCY;  //  consumer can work on it
                 newJob.status = NOT_SCHEDULED;
                 // multiple producer and at most one consumer
-                pthread_mutex_unlock(&(newJob.lock));
                 pthread_mutex_unlock(&(parentJob.lock));
+                pthread_mutex_unlock(&(newJob.lock));
                 
                 pthread_mutex_lock(&(T->lock));
                 T->totalJobs++;
                 pthread_mutex_unlock(&(T->lock));
-                cout<<"Job : "<<newJob.jobId<<" created with parent "<<newJob.parentIdx<<endl;
+                cout<<"Job : "<<newJob.jobId<<" created with parent idx"<<newJob.parentIdx<<"( "<<T->jobs[newJob.parentIdx].jobId<<" )" <<endl;
             } else {
                 node& parentJob = T->jobs[parentJobIdx];
                 // new job creation unsuccessful
@@ -187,6 +189,7 @@ void *producer(void *param)
     }
     return NULL;
 }
+
 bool jobsStillLeft(joblist* T )
 {
     // logic for job still left
@@ -251,8 +254,6 @@ void* consumer(void* param)
                 cerr<<"I am unemployed :("<<endl;
             }
         }
-        // TODO : Remove this 
-        sleep(5);            
     }
     return NULL;
 }
@@ -289,12 +290,13 @@ void initjoblist(joblist *T)
             exit(1);
         }
     }
-    node &rootjob = T->jobs[0];
-    initJob(&rootjob);
-    rootjob.status = NOT_SCHEDULED;
-    T->totalJobs = 1;
-    rootjob.completionTime = getRandomInRange(0, PSLEEP_TIME);
 
+    node &rootJob = T->jobs[0];
+    initJob(&rootJob);
+    rootJob.status = NOT_SCHEDULED;
+    T->totalJobs = 1;
+    rootJob.completionTime = getRandomInRange(0, PSLEEP_TIME);
+    cout << "Created first job with id " << rootJob.jobId << endl;
 }
 
 
@@ -309,7 +311,7 @@ int main() {
     initjoblist(T);
     int pid = fork();
     if(pid == 0) {
-        sleep(5);
+        sleep(2); // TODO remove this
         // Child process (say B) spawns Y (input) consumer threads
         pthread_t pThreadId[Y];
 
@@ -318,6 +320,8 @@ int main() {
 
         for(int i = 0; i < Y; i++)
             pthread_join(pThreadId[i], NULL);
+        
+        cout << "All consumers also finished working! Yayayayaya" << endl;
         
         exit(0);
 
@@ -331,6 +335,7 @@ int main() {
         for(int i = 0; i < P; i++)
             pthread_join(cThreadId[i], NULL);
 
+        cout << "All producer threads joined" << endl;
         pthread_mutex_lock(&(T->lock));
         T->allJobsCreated = true;
         pthread_mutex_unlock(&(T->lock));
@@ -338,6 +343,7 @@ int main() {
         cout<<"All producer threads joined"<<endl;
         wait(NULL);
     }
+
     cout<<"Jobs done" <<T->jobsDone<< ", Total jobs : "<< T->totalJobs<<endl;
     pthread_mutex_destroy(&(T->lock));
     for(int i = 0; i < MAX_JOBS; i++)

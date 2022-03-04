@@ -1,4 +1,77 @@
+Created first job with id 4289365
 Master process A
 All producer threads created
 Time to run : 1
 Time to run : 4
+Job : 49760476 created with parent idx0( 4289365 )
+Job : 83368683 created with parent idx386( 49760476 )
+Job : 40383411 created with parent idx0( 4289365 )
+Job : 94702565 created with parent idx386( 49760476 )
+Job : 33665121 created with parent idx40( 40383411 )
+Job : 15634009 created with parent idx0( 4289365 )
+Job : 89018436 created with parent idx302( 15634009 )
+Job : 59484413 created with parent idx302( 15634009 )
+Job : 73594305 created with parent idx40( 40383411 )
+Job : 12776087 created with parent idx0( 4289365 )
+Job : 42999170 created with parent idx373( 59484413 )
+Job : 37477065 created with parent idx362( 33665121 )
+Job : 32621713 created with parent idx26( 12776087 )
+Job : 39819573 created with parent idx198( 73594305 )
+Job : 85990349 created with parent idx368( 94702565 )
+Starting job with jobId 83368683
+Starting job with jobId 32621713
+JobId : 83368683 completed
+Starting job with jobId 42999170
+JobId : 42999170 completed
+Starting job with jobId 59484413
+JobId : 59484413 completed
+Starting job with jobId 89018436
+Job : 45117267 created with parent idx198( 73594305 )
+Job : 18502632 created with parent idx198( 73594305 )
+JobId : 89018436 completed
+Starting job with jobId 15634009
+Job : 11549662 created with parent idx434( 85990349 )
+JobId : 32621713 completed
+Starting job with jobId 12776087
+JobId : 15634009 completed
+Starting job with jobId 11549662
+JobId : 11549662 completed
+Starting job with jobId 45117267
+JobId : 45117267 completed
+Starting job with jobId 39819573
+JobId : 39819573 completed
+Job : 49698569 created with parent idx40( 40383411 )
+Starting job with jobId 49698569
+JobId : 12776087 completed
+Starting job with jobId 18502632
+JobId : 49698569 completed
+Starting job with jobId 37477065
+JobId : 18502632 completed
+Starting job with jobId 73594305
+JobId : 73594305 completed
+Starting job with jobId 85990349
+JobId : 37477065 completed
+Starting job with jobId 33665121
+Job : 40651414 created with parent idx368( 94702565 )
+JobId : 85990349 completed
+Starting job with jobId 40651414
+Job : 27612893 created with parent idx368( 94702565 )
+JobId : 33665121 completed
+Starting job with jobId 40383411
+JobId : 40651414 completed
+Starting job with jobId 27612893
+JobId : 40383411 completed
+JobId : 27612893 completed
+Starting job with jobId 94702565
+Job : 59997292 created with parent idx386( 49760476 )
+Starting job with jobId 59997292
+JobId : 59997292 completed
+JobId : 94702565 completed
+Starting job with jobId 49760476
+JobId : 49760476 completed
+Starting job with jobId 4289365
+JobId : 4289365 completed
+All producer threads joined
+All producer threads joined
+All consumers also finished working! Yayayayaya
+Jobs done23, Total jobs : 23
