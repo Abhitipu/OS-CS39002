@@ -26,10 +26,11 @@ const int MAX_ID = 1e8;
 const int MAX_PTIME = 5;       // seconds
 const int MIN_PTIME = 1;
 
-const int PSLEEP_TIME = 500;    // us
+const int MIN_PSLEEP_TIME = 200;
+const int MAX_PSLEEP_TIME = 500;    // us
 
 const int MIN_JOBS = 300;
-const int MAX_JOBS = 500;
+int MAX_JOBS = 500;
 
 const int MAX_COMPLETION_TIME = 250; // ms
 
@@ -58,10 +59,9 @@ struct node {
 };
 
 struct joblist {
-    node jobs[MAX_JOBS];
+    node* jobs;
     int totalJobs;
     int jobsDone;
-    // int jobsCreated;
     bool allJobsCreated;    // flag to check if all producers have exited or not
     pthread_mutex_t lock;
 };
@@ -185,7 +185,7 @@ void *producer(void *param)
             }
         }
         // Sleep for 0 to 500 ms
-        usleep(getRandomInRange(0, PSLEEP_TIME) * 1000);
+        usleep(getRandomInRange(MIN_PSLEEP_TIME, MAX_PSLEEP_TIME) * 1000);
     }
     return NULL;
 }
@@ -295,7 +295,7 @@ void initjoblist(joblist *T)
     initJob(&rootJob);
     rootJob.status = NOT_SCHEDULED;
     T->totalJobs = 1;
-    rootJob.completionTime = getRandomInRange(0, PSLEEP_TIME);
+    rootJob.completionTime = getRandomInRange(0, MAX_COMPLETION_TIME);
     cout << "Created first job with id " << rootJob.jobId << endl;
 }
 
@@ -303,11 +303,25 @@ void initjoblist(joblist *T)
 int main() {
     // 1.1 Create a job dependency tree T in a shared memory segment.
     // 1.2 {Each parent waits for its child} : using pthread_join?
-    int shmid = shmget(IPC_PRIVATE, sizeof(joblist), 0666 | IPC_CREAT);
-    joblist *T = (joblist *)shmat(shmid, NULL, 0);
-   
     int P, Y; 
     cin >> P >> Y;
+
+    // limit calculation : min time for a job : 200ms
+    // min sleep time = 0ms
+    // max total execution time for producer : 20s
+    // Max jobs = 20 / 0.2 = 100 jobs per producer
+
+    // TODO : Maybe hardcode a limit
+    MAX_JOBS = 100 * P;
+    int shmidAll = shmget(IPC_PRIVATE, sizeof(node) * MAX_JOBS, 0666 | IPC_CREAT);
+    node* alljobs = (node* )shmat(shmidAll, NULL, 0);
+
+    int shmid = shmget(IPC_PRIVATE, sizeof(joblist), 0666 | IPC_CREAT);
+    joblist *T = (joblist *)shmat(shmid, NULL, 0);
+
+    // Attach the list
+    T->jobs = alljobs;
+
     initjoblist(T);
     int pid = fork();
     if(pid == 0) {
@@ -351,7 +365,9 @@ int main() {
 
     pthread_mutexattr_destroy(&mattr);
 
+    shmdt(alljobs);
     shmdt(T);
     shmctl(shmid, IPC_RMID, NULL);
+    shmctl(shmidAll, IPC_RMID, NULL);
     return 0;
 }
