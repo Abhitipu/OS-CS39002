@@ -29,7 +29,9 @@ const int MIN_PTIME = 1;
 const int MIN_PSLEEP_TIME = 200;
 const int MAX_PSLEEP_TIME = 500;    // us
 
-const int MIN_JOBS = 300;
+const int MIN_INITIAL_JOBS = 300;
+const int MAX_INITIAL_JOBS = 500;
+
 int MAX_JOBS = 500;
 
 const int MAX_COMPLETION_TIME = 250; // ms
@@ -72,6 +74,7 @@ int getRandomInRange(const int lo, const int hi) {
 }
 
 void initJob(node* curJob) {
+    // TODO : ensure all ids are unique
     curJob->jobId = getRandomInRange(0, MAX_ID);
     curJob->numJobs = 0;
     curJob->status = CREATED;
@@ -175,7 +178,7 @@ void *producer(void *param)
                 pthread_mutex_lock(&(T->lock));
                 T->totalJobs++;
                 pthread_mutex_unlock(&(T->lock));
-                cout<<"Job : "<<newJob.jobId<<" created with parent idx"<<newJob.parentIdx<<"( "<<T->jobs[newJob.parentIdx].jobId<<" )" <<endl;
+                cout<<"Job : "<<newJob.jobId<<" created with parent idx "<<newJob.parentIdx<<" ("<<T->jobs[newJob.parentIdx].jobId<<")" <<endl;
             } else {
                 node& parentJob = T->jobs[parentJobIdx];
                 // new job creation unsuccessful
@@ -278,6 +281,8 @@ void initjoblist(joblist *T)
     T->totalJobs = T->jobsDone = 0;
     T->allJobsCreated = false;
 
+    cout << "Creating initial base tree" << endl;
+
     for(int i =0; i< MAX_JOBS; ++i)
     {
         T->jobs[i].parentIdx = -1;
@@ -291,12 +296,50 @@ void initjoblist(joblist *T)
         }
     }
 
+    int total = getRandomInRange(MIN_INITIAL_JOBS, MAX_INITIAL_JOBS);
     node &rootJob = T->jobs[0];
     initJob(&rootJob);
     rootJob.status = NOT_SCHEDULED;
-    T->totalJobs = 1;
+    T->totalJobs = total;
     rootJob.completionTime = getRandomInRange(0, MAX_COMPLETION_TIME);
     cout << "Created first job with id " << rootJob.jobId << endl;
+
+    for(int jobsCreated = 1; jobsCreated < total; jobsCreated++) {
+        // step 1: find an empty index
+        int idx = getRandomInRange(0, MAX_JOBS - 1);
+        int parentIdx = -1, childIdx = -1;
+        for(int k = 0; k < MAX_JOBS; k++, idx++) {
+            if(idx == MAX_JOBS)
+                idx = 0;
+            if(T->jobs[idx].status == NOT_CREATED) {
+                childIdx = idx;
+                initJob(&(T->jobs[idx]));
+                T->jobs[idx].completionTime = getRandomInRange(0, MAX_COMPLETION_TIME);
+                break;
+            }
+        }
+
+        // step 2: find a suitable parent
+        idx = getRandomInRange(0, MAX_JOBS - 1);
+        for(int k = 0; k < MAX_JOBS; k++, idx++) {
+            if(idx == MAX_JOBS)
+                idx = 0;
+            if(T->jobs[idx].status == NOT_SCHEDULED || T->jobs[idx].status == HAS_DEPENDENCY) {
+                parentIdx = idx;
+                break;
+            }
+        }
+
+        // step 3: add link and update status
+        T->jobs[parentIdx].status = HAS_DEPENDENCY;
+        T->jobs[childIdx].status = NOT_SCHEDULED;
+        T->jobs[childIdx].parentIdx = parentIdx;
+        T->jobs[parentIdx].numJobs++;
+
+        cout << "Job : " << T->jobs[childIdx].jobId << " created with parent idx " << parentIdx << " (" << T->jobs[parentIdx].jobId << ")" << endl;
+    }
+
+    cout << "Initial tree created!" << endl;
 }
 
 
@@ -306,13 +349,15 @@ int main() {
     int P, Y; 
     cin >> P >> Y;
 
+    srand(time(NULL));
+
     // limit calculation : min time for a job : 200ms
     // min sleep time = 0ms
     // max total execution time for producer : 20s
     // Max jobs = 20 / 0.2 = 100 jobs per producer
 
     // TODO : Maybe hardcode a limit
-    MAX_JOBS = 100 * P;
+    MAX_JOBS = max(MAX_INITIAL_JOBS, 100 * P);
     int shmidAll = shmget(IPC_PRIVATE, sizeof(node) * MAX_JOBS, 0666 | IPC_CREAT);
     node* alljobs = (node* )shmat(shmidAll, NULL, 0);
 
@@ -323,6 +368,7 @@ int main() {
     T->jobs = alljobs;
 
     initjoblist(T);
+
     int pid = fork();
     if(pid == 0) {
         sleep(2); // TODO remove this
@@ -358,7 +404,7 @@ int main() {
         wait(NULL);
     }
 
-    cout<<"Jobs done" <<T->jobsDone<< ", Total jobs : "<< T->totalJobs<<endl;
+    cout<<"Jobs done " <<T->jobsDone<< ", Total jobs : "<< T->totalJobs<<endl;
     pthread_mutex_destroy(&(T->lock));
     for(int i = 0; i < MAX_JOBS; i++)
         pthread_mutex_destroy(&(T->jobs[i].lock));

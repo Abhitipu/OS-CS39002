@@ -1,447 +1,1613 @@
-Created first job with id 4289365
+Creating initial base tree
+Created first job with id 24797968
+Job : 11751188 created with parent idx 0 (24797968)
+Job : 33150009 created with parent idx 0 (24797968)
+Job : 57626682 created with parent idx 0 (24797968)
+Job : 59959753 created with parent idx 528 (11751188)
+Job : 23460759 created with parent idx 528 (11751188)
+Job : 86513657 created with parent idx 1126 (23460759)
+Job : 92045517 created with parent idx 0 (24797968)
+Job : 42113539 created with parent idx 1126 (23460759)
+Job : 82324412 created with parent idx 1126 (23460759)
+Job : 15690096 created with parent idx 0 (24797968)
+Job : 32114644 created with parent idx 154 (57626682)
+Job : 53204329 created with parent idx 0 (24797968)
+Job : 48100532 created with parent idx 586 (92045517)
+Job : 4687835 created with parent idx 673 (53204329)
+Job : 84001812 created with parent idx 180 (86513657)
+Job : 87048592 created with parent idx 528 (11751188)
+Job : 32993876 created with parent idx 586 (92045517)
+Job : 55470066 created with parent idx 528 (11751188)
+Job : 89584551 created with parent idx 1203 (32114644)
+Job : 14954756 created with parent idx 827 (48100532)
+Job : 31444844 created with parent idx 1126 (23460759)
+Job : 72238995 created with parent idx 203 (89584551)
+Job : 96078892 created with parent idx 528 (11751188)
+Job : 32107797 created with parent idx 1203 (32114644)
+Job : 59688034 created with parent idx 528 (11751188)
+Job : 46392300 created with parent idx 1441 (15690096)
+Job : 81324161 created with parent idx 704 (4687835)
+Job : 49617439 created with parent idx 1271 (82324412)
+Job : 29502073 created with parent idx 586 (92045517)
+Job : 64104623 created with parent idx 846 (42113539)
+Job : 44796399 created with parent idx 746 (59959753)
+Job : 54747748 created with parent idx 978 (32107797)
+Job : 90599571 created with parent idx 231 (96078892)
+Job : 59223416 created with parent idx 807 (55470066)
+Job : 87556023 created with parent idx 1203 (32114644)
+Job : 10156591 created with parent idx 1203 (32114644)
+Job : 11335545 created with parent idx 93 (32993876)
+Job : 71212184 created with parent idx 874 (29502073)
+Job : 70795491 created with parent idx 1126 (23460759)
+Job : 31568618 created with parent idx 528 (11751188)
+Job : 13151060 created with parent idx 874 (29502073)
+Job : 4086700 created with parent idx 1126 (23460759)
+Job : 58174412 created with parent idx 1422 (81324161)
+Job : 3631155 created with parent idx 0 (24797968)
+Job : 96740118 created with parent idx 644 (31444844)
+Job : 76398730 created with parent idx 154 (57626682)
+Job : 50839774 created with parent idx 586 (92045517)
+Job : 35422686 created with parent idx 108 (71212184)
+Job : 58472546 created with parent idx 807 (55470066)
+Job : 70051925 created with parent idx 6 (4086700)
+Job : 17441409 created with parent idx 1271 (82324412)
+Job : 24632488 created with parent idx 70 (35422686)
+Job : 93900090 created with parent idx 528 (11751188)
+Job : 13785621 created with parent idx 877 (84001812)
+Job : 93954526 created with parent idx 1119 (58472546)
+Job : 89188228 created with parent idx 499 (93900090)
+Job : 75729173 created with parent idx 1422 (81324161)
+Job : 71820765 created with parent idx 1422 (81324161)
+Job : 18071853 created with parent idx 499 (93900090)
+Job : 55239919 created with parent idx 837 (75729173)
+Job : 45121131 created with parent idx 978 (32107797)
+Job : 34224579 created with parent idx 877 (84001812)
+Job : 40085409 created with parent idx 108 (71212184)
+Job : 36483498 created with parent idx 389 (59688034)
+Job : 15387288 created with parent idx 93 (32993876)
+Job : 71343942 created with parent idx 1422 (81324161)
+Job : 21025701 created with parent idx 807 (55470066)
+Job : 77727798 created with parent idx 398 (76398730)
+Job : 34233906 created with parent idx 1119 (58472546)
+Job : 9204566 created with parent idx 1340 (77727798)
+Job : 88958273 created with parent idx 19 (71343942)
+Job : 30227215 created with parent idx 154 (57626682)
+Job : 23976418 created with parent idx 389 (59688034)
+Job : 2105407 created with parent idx 389 (59688034)
+Job : 72691640 created with parent idx 19 (71343942)
+Job : 77397182 created with parent idx 1422 (81324161)
+Job : 37123905 created with parent idx 622 (59223416)
+Job : 56556177 created with parent idx 978 (32107797)
+Job : 34461923 created with parent idx 874 (29502073)
+Job : 14442898 created with parent idx 978 (32107797)
+Job : 2743793 created with parent idx 746 (59959753)
+Job : 48698138 created with parent idx 1340 (77727798)
+Job : 11138282 created with parent idx 0 (24797968)
+Job : 48552139 created with parent idx 272 (9204566)
+Job : 61821226 created with parent idx 292 (87556023)
+Job : 75370395 created with parent idx 452 (2743793)
+Job : 40708003 created with parent idx 547 (14442898)
+Job : 35804954 created with parent idx 28 (89188228)
+Job : 15510647 created with parent idx 746 (59959753)
+Job : 97955566 created with parent idx 1453 (58174412)
+Job : 97131779 created with parent idx 671 (90599571)
+Job : 95833075 created with parent idx 154 (57626682)
+Job : 18533510 created with parent idx 1119 (58472546)
+Job : 37853620 created with parent idx 93 (32993876)
+Job : 84380023 created with parent idx 978 (32107797)
+Job : 31218845 created with parent idx 1231 (37123905)
+Job : 92093361 created with parent idx 452 (2743793)
+Job : 9322425 created with parent idx 1323 (15510647)
+Job : 86555750 created with parent idx 564 (56556177)
+Job : 24130893 created with parent idx 978 (32107797)
+Job : 52801179 created with parent idx 452 (2743793)
+Job : 52400853 created with parent idx 615 (77397182)
+Job : 28617914 created with parent idx 901 (44796399)
+Job : 43694450 created with parent idx 1371 (71820765)
+Job : 66785797 created with parent idx 180 (86513657)
+Job : 60720218 created with parent idx 1119 (58472546)
+Job : 5720348 created with parent idx 746 (59959753)
+Job : 61562523 created with parent idx 1192 (24130893)
+Job : 10023873 created with parent idx 330 (35804954)
+Job : 77751580 created with parent idx 547 (14442898)
+Job : 80805357 created with parent idx 1042 (60720218)
+Job : 74084159 created with parent idx 1271 (82324412)
+Job : 38582288 created with parent idx 1119 (58472546)
+Job : 27165232 created with parent idx 1323 (15510647)
+Job : 23307796 created with parent idx 180 (86513657)
+Job : 8854815 created with parent idx 188 (27165232)
+Job : 33709112 created with parent idx 746 (59959753)
+Job : 49284547 created with parent idx 330 (35804954)
+Job : 9836760 created with parent idx 978 (32107797)
+Job : 58307787 created with parent idx 452 (2743793)
+Job : 10546031 created with parent idx 1042 (60720218)
+Job : 13045054 created with parent idx 547 (14442898)
+Job : 79568727 created with parent idx 978 (32107797)
+Job : 34929520 created with parent idx 615 (77397182)
+Job : 47414147 created with parent idx 1143 (97131779)
+Job : 70897537 created with parent idx 0 (24797968)
+Job : 18772940 created with parent idx 180 (86513657)
+Job : 20232782 created with parent idx 1035 (58307787)
+Job : 87289688 created with parent idx 644 (31444844)
+Job : 49165014 created with parent idx 671 (90599571)
+Job : 98695534 created with parent idx 689 (70897537)
+Job : 31536878 created with parent idx 511 (40708003)
+Job : 2822895 created with parent idx 1441 (15690096)
+Job : 39564032 created with parent idx 330 (35804954)
+Job : 49419540 created with parent idx 827 (48100532)
+Job : 31198102 created with parent idx 0 (24797968)
+Job : 73962151 created with parent idx 746 (59959753)
+Job : 48101184 created with parent idx 1035 (58307787)
+Job : 93242345 created with parent idx 1468 (95833075)
+Job : 55666100 created with parent idx 525 (40085409)
+Job : 56229391 created with parent idx 615 (77397182)
+Job : 13349044 created with parent idx 94 (34233906)
+Job : 75189397 created with parent idx 452 (2743793)
+Job : 49312599 created with parent idx 761 (88958273)
+Job : 40656780 created with parent idx 1425 (3631155)
+Job : 20732202 created with parent idx 6 (4086700)
+Job : 32264789 created with parent idx 704 (4687835)
+Job : 4826833 created with parent idx 1263 (13045054)
+Job : 12186956 created with parent idx 521 (30227215)
+Job : 98788510 created with parent idx 837 (75729173)
+Job : 47202138 created with parent idx 510 (31198102)
+Job : 50605944 created with parent idx 452 (2743793)
+Job : 56029827 created with parent idx 173 (31536878)
+Job : 21644321 created with parent idx 272 (9204566)
+Job : 81219241 created with parent idx 63 (70795491)
+Job : 23656110 created with parent idx 1410 (75370395)
+Job : 62621502 created with parent idx 1192 (24130893)
+Job : 59800494 created with parent idx 1323 (15510647)
+Job : 51175206 created with parent idx 1192 (24130893)
+Job : 84395841 created with parent idx 398 (76398730)
+Job : 85896166 created with parent idx 837 (75729173)
+Job : 29092621 created with parent idx 1057 (32264789)
+Job : 21004216 created with parent idx 322 (77751580)
+Job : 58108538 created with parent idx 181 (10023873)
+Job : 97375750 created with parent idx 1192 (24130893)
+Job : 12157222 created with parent idx 1271 (82324412)
+Job : 63469767 created with parent idx 827 (48100532)
+Job : 9478798 created with parent idx 272 (9204566)
+Job : 18085274 created with parent idx 1400 (72691640)
+Job : 25348218 created with parent idx 564 (56556177)
+Job : 26717564 created with parent idx 510 (31198102)
+Job : 25766126 created with parent idx 807 (55470066)
+Job : 62653451 created with parent idx 1220 (54747748)
+Job : 7272137 created with parent idx 93 (32993876)
+Job : 52988904 created with parent idx 689 (70897537)
+Job : 65790796 created with parent idx 292 (87556023)
+Job : 66522519 created with parent idx 746 (59959753)
+Job : 19004517 created with parent idx 1230 (47202138)
+Job : 32606173 created with parent idx 212 (36483498)
+Job : 92503555 created with parent idx 256 (62621502)
+Job : 36003393 created with parent idx 451 (51175206)
+Job : 21693608 created with parent idx 164 (47414147)
+Job : 97376975 created with parent idx 680 (72238995)
+Job : 74706006 created with parent idx 344 (18533510)
+Job : 72395767 created with parent idx 93 (32993876)
+Job : 1984294 created with parent idx 451 (51175206)
+Job : 12851906 created with parent idx 789 (61821226)
+Job : 67512308 created with parent idx 144 (80805357)
+Job : 90886719 created with parent idx 521 (30227215)
+Job : 62656863 created with parent idx 746 (59959753)
+Job : 48913846 created with parent idx 533 (5720348)
+Job : 80958390 created with parent idx 538 (49165014)
+Job : 21278835 created with parent idx 1468 (95833075)
+Job : 74954741 created with parent idx 789 (61821226)
+Job : 21859992 created with parent idx 93 (32993876)
+Job : 58199237 created with parent idx 978 (32107797)
+Job : 77657447 created with parent idx 923 (59800494)
+Job : 65625652 created with parent idx 1263 (13045054)
+Job : 74685109 created with parent idx 1422 (81324161)
+Job : 79892442 created with parent idx 921 (10156591)
+Job : 50027823 created with parent idx 1429 (12157222)
+Job : 93191833 created with parent idx 1085 (74954741)
+Job : 90824709 created with parent idx 1283 (36003393)
+Job : 5795806 created with parent idx 188 (27165232)
+Job : 8641389 created with parent idx 762 (65790796)
+Job : 45950658 created with parent idx 1221 (93191833)
+Job : 82367715 created with parent idx 344 (18533510)
+Job : 99024317 created with parent idx 362 (18085274)
+Job : 16155968 created with parent idx 0 (24797968)
+Job : 36834893 created with parent idx 603 (49419540)
+Job : 88877912 created with parent idx 1156 (84395841)
+Job : 22178551 created with parent idx 11 (33150009)
+Job : 11263150 created with parent idx 778 (50027823)
+Job : 23696409 created with parent idx 429 (79892442)
+Job : 32231408 created with parent idx 154 (57626682)
+Job : 518654 created with parent idx 1035 (58307787)
+Job : 8086936 created with parent idx 450 (67512308)
+Job : 87562969 created with parent idx 1323 (15510647)
+Job : 52239299 created with parent idx 256 (62621502)
+Job : 84286849 created with parent idx 671 (90599571)
+Job : 16755404 created with parent idx 389 (59688034)
+Job : 68029642 created with parent idx 389 (59688034)
+Job : 25674986 created with parent idx 720 (56029827)
+Job : 115305 created with parent idx 1092 (518654)
+Job : 9410059 created with parent idx 1012 (9836760)
+Job : 51731064 created with parent idx 827 (48100532)
+Job : 574948 created with parent idx 1156 (84395841)
+Job : 89789778 created with parent idx 644 (31444844)
+Job : 66308872 created with parent idx 1102 (80958390)
+Job : 8359319 created with parent idx 168 (32231408)
+Job : 50970229 created with parent idx 1390 (34929520)
+Job : 93207956 created with parent idx 473 (26717564)
+Job : 32617556 created with parent idx 1263 (13045054)
+Job : 99325518 created with parent idx 997 (51731064)
+Job : 94543085 created with parent idx 322 (77751580)
+Job : 91230122 created with parent idx 531 (66308872)
+Job : 92495301 created with parent idx 276 (46392300)
+Job : 23306808 created with parent idx 0 (24797968)
+Job : 18859143 created with parent idx 1219 (8359319)
+Job : 35114906 created with parent idx 1476 (39564032)
+Job : 87276609 created with parent idx 1035 (58307787)
+Job : 45974495 created with parent idx 1468 (95833075)
+Job : 39420089 created with parent idx 689 (70897537)
+Job : 19607003 created with parent idx 683 (48552139)
+Job : 60769049 created with parent idx 1042 (60720218)
+Job : 18887934 created with parent idx 1012 (9836760)
+Job : 68598080 created with parent idx 1410 (75370395)
+Job : 27211432 created with parent idx 525 (40085409)
+Job : 9050044 created with parent idx 583 (93954526)
+Job : 28284592 created with parent idx 450 (67512308)
+Job : 92747383 created with parent idx 1156 (84395841)
+Job : 80718047 created with parent idx 555 (25674986)
+Job : 80766757 created with parent idx 615 (77397182)
+Job : 59310574 created with parent idx 1468 (95833075)
+Job : 16278088 created with parent idx 807 (55470066)
+Job : 33399916 created with parent idx 450 (67512308)
+Job : 21941491 created with parent idx 168 (32231408)
+Job : 72186736 created with parent idx 1092 (518654)
+Job : 86399020 created with parent idx 603 (49419540)
+Job : 97412858 created with parent idx 389 (59688034)
+Job : 83018864 created with parent idx 1126 (23460759)
+Job : 99303328 created with parent idx 93 (32993876)
+Job : 76016081 created with parent idx 663 (28284592)
+Job : 51405656 created with parent idx 603 (49419540)
+Job : 32057518 created with parent idx 11 (33150009)
+Job : 2941237 created with parent idx 330 (35804954)
+Job : 86281983 created with parent idx 1250 (12851906)
+Job : 55589412 created with parent idx 1178 (5795806)
+Job : 13374689 created with parent idx 256 (62621502)
+Job : 36528952 created with parent idx 1004 (33709112)
+Job : 51849386 created with parent idx 827 (48100532)
+Job : 4772911 created with parent idx 429 (79892442)
+Job : 97469937 created with parent idx 1250 (12851906)
+Job : 26102725 created with parent idx 823 (97412858)
+Job : 72437454 created with parent idx 967 (86281983)
+Job : 36397437 created with parent idx 496 (97955566)
+Job : 41539742 created with parent idx 1468 (95833075)
+Job : 94033374 created with parent idx 862 (58199237)
+Job : 52660225 created with parent idx 669 (66522519)
+Job : 25995245 created with parent idx 51 (61562523)
+Job : 2712948 created with parent idx 123 (87289688)
+Job : 15442038 created with parent idx 305 (64104623)
+Job : 14127183 created with parent idx 1192 (24130893)
+Job : 92328433 created with parent idx 789 (61821226)
+Job : 31479615 created with parent idx 896 (59310574)
+Job : 50503686 created with parent idx 1117 (51405656)
+Job : 87157711 created with parent idx 1035 (58307787)
+Job : 65715584 created with parent idx 1040 (80718047)
+Job : 28307841 created with parent idx 228 (13151060)
+Job : 83629367 created with parent idx 1350 (21004216)
+Job : 71545835 created with parent idx 281 (52400853)
+Job : 98851855 created with parent idx 1035 (58307787)
+Job : 90437980 created with parent idx 762 (65790796)
+Job : 71194209 created with parent idx 170 (25348218)
+Job : 88419990 created with parent idx 996 (66785797)
+Job : 89323943 created with parent idx 511 (40708003)
+Job : 92415051 created with parent idx 256 (62621502)
+Job : 65345120 created with parent idx 203 (89584551)
+Job : 12710078 created with parent idx 1277 (52801179)
+Job : 8484926 created with parent idx 1210 (18859143)
+Job : 97740125 created with parent idx 322 (77751580)
+Job : 82200698 created with parent idx 1323 (15510647)
+Job : 83570113 created with parent idx 168 (32231408)
+Job : 62140813 created with parent idx 130 (99303328)
+Job : 84768934 created with parent idx 1263 (13045054)
+Job : 92472182 created with parent idx 212 (36483498)
+Job : 28125177 created with parent idx 1323 (15510647)
+Job : 25931494 created with parent idx 921 (10156591)
+Job : 36924128 created with parent idx 978 (32107797)
+Job : 68962379 created with parent idx 346 (10546031)
+Job : 6568395 created with parent idx 784 (16278088)
+Job : 23957027 created with parent idx 1210 (18859143)
+Job : 70804700 created with parent idx 164 (47414147)
+Job : 76789853 created with parent idx 0 (24797968)
+Job : 30496696 created with parent idx 1117 (51405656)
+Job : 12374214 created with parent idx 1418 (23696409)
+Job : 32683738 created with parent idx 93 (32993876)
+Job : 6441951 created with parent idx 1418 (23696409)
+Job : 78325425 created with parent idx 164 (47414147)
+Job : 83984464 created with parent idx 389 (59688034)
+Job : 31301406 created with parent idx 1230 (47202138)
+Job : 28506657 created with parent idx 272 (9204566)
+Job : 95229929 created with parent idx 630 (83984464)
+Job : 68968803 created with parent idx 93 (32993876)
+Job : 35421061 created with parent idx 1 (14954756)
+Job : 27432295 created with parent idx 302 (8484926)
+Job : 54000118 created with parent idx 842 (88877912)
+Job : 67856520 created with parent idx 778 (50027823)
+Job : 68704636 created with parent idx 11 (33150009)
+Job : 77694918 created with parent idx 330 (35804954)
+Job : 89733593 created with parent idx 784 (16278088)
+Job : 70530510 created with parent idx 1422 (81324161)
+Job : 24537850 created with parent idx 348 (34461923)
+Job : 29554077 created with parent idx 164 (47414147)
+Job : 60303437 created with parent idx 937 (16755404)
+Job : 87320893 created with parent idx 669 (66522519)
+Job : 20458943 created with parent idx 1078 (2941237)
+Job : 16590372 created with parent idx 683 (48552139)
+Job : 14180064 created with parent idx 510 (31198102)
+Job : 42618072 created with parent idx 35 (11263150)
+Job : 10106468 created with parent idx 555 (25674986)
+Job : 64558395 created with parent idx 101 (89323943)
+Job : 14115987 created with parent idx 277 (20732202)
+Job : 33798209 created with parent idx 1072 (45950658)
+Job : 53844629 created with parent idx 755 (88419990)
+Job : 12835663 created with parent idx 11 (33150009)
+Job : 17359501 created with parent idx 1126 (23460759)
+Job : 53652282 created with parent idx 255 (89733593)
+Job : 21512661 created with parent idx 988 (12835663)
+Job : 35869855 created with parent idx 276 (46392300)
+Job : 6266784 created with parent idx 1101 (29554077)
+Job : 2770923 created with parent idx 1212 (97376975)
+Job : 51722762 created with parent idx 1309 (36924128)
+Job : 88854734 created with parent idx 1443 (92093361)
+Job : 53976569 created with parent idx 967 (86281983)
+Job : 36050663 created with parent idx 426 (90437980)
+Job : 7939616 created with parent idx 573 (2712948)
+Job : 61581849 created with parent idx 426 (90437980)
+Job : 72066784 created with parent idx 272 (9204566)
+Job : 97427364 created with parent idx 955 (12374214)
+Job : 76217477 created with parent idx 1309 (36924128)
+Job : 28735586 created with parent idx 1101 (29554077)
+Job : 74739109 created with parent idx 967 (86281983)
+Job : 27440806 created with parent idx 473 (26717564)
+Job : 74424228 created with parent idx 389 (59688034)
+Job : 64147462 created with parent idx 268 (21859992)
+Job : 24402027 created with parent idx 168 (32231408)
+Job : 56935575 created with parent idx 1250 (12851906)
+Job : 9693147 created with parent idx 314 (55589412)
+Job : 79507223 created with parent idx 752 (64558395)
+Job : 43740298 created with parent idx 952 (98788510)
+Job : 79919429 created with parent idx 669 (66522519)
+Job : 8356318 created with parent idx 429 (79892442)
+Job : 27295590 created with parent idx 539 (75189397)
+Job : 36954825 created with parent idx 1280 (70051925)
+Job : 25607109 created with parent idx 837 (75729173)
+Job : 40899260 created with parent idx 1337 (25766126)
+Job : 39069817 created with parent idx 1323 (15510647)
+Job : 33796427 created with parent idx 1309 (36924128)
+Job : 46601065 created with parent idx 61 (54000118)
+Job : 16497376 created with parent idx 1210 (18859143)
+Job : 45137885 created with parent idx 95 (97375750)
+Job : 51813211 created with parent idx 40 (28506657)
+Job : 35088160 created with parent idx 723 (2822895)
+Job : 53184298 created with parent idx 154 (57626682)
+Initial tree created!
 Master process A
-Time to run : 1
-Time to run : 3
-Time to run : 4
-Time to run : 1
 Time to run : 2
-Job : 40383411 created with parent idx0( 4289365 )
-Job : 21595363 created with parent idx1426( 40383411 )
-Time to run : 3
-Time to run : 1
-Job : 15634009 created with parent idx1426( 40383411 )
-Time to run : 3
-Job : 28175005 created with parent idx1426( 40383411 )
 All producer threads created
-Job : 59484413 created with parent idx0( 4289365 )
 Time to run : 4
-Job : 38664350 created with parent idx0( 4289365 )
-Time to run : Job : 12776087 created with parent idx1302( 15634009 )
+Job : 35993646 created with parent idx 460 (36050663)
+Time to run : 2
+Job : 24146131 created with parent idx 212 (36483498)
+Time to run : 5
+Job : 18491462 created with parent idx 28 (89188228)
+Time to run : 5
+Job : 12594302 created with parent idx 344 (18533510)
+Job : 72797630 created with parent idx 282 (36528952)
+Time to run : 2
+Job : 73522602 created with parent idx 1088 (49284547)
 Time to run : 1
-3
-Job : 82906987 created with parent idx1426( 40383411 )
-Time to run : 5
-Job : 72660331 created with parent idx1426( 40383411 )
-Job : 32621713 created with parent idx421( 59484413 )
-Job : 41616113 created with parent idx0( 4289365 )
-Job : 1100525 created with parent idx1027( 38664350 )
-Time to run : 5
-Job : 74344030 created with parent idx559( 41616113 )
-Time to run : Time to run : 42
+Job : 37748907 created with parent idx 203 (89584551)
+Time to run : 1
+Job : 2892887 created with parent idx 1119 (58472546)
+Time to run : 3
+Job : 2680318 created with parent idx 1418 (23696409)
+Time to run : 2
+Job : 55068921 created with parent idx 330 (35804954)
+Time to run : 3
+Job : 87339243 created with parent idx 663 (28284592)
+Time to run : Time to run : Time to run : 5
+Job : 68874233 created with parent idx 760 (63469767)
+Time to run : 2
+Job : 51228384 created with parent idx 1457 (58108538)
+4
+Job : 55251921 created with parent idx 282 (36528952)
+4
+Job : 84031020 created with parent idx 784 (16278088)
+Job : 21953980 created with parent idx 842 (88877912)
+Job : 86995255 created with parent idx 704 (4687835)
+Job : 61949806 created with parent idx 746 (59959753)
+Job : 72786419 created with parent idx 1057 (32264789)
+Job : 17988321 created with parent idx 1309 (36924128)
+Job : 41190399 created with parent idx 356 (74084159)
+Job : 21176726 created with parent idx 952 (98788510)
+Job : 26479126 created with parent idx 0 (24797968)
+Job : 42289862 created with parent idx 1219 (8359319)
+Job : 13030084 created with parent idx 1033 (20458943)
+Job : 39703528 created with parent idx 1224 (52239299)
+Job : 34627524 created with parent idx 1495 (12710078)
+Job : 82129918 created with parent idx 983 (90824709)
+Job : 88506119 created with parent idx 1271 (82324412)
+Job : 42406515 created with parent idx 434 (84286849)
+Job : 84030513 created with parent idx 833 (55251921)
+Job : 90129298 created with parent idx 1118 (12594302)
+Job : 4910139 created with parent idx 983 (90824709)
+Job : 77865715 created with parent idx 139 (51722762)
+Job : 39293970 created with parent idx 862 (58199237)
+Job : 78302106 created with parent idx 1155 (37748907)
+Job : 20466455 created with parent idx 330 (35804954)
+Job : 6742247 created with parent idx 314 (55589412)
+Job : 4897941 created with parent idx 788 (67856520)
+Job : 4479997 created with parent idx 839 (97427364)
+Job : 2044195 created with parent idx 1282 (33796427)
+Job : 39194586 created with parent idx 1476 (39564032)
+Job : 86889401 created with parent idx 19 (71343942)
+Job : 69968419 created with parent idx 532 (27432295)
+Job : 57490762 created with parent idx 255 (89733593)
+Job : 86731471 created with parent idx 1432 (15387288)
+Job : 20838915 created with parent idx 151 (25931494)
+Job : 78454093 created with parent idx 255 (89733593)
+Job : 2929155 created with parent idx 28 (89188228)
+Job : 1996031 created with parent idx 771 (83629367)
+Job : 27182519 created with parent idx 1494 (20466455)
+Job : 81033219 created with parent idx 1250 (12851906)
+Job : 43092049 created with parent idx 1390 (34929520)
+Job : 2572720 created with parent idx 761 (88958273)
+Job : 86072450 created with parent idx 1482 (71194209)
+Job : 50454214 created with parent idx 1361 (50970229)
+Job : 64313237 created with parent idx 1328 (1996031)
+Job : 70650314 created with parent idx 93 (32993876)
+Job : 64735943 created with parent idx 1171 (78325425)
+Job : 29794634 created with parent idx 1 (14954756)
+Job : 88402150 created with parent idx 770 (78302106)
+Job : 33824953 created with parent idx 189 (11138282)
+Job : 75364576 created with parent idx 280 (6568395)
+Job : 91561446 created with parent idx 228 (13151060)
+Job : 6037557 created with parent idx 1337 (25766126)
+Job : 56017716 created with parent idx 1309 (36924128)
+Job : 11439612 created with parent idx 1155 (37748907)
+Job : 78486791 created with parent idx 322 (77751580)
+Job : 62074525 created with parent idx 496 (97955566)
+Job : 74643118 created with parent idx 680 (72238995)
+Job : 80655845 created with parent idx 630 (83984464)
+Job : 50638410 created with parent idx 730 (28307841)
+Job : 8096900 created with parent idx 1476 (39564032)
+Job : 4742809 created with parent idx 260 (73522602)
+Job : 9511523 created with parent idx 268 (21859992)
+Job : 44909983 created with parent idx 823 (97412858)
+Job : 69719626 created with parent idx 1410 (75370395)
+Job : 43819305 created with parent idx 573 (2712948)
+Job : 21830117 created with parent idx 807 (55470066)
+Job : 40588011 created with parent idx 255 (89733593)
+Job : 88799282 created with parent idx 784 (16278088)
+Job : 93164800 created with parent idx 1130 (98695534)
+Job : 99943553 created with parent idx 1271 (82324412)
+Job : 22302336 created with parent idx 1049 (29092621)
+Job : 55076814 created with parent idx 151 (25931494)
+Job : 8178894 created with parent idx 450 (67512308)
+Job : 10653928 created with parent idx 1309 (36924128)
+Starting job with jobId 27211432
+Starting job with jobId 55076814
+Starting job with jobId 9322425
+Starting job with jobId 70804700
+Starting job with jobId 13374689
+Starting job with jobId 65715584
+Starting job with jobId 37853620
+Starting job with jobId 90886719
+Starting job with jobId 68962379
+Starting job with jobId 48101184
+Starting job with jobId 88402150
+Starting job with jobId 2892887
+Job : 32469585 created with parent idx 901 (44796399)
+JobId : 2892887 completed
+Starting job with jobId 32469585
+JobId : 90886719 completed
+Starting job with jobId 18071853
+JobId : 9322425 completed
+Starting job with jobId 23307796
+Job : 9957395 created with parent idx 1236 (43694450)
+JobId : 88402150 completed
+Starting job with jobId 20838915
+JobId : JobId : 23307796 completed68962379 completed
 
-Job : 9393577 created with parent idx1302( 15634009 )
-Job : 53999912 created with parent idx327( 32621713 )
-Job : 84209993 created with parent idx1399( 53999912 )
-Job : 36140785 created with parent idx736( 21595363 )
-Job : 92066583 created with parent idx1399( 53999912 )
-Job : 87926636 created with parent idx1364( 74344030 )
-Job : 93209436 created with parent idx1302( 15634009 )
-Job : 21558438 created with parent idx1456( 28175005 )
-Job : 7905751 created with parent idx1286( 93209436 )
-Job : 31704561 created with parent idx1286( 93209436 )
-Job : 72276950 created with parent idx1364( 74344030 )
-Job : 60051527 created with parent idx736( 21595363 )
-Job : 15530014 created with parent idx362( 1100525 )
-Job : 73226327 created with parent idx327( 32621713 )
-Job : 68002244 created with parent idx1286( 93209436 )
-Job : 31192367 created with parent idx421( 59484413 )
-Job : 38792346 created with parent idx736( 21595363 )
-Job : 69470106 created with parent idx1055( 31192367 )
-Job : 87346488 created with parent idx362( 1100525 )
-Job : 71151425 created with parent idx1364( 74344030 )
-Job : 13975405 created with parent idx1264( 69470106 )
-Job : 39036017 created with parent idx1364( 74344030 )
-Job : 5894412 created with parent idx815( 12776087 )
-Job : 3318755 created with parent idx1456( 28175005 )
-Job : 67854528 created with parent idx788( 9393577 )
-Job : 95235115 created with parent idx1027( 38664350 )
-Job : 80466990 created with parent idx421( 59484413 )
-Job : 80298486 created with parent idx0( 4289365 )
-Job : 72755579 created with parent idx736( 21595363 )
-Job : 27907649 created with parent idx1456( 28175005 )
-Job : 6939507 created with parent idx467( 92066583 )
-Job : 50573608 created with parent idx895( 39036017 )
-Job : 92035565 created with parent idx895( 39036017 )
-Job : 47267591 created with parent idx327( 32621713 )
-Job : 46811292 created with parent idx1246( 92035565 )
-Job : 77648503 created with parent idx1456( 28175005 )
-Job : 88213257 created with parent idx917( 80466990 )
-Job : 38962598 created with parent idx1086( 72276950 )
-Job : 20145544 created with parent idx917( 80466990 )
-Job : 13903860 created with parent idx0( 4289365 )
-Job : 37370154 created with parent idx1399( 53999912 )
-Job : 60152957 created with parent idx917( 80466990 )
-Job : 67681076 created with parent idx215( 73226327 )
-Job : 38422084 created with parent idx584( 72660331 )
-Job : 37379095 created with parent idx67( 82906987 )
-Job : 95706878 created with parent idx683( 80298486 )
-Job : 69261995 created with parent idx215( 73226327 )
-Job : 99878189 created with parent idx362( 1100525 )
-Job : 60401253 created with parent idx421( 59484413 )
-Job : 50955920 created with parent idx1246( 92035565 )
-Job : 19346221 created with parent idx215( 73226327 )
-Job : 24763917 created with parent idx1027( 38664350 )
-Job : 19054075 created with parent idx275( 13975405 )
-Job : 53207660 created with parent idx310( 47267591 )
-Job : 37739296 created with parent idx895( 39036017 )
-Job : 97352287 created with parent idx404( 50955920 )
-Job : 108574 created with parent idx597( 7905751 )
-Job : 27495975 created with parent idx736( 21595363 )
-Job : 62981760 created with parent idx275( 13975405 )
-Job : 5575578 created with parent idx1364( 74344030 )
-Job : 17679557 created with parent idx209( 108574 )
-Job : 48031320 created with parent idx972( 53207660 )
-Job : 14723505 created with parent idx209( 108574 )
-Job : 55789526 created with parent idx362( 1100525 )
-Job : 77210491 created with parent idx421( 59484413 )
-Job : 9383290 created with parent idx254( 48031320 )
-Job : 81999737 created with parent idx1190( 67681076 )
-Job : 34514490 created with parent idx390( 81999737 )
-Job : 86086972 created with parent idx815( 12776087 )
-Job : 52910248 created with parent idx390( 81999737 )
-Job : 74613992 created with parent idx1125( 38962598 )
-Job : 79895420 created with parent idx658( 24763917 )
-Job : 32026295 created with parent idx936( 37379095 )
-Job : 92707545 created with parent idx67( 82906987 )
-Job : 83571028 created with parent idx1205( 19346221 )
-Job : 73144486 created with parent idx1456( 28175005 )
-Job : 12895151 created with parent idx1055( 31192367 )
-Starting job with jobId 15530014
-Starting job with jobId 67854528
-Job : 13502204 created with parent idx1364( 74344030 )
-Starting job with jobId 21558438
-Starting job with jobId 77648503
-Starting job with jobId 13903860
-Starting job with jobId 5575578
-Starting job with jobId 74613992
-Starting job with jobId 69261995
-Starting job with jobId 37370154
-Starting job with jobId 83571028
-Starting job with jobId 14723505
-Starting job with jobId 87346488
-JobId : 74613992 completed
-Starting job with jobId 9383290
-JobId : 15530014 completed
-Starting job with jobId 92707545
-Job : 55590950 created with parent idx655( 27495975 )
-JobId : 87346488 completed
-Job : 2903173 created with parent idx1364( 74344030 )
-Starting job with jobId 55590950
-JobId : 21558438 completed
-JobId : 13903860 completed
-Starting job with jobId 62981760
-Starting job with jobId 88213257
-Job : 12260289 created with parent idx972( 53207660 )
-JobId : 55590950 completed
-JobId : 69261995 completed
-Job : 89040740 created with parent idx815( 12776087 )
-JobId : 77648503 completed
-JobId : 37370154 completed
-Job : 72655334 created with parent idx1399( 53999912 )
-Starting job with jobId 27907649
-Starting job with jobId 31704561
-Starting job with jobId 71151425
-Starting job with jobId 12260289
-Job : 80172244 created with parent idx327( 32621713 )
-JobId : 92707545 completed
-Starting job with jobId 87926636
-Job : 16266746 created with parent idx209( 108574 )
-JobId : 14723505 completed
-Starting job with jobId 60152957
-JobId : 5575578 completed
-Starting job with jobId 52910248
-JobId : 9383290 completed
-Starting job with jobId 48031320
-Job : 618991 created with parent idx692( 13502204 )
-JobId : 12260289 completed
-JobId : 67854528 completed
-Starting job with jobId 36140785
-Starting job with jobId 99878189
-Job : 86631615 created with parent idx275( 13975405 )
-Job : 11328191 created with parent idx655( 27495975 )
-JobId : 88213257 completed
-JobId : 83571028 completed
-Starting job with jobId 50573608
-JobId : 36140785 completed
-Starting job with jobId 11328191
-Starting job with jobId 86631615
-JobId : 62981760 completed
-Starting job with jobId 6939507
-JobId : 71151425 completed
-JobId : 27907649 completed
-JobId : 99878189 completed
-Starting job with jobId 97352287
-JobId : 97352287 completed
-Starting job with jobId 37739296
-JobId : 52910248 completed
-Starting job with jobId 50955920
-Starting job with jobId 79895420
-Starting job with jobId 84209993
-JobId : 31704561 completed
-Starting job with jobId 86086972
-JobId : 60152957 completed
-JobId : 48031320 completed
-Starting job with jobId 9393577
-JobId : 50573608 completed
-Starting job with jobId 5894412
-Starting job with jobId 2903173
-JobId : JobId : 11328191 completed86631615 completed
+Job : 94844740 created with parent idx 760 (63469767)
+Starting job with jobId 35993646
+Starting job with jobId 74424228
+Job : 48693122 created with parent idx 1260 (56935575)
+JobId : 65715584 completed
+Starting job with jobId 70530510
+JobId : 13374689 completed
+Starting job with jobId 87562969
+JobId : 27211432 completed
+Starting job with jobId 36954825
+Job : 76570931 created with parent idx 207 (88854734)
+Job : 79641175 created with parent idx 1195 (77657447)
+JobId : 36954825 completed
+JobId : 18071853 completed
+Starting job with jobId 79641175
+Starting job with jobId 24632488
+Job : 71530440 created with parent idx 816 (6742247)
+JobId : 87562969 completed
+Starting job with jobId 10653928
+JobId : 48101184 completed
+Starting job with jobId 36397437
+Job : 39742384 created with parent idx 1476 (39564032)
+JobId : 32469585 completed
+Job : 15359034 created with parent idx 827 (48100532)
+Starting job with jobId 40899260
+Job : 3945051 created with parent idx 164 (47414147)
+Job : 15888002 created with parent idx 276 (46392300)
+JobId : 36397437 completed
+JobId : 70804700 completed
+Starting job with jobId 85896166
+Starting job with jobId 32617556
+JobId : 55076814 completed
+Starting job with jobId 16497376
+JobId : 40899260 completed
+Starting job with jobId 39293970
+JobId : 37853620 completed
+Starting job with jobId 56229391
+JobId : 79641175 completed
+JobId : 35993646 completed
+Starting job with jobId 15442038
+Starting job with jobId 96740118
+JobId : 70530510 completed
+Starting job with jobId 81033219
+JobId : 74424228 completed
+Starting job with jobId 72437454
+JobId : 56229391 completed
+Starting job with jobId 32683738
+JobId : 32617556 completed
+Starting job with jobId 21025701
+JobId : 10653928 completed
+Starting job with jobId 12186956
+Job : 88271396 created with parent idx 601 (48693122)
+JobId : 20838915 completed
+Starting job with jobId 25931494
+JobId : 96740118 completed
+Starting job with jobId 21693608
+JobId : 12186956 completed
+Starting job with jobId 23976418
+JobId : 85896166 completed
+Starting job with jobId 29794634
+JobId : 24632488 completed
+Starting job with jobId 35422686
+JobId : 39293970 completed
+Starting job with jobId 2929155
+Job : 54660241 created with parent idx 801 (76217477)
+JobId : 21693608 completed
+JobId : 16497376 completed
+JobId : 81033219 completed
+JobId : 35422686 completed
+Starting job with jobId 55666100
+Starting job with jobId 92415051
+Starting job with jobId 55239919
+Starting job with jobId 19004517
+JobId : 29794634 completed
+Starting job with jobId 74739109
+Job : 71215905 created with parent idx 1192 (24130893)
+JobId : 2929155 completed
+Starting job with jobId 68874233
+JobId : 21025701 completed
+Starting job with jobId 41539742
+Job : 91464655 created with parent idx 770 (78302106)
+JobId : 32683738 completed
+Starting job with jobId 4742809
+JobId : 15442038 completed
+Starting job with jobId 4479997
+JobId : 72437454 completed
+Starting job with jobId 45121131
+JobId : 4742809 completed
+JobId : 74739109 completed
+JobId : 23976418 completed
+Starting job with jobId 73522602
+Starting job with jobId 13785621
+Starting job with jobId 72395767
+Job : 93332510 created with parent idx 268 (21859992)
+JobId : 19004517 completed
+Starting job with jobId 51228384
+JobId : JobId : 5122838413785621 completed completed
 
-Job : 65204334 created with parent idx895( 39036017 )
-Job : 64325573 created with parent idx917( 80466990 )
-Starting job with jobId 65204334
-Starting job with jobId 27495975
-JobId : 84209993 completed
-Starting job with jobId 38422084
-JobId : 2903173 completed
-Starting job with jobId 38792346
-Job : 57756952 created with parent idx815( 12776087 )
-JobId : 50955920 completed
-Starting job with jobId 57756952
-JobId : 6939507 completed
-Starting job with jobId 92066583
-JobId : 27495975 completed
-JobId : 87926636 completed
-Job : 81830845 created with parent idx209( 108574 )
-Job : 70788355 created with parent idx895( 39036017 )
-Starting job with jobId 70788355
-JobId : 37739296 completed
-Starting job with jobId 20145544
-Starting job with jobId 19054075
-JobId : 38422084 completed
-Job : 41909608 created with parent idx917( 80466990 )
-Starting job with jobId 72660331
-Job : 26047633 created with parent idx1286( 93209436 )
-JobId : 79895420 completed
-Starting job with jobId 24763917
-JobId : 65204334 completed
-JobId : 9393577 completed
-Starting job with jobId 73144486
-Starting job with jobId 95706878
-JobId : 5894412 completed
-Starting job with jobId 32026295
-JobId : 24763917 completed
-JobId : 86086972 completed
-Job : 30498333 created with parent idx1023( 16266746 )
-Job : 45790400 created with parent idx815( 12776087 )
-Starting job with jobId 30498333
-Starting job with jobId 45790400
-JobId : 92066583 completed
-JobId : 19054075 completed
-Starting job with jobId 13975405
-Job : 26107204 created with parent idx362( 1100525 )
-Starting job with jobId 26107204
-JobId : 38792346 completed
-JobId : 57756952 completed
-JobId : 95706878 completed
-Starting job with jobId 80298486
-JobId : 13975405 completed
-JobId : 70788355 completed
-JobId : 45790400 completed
-JobId : 73144486 completed
-Starting job with jobId 53207660
-JobId : 20145544 completed
-Starting job with jobId 3318755
-Job : 71990779 created with parent idx67( 82906987 )
-JobId : 72660331 completed
-Starting job with jobId 34514490
-JobId : 30498333 completed
-Starting job with jobId 16266746
-Starting job with jobId 64325573
-Starting job with jobId 81830845
-Starting job with jobId 68002244
-JobId : 80298486 completed
-Starting job with jobId 17679557
-JobId : 32026295 completed
-Starting job with jobId 37379095
-JobId : 3318755 completed
-JobId : 17679557 completed
-Starting job with jobId 60051527
-Job : 41804280 created with parent idx1378( 46811292 )
-Starting job with jobId 41804280
-JobId : 34514490 completed
-Starting job with jobId 81999737
-JobId : JobId : 8183084516266746 completed completed
-
-Starting job with jobId 108574
-Starting job with jobId 38962598
-Starting job with jobId 72755579
-Job : 47149298 created with parent idx1027( 38664350 )
-Job : 39723598 created with parent idx692( 13502204 )
-Starting job with jobId 12895151
-JobId : 60051527 completed
-JobId : 26107204 completed
-JobId : 53207660 completed
-JobId : 38962598 completed
-Starting job with jobId 47267591
-Starting job with jobId 72276950
-Job : 83631224 created with parent idx895( 39036017 )
-Starting job with jobId 83631224
-Starting job with jobId 72655334
-JobId : 72276950 completed
-JobId : 64325573 completed
-Job : 35550254 created with parent idx1027( 38664350 )
-Starting job with jobId 35550254
-JobId : 41804280 completed
-JobId : 83631224 completed
-Starting job with jobId 19346221
-Job : 90668352 created with parent idx1355( 26047633 )
-Starting job with jobId 80172244
-JobId : 47267591 completed
-JobId : 108574Starting job with jobId 90668352
+JobId : 25931494 completed
+Job : 14671822 created with parent idx 642 (69968419)
+JobId : 41539742 completed
+Starting job with jobId 31479615
+Starting job with jobId 13030084
+JobId : 31479615 completed
+Starting job with jobId 4897941
+Starting job with jobId 64104623
+Starting job with jobId 80655845
+JobId : 4897941 completed
+JobId : Starting job with jobId 9957395
+55666100 completed
+Starting job with jobId 22302336
+JobId : 92415051 completed
+Starting job with jobId 77694918
+JobId : 55239919 completed
+Starting job with jobId 91230122
+JobId : 72395767 completed
+Starting job with jobId 78486791
+JobId : 73522602 completed
+Job : 51303745 created with parent idx 139 (51722762)
+Starting job with jobId 10546031
+JobId : 77694918 completed
+Starting job with jobId 49312599
+JobId : 64104623 completed
+Starting job with jobId 84768934
+JobId : 10546031 completed
+Job : 620902 created with parent idx 627 (68704636)
+Starting job with jobId 77865715
+JobId : 49312599 completed
+Starting job with jobId 39742384
+JobId : 80655845 completed
+Starting job with jobId 35869855
+Job : 68656472 created with parent idx 482 (82367715)
+Job : 13167481 created with parent idx 1155 (37748907)
+JobId : 78486791 completed
+Starting job with jobId 24537850
+JobId : 13030084 completed
+Starting job with jobId 99943553
+JobId : 4479997 completed
+Starting job with jobId 45137885
+JobId : 68874233 completed
+Job : 44929515 created with parent idx 322 (77751580)
+Starting job with jobId 7272137
+JobId : 77865715 completed
+Starting job with jobId 97469937
+JobId : 22302336 completed
+Starting job with jobId 86731471
+JobId : 91230122 completed
+JobId : 24537850 completed
+JobId : 45121131 completed
+Starting job with jobId 34461923
+Starting job with jobId 25995245
+Starting job with jobId 34224579
+Job : 72567864 created with parent idx 1001 (41190399)
+JobId : 34461923 completed
+Starting job with jobId 50605944
+JobId : 25995245 completed
+Starting job with jobId 61562523
+JobId : 61562523 completed
+Starting job with jobId 86889401
+JobId : 9957395 completed
+Starting job with jobId 62074525
+JobId : 35869855 completed
+Starting job with jobId 2572720
+JobId : 39742384 completed
+JobId : 7272137 completed
+Starting job with jobId 21953980
+Starting job with jobId 46601065
+JobId : 97469937 completed
+Starting job with jobId 69719626
+Job : 67472663 created with parent idx 874 (29502073)
+JobId : 84768934 completed
+Starting job with jobId 39069817
+JobId : 50605944 completed
+Starting job with jobId 55068921
+Job : 58510378 created with parent idx 778 (50027823)
+JobId : 34224579 completed
+JobId : 99943553Job : 58134457 created with parent idx 666 (61581849)
  completed
-JobId : 81999737 completed
-Starting job with jobId 7905751
-Starting job with jobId 67681076
-JobId : 37379095 completed
-JobId : 72755579 completed
-Starting job with jobId 21595363
-JobId : 90668352 completed
-Job : 4196417 created with parent idx692( 13502204 )
-Starting job with jobId 47149298
-JobId : 72655334 completed
-Job : 35745789 created with parent idx895( 39036017 )
-JobId : 7905751 completed
-JobId : 68002244 completed
-Starting job with jobId 4196417
-JobId : 12895151 completed
-JobId : 80172244 completed
-Job : 52888560 created with parent idx559( 41616113 )
-Starting job with jobId 69470106
-Starting job with jobId 52888560
-JobId : 19346221 completed
-JobId : 47149298 completed
-Starting job with jobId 35745789
-JobId : 67681076 completed
-JobId : 35745789 completed
-Starting job with jobId 89040740
-Starting job with jobId 95235115
-Starting job with jobId 60401253
-Starting job with jobId 26047633
-Starting job with jobId 73226327
-Starting job with jobId 55789526
-JobId : 35550254 completed
-JobId : 26047633 completed
-JobId : 69470106 completed
-Job : 21035016 created with parent idx559( 41616113 )
-Starting job with jobId 21035016
-Starting job with jobId 31192367
-Starting job with jobId 93209436
-Starting job with jobId 46811292
-JobId : 52888560 completed
-JobId : 21595363 completed
-Job : 91554086 created with parent idx67( 82906987 )
-Starting job with jobId 53999912
-Starting job with jobId 91554086
-JobId : 73226327 completed
-JobId : 60401253 completed
-JobId : 89040740 completed
-Starting job with jobId 12776087
-JobId : 4196417 completed
-Job : 62032993 created with parent idx67( 82906987 )
-Starting job with jobId 618991
-Job : 33582335 created with parent idx327( 32621713 )
-JobId : 91554086 completed
-Starting job with jobId 62032993
-Starting job with jobId 71990779
-Starting job with jobId 28175005
-Job : 5539846 created with parent idx67( 82906987 )
-JobId : 93209436 completed
-JobId : 53999912 completed
-Starting job with jobId 33582335
-JobId : 28175005 completed
-Starting job with jobId 77210491
-Job : 59031518 created with parent idx559( 41616113 )
-Job : 6199753 created with parent idx559( 41616113 )
-Starting job with jobId 59031518
-JobId : 55789526 completed
-Starting job with jobId 1100525
-JobId : 12776087 completed
-JobId : JobId : 46811292 completed
-59031518 completed
-JobId : 95235115 completed
-JobId : 618991 completed
-JobId : 31192367 completed
-Starting job with jobId 6199753
-Starting job with jobId 92035565
-JobId : 1100525 completed
-JobId : 21035016 completed
-Starting job with jobId 38664350
-Starting job with jobId 15634009
-Starting job with jobId 39723598
-Starting job with jobId 5539846
-Starting job with jobId 41909608
-JobId : 62032993 completed
-JobId : 77210491 completed
-JobId : 71990779 completed
-JobId : 15634009 completed
-JobId : 39723598 completed
-Starting job with jobId 13502204
-JobId : 33582335 completed
-JobId : 41909608 completed
-Starting job with jobId 80466990
-JobId : 13502204 completed
-Starting job with jobId 32621713
-JobId : 6199753 completed
-Job : 72020125 created with parent idx1364( 74344030 )
-Starting job with jobId 72020125
-JobId : 38664350 completed
-Job : 57675103 created with parent idx1364( 74344030 )
-Starting job with jobId 57675103
-JobId : 92035565 completed
-JobId : 72020125 completed
-Starting job with jobId 39036017
-JobId : 5539846 completed
-Starting job with jobId 82906987
-JobId : 80466990 completed
-Job : 19041792 created with parent idx1364( 74344030 )
-Starting job with jobId 19041792
-Job : 29593608 created with parent idx421( 59484413 )
-JobId : 32621713 completed
-JobId : 57675103 completed
-Starting job with jobId 29593608
-Job : 74552805 created with parent idx1364( 74344030 )
-JobId : 19041792 completed
-JobId : 39036017 completed
-Starting job with jobId 74552805
-Job : 43124009 created with parent idx1364( 74344030 )
-Starting job with jobId 43124009
-JobId : 82906987 completed
-Starting job with jobId 40383411
-JobId : 29593608 completed
-Starting job with jobId 59484413
-Job : 2781471 created with parent idx1364( 74344030 )
-JobId : 59484413 completed
-Starting job with jobId 2781471
-JobId : 74552805 completed
-JobId : 2781471 completed
-Job : 7734712 created with parent idx1364( 74344030 )
-Starting job with jobId 7734712
-JobId : 7734712 completed
-JobId : 43124009 completed
-JobId : 40383411 completed
-Starting job with jobId 74344030
-Job : 41727069 created with parent idx0( 4289365 )
-Starting job with jobId 41727069
-Job : 6011013 created with parent idx0( 4289365 )
-Starting job with jobId 6011013
-JobId : 74344030 completed
-Job : 24305148 created with parent idx0( 4289365 )
-Starting job with jobId 24305148
-Starting job with jobId 41616113
-Job : 30449271 created with parent idx0( 4289365 )
-Starting job with jobId 30449271
-JobId : 41616113 completed
-JobId : 24305148 completed
-JobId : 41727069 completed
-Job : 60596951 created with parent idx0( 4289365 )
-Starting job with jobId 60596951
-JobId : 6011013 completed
-JobId : 30449271 completed
-JobId : 60596951 completed
-Starting job with jobId 4289365
-JobId : 4289365 completed
+Starting job with jobId 58510378
+Starting job with jobId 43740298
+JobId : 45137885 completed
+Starting job with jobId 97375750
+JobId : 97375750 completed
+Starting job with jobId 6441951
+JobId : 2572720 completed
+Starting job with jobId 84031020
+JobId : 84031020 completed
+Starting job with jobId 89789778
+JobId : 55068921 completed
+JobId : 89789778 completed
+Starting job with jobId 36050663
+Starting job with jobId 51303745
+JobId : 43740298 completed
+Starting job with jobId 93242345
+JobId : 86731471 completed
+JobId : 6441951 completed
+Starting job with jobId 33798209
+Starting job with jobId 91561446
+JobId : 33798209 completed
+Starting job with jobId 99024317
+JobId : 86889401 completed
+Starting job with jobId 48698138
+JobId : 36050663 completed
+Starting job with jobId 65345120
+JobId : 46601065 completed
+Starting job with jobId 54000118
+JobId : 51303745 completed
+Starting job with jobId 51722762
+JobId : 93242345 completed
+Starting job with jobId 9410059
+JobId : 48698138 completed
+Starting job with jobId 93164800
+Job : 41698493 created with parent idx 180 (86513657)
+JobId : 93164800 completed
+JobId : 99024317 completed
+Job : 96516582 created with parent idx 1188 (620902)
+Starting job with jobId 18085274
+JobId : 62074525 completed
+Starting job with jobId 31218845
+Starting job with jobId 72186736
+JobId : 39069817 completed
+Starting job with jobId 28735586
+JobId : 21953980 completed
+Starting job with jobId 97955566
+JobId : 69719626 completed
+JobId : 65345120 completed
+Job : 50743967 created with parent idx 168 (32231408)
+JobId : 91561446 completed
+Starting job with jobId 50743967
+Starting job with jobId 15359034
+Starting job with jobId 23306808
+JobId : 51722762 completed
+Job : 52916821 created with parent idx 1178 (5795806)
+Starting job with jobId 60303437
+Job : 36594044 created with parent idx 537 (39420089)
+JobId : 58510378 completed
+Job : 86263247 created with parent idx 1236 (43694450)
+Starting job with jobId 86263247
+JobId : 97955566 completed
+Starting job with jobId 92495301
+JobId : 72186736 completed
+Starting job with jobId 2770923
+Job : 18839447 created with parent idx 255 (89733593)
+JobId : 54000118 completed
+Starting job with jobId 83018864
+JobId : 15359034 completed
+JobId : 86263247 completed
+Starting job with jobId 13167481
+Starting job with jobId 30227215
+JobId : 28735586 completed
+JobId : 30227215 completed
+JobId : 31218845 completed
+JobId : 2770923 completed
+JobId : 50743967 completed
+Starting job with jobId 40085409
+Starting job with jobId 50839774
+Starting job with jobId 66308872
+Starting job with jobId 53184298
+Starting job with jobId 8641389
+JobId : 9410059 completed
+Starting job with jobId 88506119
+JobId : 18085274 completed
+Starting job with jobId 71215905
+JobId : 23306808 completed
+JobId : 66308872 completed
+Starting job with jobId 61949806
+Starting job with jobId 17988321
+JobId : 88506119 completed
+Starting job with jobId 75364576
+JobId : JobId : 60303437 completed40085409
+ completed
+Starting job with jobId 71212184
+JobId : 83018864 completed
+Starting job with jobId 93207956
+Starting job with jobId 23656110
+JobId : 53184298 completed
+Job : 40464846 created with parent idx 1271 (82324412)
+JobId : 71215905 completed
+Job : 25645526 created with parent idx 19 (71343942)
+Starting job with jobId 87276609
+Starting job with jobId 80766757
+JobId : 8641389 completed
+Starting job with jobId 10106468
+JobId : 75364576 completed
+Starting job with jobId 6568395
+JobId : 17988321 completed
+JobId : 92495301 completed
+Job : 98381720 created with parent idx 784 (16278088)
+JobId : 80766757 completed
+Starting job with jobId 39703528
+Starting job with jobId 98381720
+Starting job with jobId 22178551
+Job : 73771037 created with parent idx 330 (35804954)
+JobId : 98381720 completed
+Job : 69410196 created with parent idx 1057 (32264789)
+Starting job with jobId 73771037
+Job : 69315730 created with parent idx 1012 (9836760)
+JobId : 13167481 completed
+JobId : 10106468 completed
+JobId : 73771037 completed
+Starting job with jobId 6266784
+Starting job with jobId 52916821
+Starting job with jobId 92747383
+JobId : 87276609 completed
+JobId : 22178551 completed
+Starting job with jobId 87048592
+Starting job with jobId 56017716
+JobId : 6568395 completed
+Starting job with jobId 87339243
+JobId : 50839774 completed
+Starting job with jobId 9478798
+JobId : 23656110 completed
+JobId : 52916821 completed
+JobId : 87048592 completed
+Starting job with jobId 81219241
+Starting job with jobId 62656863
+JobId : 61949806 completed
+Starting job with jobId 52660225
+Starting job with jobId 35114906
+JobId : 39703528 completed
+Starting job with jobId 84030513
+JobId : 71212184 completed
+Job : 86487885 created with parent idx 622 (59223416)
+Starting job with jobId 86487885
+JobId : 93207956 completed
+Starting job with jobId 65625652
+JobId : 92747383 completed
+Starting job with jobId 82200698
+JobId : 52660225 completed
+Starting job with jobId 53976569
+JobId : 65625652 completed
+JobId : 81219241 completed
+Starting job with jobId 70795491
+Starting job with jobId 24146131
+JobId : JobId : 9478798 completed53976569 completed
+
+JobId : 56017716 completed
+Starting job with jobId 38582288
+JobId : 87339243 completed
+JobId : 6266784 completed
+JobId : 62656863 completed
+JobId : 82200698 completed
+Starting job with jobId 21941491
+Starting job with jobId 24402027
+Starting job with jobId 36834893
+Starting job with jobId 98851855
+Starting job with jobId 27295590
+Starting job with jobId 86072450
+JobId : 35114906 completed
+Starting job with jobId 88271396
+JobId : 86487885 completed
+JobId : 24402027 completed
+Job : 7684509 created with parent idx 746 (59959753)
+JobId : 38582288 completed
+Starting job with jobId 21278835
+Starting job with jobId 88958273
+Starting job with jobId 92503555
+JobId : 84030513 completed
+JobId : 21941491 completed
+Starting job with jobId 67856520
+Starting job with jobId 27182519
+JobId : 70795491 completed
+Starting job with jobId 27440806
+JobId : 86072450 completed
+Starting job with jobId 70650314
+JobId : 27295590 completed
+Starting job with jobId 75189397
+Job : 8862411 created with parent idx 1130 (98695534)
+Job : 40218375 created with parent idx 996 (66785797)
+JobId : 21278835 completed
+JobId : 75189397 completed
+JobId : 88271396 completed
+JobId : 67856520 completed
+Starting job with jobId 40218375
+Starting job with jobId 48693122
+JobId : 27182519 completed
+JobId : 98851855 completed
+JobId : 88958273 completed
+JobId : 24146131 completed
+Starting job with jobId 88799282
+Job : 47289062 created with parent idx 528 (11751188)
+Starting job with jobId 55251921
+JobId : 92503555 completed
+JobId : 27440806 completed
+Starting job with jobId 92472182
+Starting job with jobId 26717564
+Starting job with jobId 93332510
+Starting job with jobId 97427364
+JobId : 97427364 completed
+Starting job with jobId 50638410
+JobId : 36834893 completed
+JobId : 88799282 completed
+JobId : 48693122 completed
+Starting job with jobId 88877912
+Job : 85282478 created with parent idx 583 (93954526)
+JobId : 40218375 completed
+Starting job with jobId 85282478
+Starting job with jobId 8854815
+JobId : 92472182 completed
+Starting job with jobId 42113539
+Starting job with jobId 35421061
+Starting job with jobId 7684509
+Starting job with jobId 9693147
+Job : 88029486 created with parent idx 974 (96516582)
+Job : 52106316 created with parent idx 784 (16278088)
+Job : 80752343 created with parent idx 874 (29502073)
+JobId : 85282478 completed
+Starting job with jobId 88029486
+JobId : 93332510 completed
+Starting job with jobId 52106316
+JobId : 55251921 completed
+Starting job with jobId 80752343
+JobId : 70650314 completed
+Starting job with jobId 32057518
+JobId : 7684509 completed
+JobId : 88877912 completed
+Job : 79729869 created with parent idx 746 (59959753)
+JobId : 35421061 completed
+Starting job with jobId 14954756
+Starting job with jobId 40656780
+Starting job with jobId 79919429
+JobId : 8854815 completed
+Starting job with jobId 18839447
+JobId : JobId : 26717564 completed50638410 completed
+
+JobId : 40656780 completed
+Starting job with jobId 28307841
+JobId : 9693147 completed
+Starting job with jobId 84001812
+Starting job with jobId 51813211
+JobId : 14954756 completed
+Starting job with jobId 64147462
+Starting job with jobId 11335545
+JobId : 42113539 completed
+Starting job with jobId 49617439
+JobId : 32057518 completed
+JobId : 52106316 completed
+JobId : 88029486 completed
+Starting job with jobId 58134457
+JobId : 18839447 completed
+Starting job with jobId 8356318
+Starting job with jobId 31568618
+Starting job with jobId 4772911
+JobId : 49617439 completed
+Starting job with jobId 69315730
+JobId : 80752343 completed
+Starting job with jobId 59310574
+JobId : 64147462 completed
+Starting job with jobId 76570931
+JobId : 84001812 completed
+Starting job with jobId 574948
+JobId : JobId : 2830784179919429 completed completed
+
+JobId : 8356318 completed
+JobId : 58134457 completed
+Starting job with jobId 13151060
+JobId : 4772911 completed
+Starting job with jobId 61581849
+Starting job with jobId 53652282
+Starting job with jobId 17441409
+Starting job with jobId 72797630
+JobId : 69315730 completed
+JobId : 51813211 completed
+Starting job with jobId 28506657
+Starting job with jobId 39194586
+JobId : 11335545 completed
+Starting job with jobId 23957027
+Job : 75959953 created with parent idx 996 (66785797)
+JobId : 13151060 completed
+Starting job with jobId 75959953
+JobId : 61581849 completed
+Starting job with jobId 90437980
+JobId : 59310574 completed
+Job : 17682653 created with parent idx 934 (86995255)
+Starting job with jobId 35088160
+JobId : 31568618 completed
+Starting job with jobId 17682653
+JobId : 75959953 completed
+JobId : 35088160 completed
+Starting job with jobId 8862411
+Starting job with jobId 2822895
+Job : 33470427 created with parent idx 1210 (18859143)
+JobId : 17441409 completed
+Starting job with jobId 33470427
+JobId : 72797630 completed
+Starting job with jobId 36528952
+JobId : 23957027 completed
+JobId : 574948 completed
+JobId : 76570931 completed
+Starting job with jobId 30496696
+Starting job with jobId 68598080
+Starting job with jobId 88854734
+JobId : 2822895 completed
+JobId : 33470427 completed
+Starting job with jobId 57490762
+Starting job with jobId 6037557
+JobId : 90437980 completed
+JobId : 30496696 completed
+JobId : 6037557 completed
+JobId : 28506657 completed
+Starting job with jobId 65790796
+Starting job with jobId 16755404
+JobId : 53652282 completed
+Starting job with jobId 68968803
+Starting job with jobId 14671822
+Starting job with jobId 47289062
+JobId : 36528952 completed
+Starting job with jobId 18491462
+JobId : 39194586 completed
+Starting job with jobId 12374214
+JobId : 16755404 completed
+Starting job with jobId 69410196
+JobId : 65790796 completed
+JobId : 8862411 completed
+Job : 99872268 created with parent idx 93 (32993876)
+Starting job with jobId 8096900
+Starting job with jobId 86281983
+JobId : 17682653 completed
+Starting job with jobId 99872268
+JobId : 88854734 completed
+Job : 26369610 created with parent idx 231 (96078892)
+Starting job with jobId 26369610
+JobId : 99872268 completed
+Starting job with jobId 86995255
+JobId : 14671822 completed
+JobId : 12374214 completed
+Starting job with jobId 69968419
+Starting job with jobId 40588011
+JobId : 68598080 completed
+JobId : 26369610 completed
+JobId : 40588011 completed
+JobId : 86281983 completed
+JobId : 68968803 completed
+Starting job with jobId 36594044
+JobId : 57490762 completed
+JobId : 69410196 completed
+JobId : 86995255 completed
+Starting job with jobId 14115987
+Starting job with jobId 96516582
+Starting job with jobId 42406515
+Starting job with jobId 86399020
+Starting job with jobId 2105407
+Starting job with jobId 90129298
+JobId : 47289062 completed
+JobId : 18491462 completed
+Starting job with jobId 43819305
+Starting job with jobId 33709112
+Starting job with jobId 8086936
+JobId : 8096900 completed
+Starting job with jobId 97740125
+JobId : 42406515 completed
+Starting job with jobId 84286849
+Job : 15852218 created with parent idx 978 (32107797)
+JobId : 69968419 completed
+Starting job with jobId 15852218
+JobId : 14115987 completed
+Starting job with jobId 20732202
+JobId : 33709112 completed
+Starting job with jobId 27432295
+JobId : 43819305 completed
+Starting job with jobId 20458943
+JobId : 90129298 completed
+JobId : 2105407 completed
+Starting job with jobId 80718047
+Starting job with jobId 50503686
+JobId : 20458943 completed
+Starting job with jobId 94844740
+JobId : 36594044 completed
+Starting job with jobId 39420089
+JobId : 8086936 completed
+JobId : 94844740 completed
+JobId : 96516582 completed
+Starting job with jobId 63469767
+JobId : 50503686Starting job with jobId 29092621
+ completed
+JobId : 86399020 completed
+JobId : 15852218 completed
+JobId : 97740125 completed
+Starting job with jobId 94543085
+Starting job with jobId 79568727
+JobId : 20732202 completed
+JobId : 39420089 completed
+Job : 25818096 created with parent idx 255 (89733593)
+Starting job with jobId 87157711
+Starting job with jobId 76789853
+JobId : 84286849 completed
+Starting job with jobId 53844629
+Starting job with jobId 64735943
+Job : 82180588 created with parent idx 683 (48552139)
+Starting job with jobId 82180588
+Starting job with jobId 45950658
+JobId : 80718047 completed
+Starting job with jobId 25674986
+JobId : 53844629 completed
+Starting job with jobId 88419990
+JobId : 94543085 completed
+Starting job with jobId 20232782
+JobId : 27432295 completed
+Starting job with jobId 8484926
+JobId : 87157711 completed
+JobId : 25674986 completed
+JobId : 45950658 completed
+JobId : 82180588 completed
+Starting job with jobId 56029827
+Starting job with jobId 21176726
+Starting job with jobId 2941237
+Starting job with jobId 9050044
+JobId : 64735943 completed
+JobId : 79568727 completed
+Starting job with jobId 18772940
+Starting job with jobId 49284547
+JobId : 88419990 completed
+JobId : 63469767 completed
+Starting job with jobId 66785797
+Starting job with jobId 68029642
+JobId : 49284547 completed
+JobId : 29092621 completed
+Starting job with jobId 7939616
+Starting job with jobId 29554077
+JobId : 2941237 completed
+JobId : 56029827 completed
+Starting job with jobId 31536878
+Starting job with jobId 80958390
+JobId : 20232782 completed
+JobId : 31536878 completed
+JobId : 76789853 completed
+JobId : 9050044 completed
+JobId : 18772940 completed
+Starting job with jobId 93954526
+Starting job with jobId 51405656
+Starting job with jobId 12594302
+Starting job with jobId 115305
+Starting job with jobId 2044195
+JobId : JobId : 8484926 completed
+21176726 completed
+JobId : 66785797 completed
 All producer threads joined
 All producer threads joined
+JobId : 29554077 completed
+Starting job with jobId 98788510
+Starting job with jobId 98695534
+JobId : 12594302 completed
+Starting job with jobId 4910139
+JobId : 7939616 completed
+JobId : 4910139 completed
+JobId : 68029642 completed
+Starting job with jobId 2712948
+JobId : 51405656 completed
+Starting job with jobId 26479126
+Starting job with jobId 79729869
+JobId : 115305 completed
+JobId : 79729869 completed
+Starting job with jobId 49419540
+JobId : 2044195 completed
+Starting job with jobId 518654
+JobId : 93954526 completed
+JobId : 2712948 completed
+Starting job with jobId 87289688
+JobId : 49419540 completed
+Starting job with jobId 83570113
+Starting job with jobId 2680318
+Starting job with jobId 84395841
+Starting job with jobId 74643118
+Starting job with jobId 41698493
+Starting job with jobId 87320893
+JobId : 80958390 completed
+Starting job with jobId 49165014
+JobId : 74643118 completed
+JobId : 87320893 completed
+Starting job with jobId 66522519
+JobId : 26479126 completed
+JobId : 83570113 completed
+Starting job with jobId 79507223
+JobId : 98788510 completed
+JobId : 98695534 completed
+Starting job with jobId 78325425
+JobId : 84395841 completed
+JobId : 518654 completed
+JobId : 87289688 completed
+Starting job with jobId 58307787
+Starting job with jobId 31444844
+JobId : 2680318 completed
+JobId : 31444844 completed
+JobId : 58307787 completed
+Starting job with jobId 620902
+Starting job with jobId 77657447
+Starting job with jobId 25818096
+Starting job with jobId 74685109
+Starting job with jobId 95229929
+Starting job with jobId 18859143
+Starting job with jobId 97376975
+JobId : 41698493 completed
+Starting job with jobId 86513657
+JobId : 78325425 completed
+Starting job with jobId 43092049
+JobId : 49165014 completed
+JobId : 77657447 completed
+JobId : 97376975 completed
+JobId : 74685109 completed
+Starting job with jobId 72238995
+Starting job with jobId 59800494
+JobId : 18859143 completed
+JobId : 79507223 completed
+JobId : 66522519 completed
+JobId : 95229929 completed
+JobId : 620902 completed
+Starting job with jobId 68704636
+Starting job with jobId 83984464
+JobId : 68704636 completed
+Starting job with jobId 17359501
+Starting job with jobId 64558395
+JobId : 86513657 completed
+Starting job with jobId 93191833
+JobId : 25818096 completed
+JobId : 83984464 completed
+Starting job with jobId 48913846
+Starting job with jobId 72066784
+JobId : 72066784 completed
+JobId : 72238995 completed
+Starting job with jobId 52239299
+Starting job with jobId 31301406
+Starting job with jobId 37123905
+Starting job with jobId 43694450
+Starting job with jobId 45974495
+Starting job with jobId 42618072
+JobId : 59800494 completed
+Starting job with jobId 34627524
+JobId : 64558395 completed
+Starting job with jobId 89323943
+JobId : 17359501 completed
+Starting job with jobId 56935575
+JobId : 43092049 completed
+JobId : 48913846 completed
+Starting job with jobId 5720348
+JobId : 93191833 completed
+JobId : 45974495 completed
+Starting job with jobId 74954741
+Starting job with jobId 16590372
+JobId : 89323943 completed
+Starting job with jobId 91464655
+Starting job with jobId 40708003
+JobId : 37123905 completed
+Starting job with jobId 59223416
+JobId : 91464655 completed
+JobId : 34627524 completed
+JobId : 16590372 completed
+Starting job with jobId 78302106
+JobId : 31301406 completed
+JobId : 42618072 completed
+JobId : 43694450 completed
+Starting job with jobId 11263150
+Starting job with jobId 47202138
+JobId : 59223416 completed
+Starting job with jobId 70051925
+JobId : 52239299 completed
+JobId : 74954741 completed
+Starting job with jobId 33796427
+Starting job with jobId 62621502
+JobId : 5720348 completed
+Starting job with jobId 74706006
+JobId : 11263150 completed
+Starting job with jobId 52988904
+JobId : 70051925 completed
+Starting job with jobId 50027823
+JobId : 78302106 completed
+Starting job with jobId 4086700
+Starting job with jobId 54660241
+Starting job with jobId 78454093
+JobId : 74706006 completed
+Starting job with jobId 21830117
+JobId : 52988904 completed
+JobId : 56935575 completed
+JobId : 4086700 completed
+Starting job with jobId 70897537
+Starting job with jobId 12851906
+Starting job with jobId 72567864
+JobId : 40708003 completed
+Starting job with jobId 3945051
+Starting job with jobId 25766126
+JobId : 12851906 completed
+JobId : 54660241 completed
+Starting job with jobId 76217477
+JobId : 47202138 completed
+Starting job with jobId 84380023
+JobId : 84380023 completed
+Starting job with jobId 82129918
+Starting job with jobId 42289862
+JobId : 33796427 completed
+Starting job with jobId 73962151
+JobId : 76217477 completed
+JobId : 62621502 completed
+JobId : 73962151 completed
+JobId : 42289862 completed
+Starting job with jobId 36924128
+JobId : 50027823 completed
+JobId : 82129918 completed
+Starting job with jobId 8359319
+Starting job with jobId 90824709
+Starting job with jobId 15888002
+JobId : 70897537 completed
+JobId : 21830117 completed
+JobId : 78454093 completed
+JobId : 25766126 completed
+JobId : 72567864 completed
+Starting job with jobId 41190399
+Starting job with jobId 89733593
+Starting job with jobId 28617914
+Starting job with jobId 86555750
+Starting job with jobId 60769049
+Starting job with jobId 8178894
+JobId : 60769049 completed
+JobId : 89733593 completed
+Starting job with jobId 16278088
+Starting job with jobId 4826833
+Starting job with jobId 25607109
+JobId : 3945051 completed
+Starting job with jobId 47414147
+JobId : 28617914 completed
+Starting job with jobId 44796399
+JobId : 41190399 completed
+Starting job with jobId 74084159
+JobId : 16278088 completed
+JobId : 36924128 completed
+JobId : 8359319 completed
+JobId : 4826833 completed
+Starting job with jobId 32231408
+Starting job with jobId 14180064
+JobId : 44796399 completed
+Starting job with jobId 13045054
+JobId : 8178894 completed
+Starting job with jobId 62653451
+JobId : 62653451 completed
+JobId : 14180064 completed
+JobId : 15888002 completed
+Starting job with jobId 46392300
+Starting job with jobId 31198102
+JobId : 90824709 completed
+JobId : 47414147 completed
+Starting job with jobId 97131779
+Starting job with jobId 54747748
+Starting job with jobId 36003393
+JobId : 86555750 completed
+JobId : 25607109 completed
+Starting job with jobId 75729173
+JobId : 97131779 completed
+Starting job with jobId 90599571
+JobId : 74084159 completed
+Starting job with jobId 71820765
+Starting job with jobId 25645526
+JobId : 46392300 completed
+Starting job with jobId 51849386
+Starting job with jobId 92328433
+Starting job with jobId 13349044
+JobId : 75729173 completed
+Starting job with jobId 71530440
+JobId : 32231408 completed
+JobId : 13045054 completed
+JobId : 36003393 completed
+Starting job with jobId 64313237
+JobId : 90599571 completed
+Starting job with jobId 32606173
+Starting job with jobId 96078892
+Starting job with jobId 28125177
+JobId : 28125177 completed
+Starting job with jobId 72691640
+JobId : 54747748 completed
+JobId : 13349044 completed
+Starting job with jobId 34233906
+Starting job with jobId 19607003
+JobId : 92328433 completed
+Starting job with jobId 61821226
+JobId : 31198102 completed
+Starting job with jobId 18887934
+JobId : 71530440 completed
+Starting job with jobId 6742247
+JobId : 18887934 completed
+Starting job with jobId 9836760
+JobId : 34233906 completed
+JobId : 51849386 completed
+JobId : 96078892 completed
+JobId : 71820765 completed
+JobId : 25645526 completed
+JobId : 19607003 completed
+Starting job with jobId 48552139
+Starting job with jobId 9511523
+JobId : 48552139 completed
+Starting job with jobId 14127183
+JobId : 72691640 completed
+Starting job with jobId 71343942
+JobId : 64313237 completed
+Starting job with jobId 1996031
+JobId : 32606173 completed
+Starting job with jobId 36483498
+Starting job with jobId 75370395
+JobId : 6742247 completed
+Starting job with jobId 50454214
+Starting job with jobId 55589412
+Starting job with jobId 11439612
+Starting job with jobId 44929515
+JobId : 61821226 completed
+Starting job with jobId 87556023
+JobId : 11439612 completed
+JobId : 9511523 completed
+Starting job with jobId 21859992
+Starting job with jobId 37748907
+JobId : 75370395 completed
+Starting job with jobId 23696409
+JobId : 14127183 completed
+Starting job with jobId 40464846
+JobId : 36483498 completed
+JobId : 1996031 completed
+Starting job with jobId 83629367
+Starting job with jobId 72786419
+JobId : 9836760 completed
+Starting job with jobId 99325518
+JobId : 72786419 completed
+Starting job with jobId 32264789
+JobId : 32264789 completed
+JobId : 83629367 completed
+JobId : 44929515 completed
+JobId : 99325518 completed
+JobId : 37748907 completed
+Starting job with jobId 51731064
+Starting job with jobId 89584551
+JobId : 71343942 completed
+JobId : 23696409 completed
+Starting job with jobId 79892442
+Starting job with jobId 21004216
+JobId : 50454214 completed
+Starting job with jobId 50970229
+JobId : 21004216 completed
+Starting job with jobId 77751580
+JobId : 89584551 completed
+JobId : 55589412 completed
+JobId : 21859992 completed
+Starting job with jobId 5795806
+JobId : 51731064 completed
+JobId : 87556023 completed
+JobId : 79892442 completed
+Starting job with jobId 3631155
+Starting job with jobId 48100532
+Starting job with jobId 10156591
+Starting job with jobId 68656472
+Starting job with jobId 94033374
+JobId : 40464846 completed
+Starting job with jobId 12157222
+JobId : 3631155 completed
+JobId : 77751580 completed
+Starting job with jobId 14442898
+Starting job with jobId 15387288
+Starting job with jobId 1984294
+JobId : 50970229 completed
+JobId : 10156591 completed
+Starting job with jobId 34929520
+JobId : 15387288 completed
+JobId : 68656472 completed
+Starting job with jobId 15690096
+JobId : 5795806 completed
+JobId : 15690096 completed
+Starting job with jobId 27165232
+Starting job with jobId 82367715
+Starting job with jobId 92093361
+JobId : 94033374 completed
+JobId : 82367715 completed
+Starting job with jobId 18533510
+Starting job with jobId 58199237
+Starting job with jobId 21644321
+JobId : 34929520 completed
+JobId : 48100532 completed
+Starting job with jobId 33824953
+JobId : 58199237 completed
+JobId : 21644321 completed
+JobId : 14442898 completed
+JobId : 12157222 completed
+Starting job with jobId 82324412
+Starting job with jobId 33399916
+Starting job with jobId 71545835
+Starting job with jobId 9204566
+JobId : 33399916 completed
+JobId : 27165232 completed
+Starting job with jobId 15510647
+Starting job with jobId 58174412
+JobId : 92093361 completed
+JobId : 58174412 completed
+Starting job with jobId 67472663
+JobId : 1984294 completed
+Starting job with jobId 51175206
+JobId : 9204566 completed
+JobId : 18533510 completed
+Starting job with jobId 77727798
+Starting job with jobId 58108538
+Starting job with jobId 95833075
+Starting job with jobId 16155968
+Starting job with jobId 39564032
+Starting job with jobId 44909983
+JobId : 67472663 completed
+JobId : 39564032 completed
+Starting job with jobId 29502073
+JobId : 15510647 completed
+JobId : 71545835 completed
+JobId : 33824953 completed
+Starting job with jobId 11138282
+JobId : 29502073 completed
+Starting job with jobId 71194209
+Starting job with jobId 52400853
+Starting job with jobId 21512661
+Starting job with jobId 62140813
+JobId : 82324412 completed
+JobId : 51175206 completed
+JobId : 11138282 completed
+Starting job with jobId 23460759
+JobId : 58108538 completed
+Starting job with jobId 10023873
+Starting job with jobId 24130893
+JobId : 71194209 completed
+Starting job with jobId 25348218
+Starting job with jobId 20466455
+JobId : 95833075 completed
+JobId : 16155968 completed
+JobId : 77727798 completed
+JobId : 44909983 completed
+Starting job with jobId 76398730
+Starting job with jobId 12710078
+Starting job with jobId 76016081
+Starting job with jobId 26102725
+JobId : 52400853 completed
+Starting job with jobId 77397182
+JobId : 10023873 completed
+JobId : 20466455 completed
+JobId : 77397182 completed
+Starting job with jobId 35804954
+JobId : 76016081 completed
+Starting job with jobId 28284592
+JobId : 62140813 completed
+Starting job with jobId 99303328
+JobId : 21512661 completed
+Starting job with jobId 12835663
+JobId : 12835663 completed
+Starting job with jobId 33150009
+JobId : 23460759 completed
+JobId : 76398730 completed
+Starting job with jobId 81324161
+JobId : 24130893 completed
+JobId : 33150009 completed
+JobId : 26102725 completed
+Starting job with jobId 97412858
+JobId : 12710078 completed
+JobId : 25348218 completed
+Starting job with jobId 52801179
+Starting job with jobId 56556177
+JobId : 81324161 completed
+Starting job with jobId 4687835
+JobId : 35804954 completed
+Starting job with jobId 89188228
+JobId : 28284592 completed
+JobId : 4687835 completed
+Starting job with jobId 67512308
+JobId : 56556177 completed
+Starting job with jobId 32107797
+JobId : 99303328 completed
+Starting job with jobId 53204329
+Starting job with jobId 32993876
+JobId : 97412858 completed
+Starting job with jobId 59688034
+JobId : 53204329 completed
+JobId : 89188228 completed
+Starting job with jobId 93900090
+JobId : 32993876 completed
+Starting job with jobId 92045517
+JobId : 52801179 completed
+Starting job with jobId 2743793
+JobId : 92045517 completed
+JobId : 93900090 completed
+JobId : 32107797 completed
+JobId : 2743793 completed
+Starting job with jobId 59959753
+Starting job with jobId 32114644
+JobId : 67512308 completed
+Starting job with jobId 80805357
+JobId : JobId : 32114644 completed
+59688034 completed
+Starting job with jobId 57626682
+JobId : 57626682 completed
+JobId : 80805357 completed
+Starting job with jobId 60720218
+JobId : 59959753 completed
+JobId : 60720218 completed
+Starting job with jobId 58472546
+JobId : 58472546 completed
+Starting job with jobId 55470066
+JobId : 55470066 completed
+Starting job with jobId 11751188
+JobId : 11751188 completed
+Starting job with jobId 24797968
+JobId : 24797968 completed
 All consumers also finished working! Yayayayaya
-Jobs done142, Total jobs : 142
+Jobs done 530, Total jobs : 530
