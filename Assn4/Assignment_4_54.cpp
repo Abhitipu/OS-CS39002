@@ -19,22 +19,27 @@ using namespace std;
 
 pthread_mutexattr_t mattr; 
 
+// Total time for a producer
 const int MAX_PTIME = 20;       // seconds
 const int MIN_PTIME = 10;
 
+// Sleep time between process creation
 const int MIN_PSLEEP_TIME = 200;
 const int MAX_PSLEEP_TIME = 500;    // ms
 
+// For the initial tree
 const int MIN_INITIAL_JOBS = 300;
 const int MAX_INITIAL_JOBS = 500;
 
+// Total no of jobs in the queue
 int MAX_JOBS = 500;
 
+// Max completion time for a job
 const int MAX_COMPLETION_TIME = 250; // ms
 
-// Bound calculated considering the limits on the number of threads allowed
-const int MAX_PRODUCERS = 500;
-const int MAX_WORKERS = 500;
+// TODO check : Bound calculated considering the limits on the number of threads allowed
+const int MAX_PRODUCERS = 1000;
+const int MAX_WORKERS = 1000;
 
 // Job id
 const int MIN_ID = 1;
@@ -202,8 +207,8 @@ bool jobsStillLeft(joblist* T )
     // logic for job still left
     // either all jobs are not created or all jobs are not done
     bool res = (!T->allJobsCreated) || (T->jobsDone < T->totalJobs);
-    cerr<<"Res "<<res<<"\n";
-    cerr<<"All jobs created "<<T->allJobsCreated<<endl;
+    // cerr<<"Res "<<res<<"\n";
+    // cerr<<"All jobs created "<<T->allJobsCreated<<endl;
     return res;
 }
 void* consumer(void* param)
@@ -257,7 +262,7 @@ void* consumer(void* param)
                 break;
             }
             else{
-                cerr<<"I am unemployed :("<<endl;
+                // cerr<<"I am unemployed :("<<endl;
             }
         }
     }
@@ -351,7 +356,7 @@ int main() {
     // 1.2 {Each parent waits for its child} : using pthread_join?
     int P, Y; 
     cin >> P >> Y;
-
+    int startTIme = time(NULL);
     // Using a hardcoded limit
     P = min(P, MAX_ALLOWED_PRODUCERS);
     Y = min(Y, MAX_ALLOWED_WORKERS);
@@ -410,6 +415,8 @@ int main() {
     }
 
     cout<<"Jobs done " <<T->jobsDone<< ", Total jobs : "<< T->totalJobs<<endl;
+    int endTime = time(NULL);
+    cout<<"Total time taken "<<endTime-startTIme<<"\n";
     pthread_mutex_destroy(&(T->lock));
     for(int i = 0; i < MAX_JOBS; i++)
         pthread_mutex_destroy(&(T->jobs[i].lock));
