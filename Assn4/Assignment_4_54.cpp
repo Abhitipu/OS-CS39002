@@ -53,8 +53,8 @@ const int HAS_DEPENDENCY = 3;
 const int CREATED = 4;
 
 // TODO : check these
-const int MAX_ALLOWED_PRODUCERS = 5000;
-const int MAX_ALLOWED_WORKERS = 5000;
+const int MAX_ALLOWED_PRODUCERS = 1000;
+const int MAX_ALLOWED_WORKERS = 1000;
 
 set<int> ids;
 
