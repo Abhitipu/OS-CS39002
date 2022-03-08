@@ -1,7 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <cstdlib>
-#include <cassert>
+#include <algorithm>
 #include <set>
 
 // Multithreads / multiprocesses
@@ -37,9 +37,9 @@ int MAX_JOBS = 500;
 // Max completion time for a job
 const int MAX_COMPLETION_TIME = 250; // ms
 
-// TODO check : Bound calculated considering the limits on the number of threads allowed
-const int MAX_PRODUCERS = 1000;
-const int MAX_WORKERS = 1000;
+// Hardcoded bounds on no of producers and Workers based on max allowed threads
+const int MAX_ALLOWED_PRODUCERS = 1000;
+const int MAX_ALLOWED_WORKERS = 1000;
 
 // Job id
 const int MIN_ID = 1;
@@ -52,12 +52,10 @@ const int SCHEDULED = 2;
 const int HAS_DEPENDENCY = 3;
 const int CREATED = 4;
 
-// TODO : check these
-const int MAX_ALLOWED_PRODUCERS = 1000;
-const int MAX_ALLOWED_WORKERS = 1000;
 
 set<int> ids;
 
+// A particular job
 struct node {
     int jobId;
     int completionTime;  // maybe change to int in ms ?
@@ -67,6 +65,7 @@ struct node {
     int status;             //  
 };
 
+// The list of jobs
 struct joblist {
     node* jobs;
     int totalJobs;
@@ -75,8 +74,9 @@ struct joblist {
     pthread_mutex_t lock;
 };
 
-int getRandomInRange(const int lo, const int hi) {
-    assert(lo<=hi);
+int getRandomInRange(int lo, int hi) {
+    if(lo > hi)
+        swap(lo, hi);
     return rand()%(hi - lo + 1) + lo;
 }
 
@@ -124,8 +124,6 @@ void *producer(void *param)
     int startTime = time(NULL);
     int curTime = time(NULL);
     while(((curTime = time(NULL)) - startTime) <= timeToRun) {
-        // cerr << "Jag ghumeyaaaaa thare jaisa...." << endl;
-        
         // First we generate a random index and then we do linear probing on the array
         // Until we find a suitable position        
         int idx = getRandomInRange(0, MAX_JOBS - 1);
@@ -207,8 +205,6 @@ bool jobsStillLeft(joblist* T )
     // logic for job still left
     // either all jobs are not created or all jobs are not done
     bool res = (!T->allJobsCreated) || (T->jobsDone < T->totalJobs);
-    // cerr<<"Res "<<res<<"\n";
-    // cerr<<"All jobs created "<<T->allJobsCreated<<endl;
     return res;
 }
 void* consumer(void* param)
@@ -221,16 +217,14 @@ void* consumer(void* param)
     bool jobReceived = false;
     while(jobsStillLeft(T))
     {   
-        // cerr << "Jag ghumeyaaaaa thare jaisa na koiii" << endl;
         bool toWork = false;
         for(int i=0; i<MAX_JOBS;++i)
         {
             toWork = false;
             node &curJob = T->jobs[i];
             pthread_mutex_lock(&curJob.lock);
-            if(curJob.status == NOT_SCHEDULED)
+            if(curJob.status == NOT_SCHEDULED && curJob.jobId != -1 && curJob.numJobs == 0)
             {
-                assert(curJob.jobId != -1 && curJob.numJobs == 0);
                 curJob.status = SCHEDULED;
                 toWork = true;
             }
@@ -358,7 +352,11 @@ int main() {
     cin >> P >> Y;
     int startTIme = time(NULL);
     // Using a hardcoded limit
+    if(P>MAX_ALLOWED_PRODUCERS)
+        cout<<"Using hardcoded limit for P\n";
     P = min(P, MAX_ALLOWED_PRODUCERS);
+    if(Y>MAX_ALLOWED_WORKERS)
+        cout<<"Using hardcoded limit for Y\n";
     Y = min(Y, MAX_ALLOWED_WORKERS);
 
     srand(time(NULL) + P ^ Y + P * Y);
@@ -367,17 +365,16 @@ int main() {
     // max total execution time for producer : 20s
     // Max jobs = 20 / 0.2 = 100 jobs per producer
 
-    // TODO : Maybe hardcode a limit
-    MAX_JOBS = max(MAX_INITIAL_JOBS, 100 * P);
-    int shmidAll = shmget(IPC_PRIVATE, sizeof(node) * MAX_JOBS, 0666 | IPC_CREAT);
-    node* alljobs = (node* )shmat(shmidAll, NULL, 0);
-
+    int max_jobs_per_producer = (MAX_PTIME * 1000  + MIN_PSLEEP_TIME - 1) / MIN_PSLEEP_TIME; // ceiling function
+    MAX_JOBS = MAX_INITIAL_JOBS + max_jobs_per_producer * P;
+    
     int shmid = shmget(IPC_PRIVATE, sizeof(joblist), 0666 | IPC_CREAT);
     joblist *T = (joblist *)shmat(shmid, NULL, 0);
 
-    // Attach the list
-    T->jobs = alljobs;
+    int shmidAll = shmget(IPC_PRIVATE, sizeof(node) * MAX_JOBS, 0666 | IPC_CREAT);
+    T->jobs = (node* )shmat(shmidAll, NULL, 0);
 
+    // Creating the base tree
     initjoblist(T);
 
     int pid = fork();
@@ -391,7 +388,7 @@ int main() {
         for(int i = 0; i < Y; i++)
             pthread_join(pThreadId[i], NULL);
         
-        cout << "All consumers also finished working! Yayayayaya" << endl;
+        cout << "All consumers also finished working!" << endl;
         
         exit(0);
 
@@ -414,18 +411,21 @@ int main() {
         wait(NULL);
     }
 
+    cerr << "No of ids: " << ids.size() << "\n";
+    cerr << "No of jobs: " << T->totalJobs << "\n";
     cout<<"Jobs done " <<T->jobsDone<< ", Total jobs : "<< T->totalJobs<<endl;
     int endTime = time(NULL);
-    cout<<"Total time taken "<<endTime-startTIme<<"\n";
+    cout<<"Total time taken "<<endTime-startTIme<<" seconds.\n";
     pthread_mutex_destroy(&(T->lock));
     for(int i = 0; i < MAX_JOBS; i++)
         pthread_mutex_destroy(&(T->jobs[i].lock));
 
     pthread_mutexattr_destroy(&mattr);
 
-    shmdt(alljobs);
+    shmdt(T->jobs);
+    shmctl(shmidAll, IPC_RMID, NULL);
+
     shmdt(T);
     shmctl(shmid, IPC_RMID, NULL);
-    shmctl(shmidAll, IPC_RMID, NULL);
     return 0;
 }
