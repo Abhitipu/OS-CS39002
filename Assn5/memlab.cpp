@@ -59,16 +59,22 @@ public:
 ScopeHandler myScope;
 */
 
-Object :: Object(string _name="Temp", string _scope="global", type _objType=integer, int _size=-1, int _totSize=-1) {}
+Object :: Object(type _objType=integer, int _size=-1, int _totSize=-1):objType(_objType),\
+    size(_size), totSize(_totSize) { }
 
 std::ostream & operator<<(std::ostream &os, const Object& p)
 {
-    
-    os<<"\n+------------+--+\n| name       |"<<p.name <<"|\n+------------+--+\n| type       |"<<p.objType <<"|\n+------------+--+\n| scope      |"<<p.scope <<"|\n+------------+--+\n| size       |"<<p.size <<"|\n+------------+--+\n| total size |"<<p.totSize <<"|\n+------------+--+\n";
+    os<<"\n+------------+--+\n| type        |"\
+    <<p.objType <<"|\n+------------+--+\n| size      |"\
+    <<p.size <<"|\n+------------+--+\n| total size |"\
+    <<p.totSize <<"|\n+------------+--+\n";
     return os;
 }
-SymTableEntry::SymTableEntry(string _name="Temp", string _scope="global", type _objType=integer, int _size=-1, int _totSize=-1, int _wordIndex=-1, int _wordOffset=-1, bool _valid= false, bool _marked = false):
-     refObj(_name, _scope, _objType, _size, _totSize), wordIndex(_wordIndex), wordOffset(_wordOffset), valid(_valid), marked(_marked){ }
+
+SymTableEntry::SymTableEntry(type _objType=integer, int _size=-1, int _totSize=-1, int _wordIndex=-1, \
+    int _wordOffset=-1, bool _valid= false, bool _marked = false):
+    refObj(_objType, _size, _totSize), wordIndex(_wordIndex), \
+    wordOffset(_wordOffset), valid(_valid), marked(_marked){ }
 
 inline void SymTableEntry::unmark() {
     marked = false;
@@ -145,13 +151,14 @@ int entries :: search(string name, string scope) {
         if(!myEntries[hashVal].valid)
             continue;
 
-        if(myEntries[hashVal].refObj.name == name && myEntries[hashVal].refObj.scope == scope)
+        if(myEntries[hashVal].refObj.name == name \
+        && myEntries[hashVal].refObj.scope == scope)
             return hashVal;
     }
     cout<<"Symbol not found!\n";
     return -1;
     */
-   return -1;
+    return -1;
 }
 entries mySymbolTable;
 
@@ -196,13 +203,7 @@ int createMem(size_t memSize) {
     }
     memset(memSeg, '\0', memSize);
     totSize = memSize;
-    // const handled
-    // sizeInfo[(int)character] = 1;
-    // sizeInfo[(int)boolean] = 1;
-    // sizeInfo[(int)medium_integer] = 3;
-    // sizeInfo[(int)integer] = 4;
 
-    // symbolTables.push()
     //  TODO: Spawn the garbage collector
     return memSize;
 }
@@ -245,26 +246,26 @@ int getBestFit(int reqdSize){
     for(int done = 0, curIdx = idx; done < reqdSize; done++, curIdx++) {
         assert(!(entries :: validMem[curIdx]));
         entries :: validMem[curIdx]=true;
-        cout<<entries :: validMem[curIdx]<<" ? = true\n";
+        // cout<<entries :: validMem[curIdx]<<" ? = true\n";
         cout<<"allocating word "<<curIdx<<'\n';
     }
 
     return idx;
 }
 
-size_t getSize(type t, int freq = 1) {
+size_t getSize(type t, int freq) {
     return sizeInfo.at((int)t) * freq;
 }
 
-Object createVar(type t, string name, string scope) {
-    int myIndex = getBestFit(getSize(t)); // 1 word
+Object createVar(type t) {
+    int myIndex = getBestFit(getSize(t, 1)); // 1 word
     if(myIndex == -1) {
         cout << "Couldn't allocate memory!!\n";
         return Object();
     }
     else {
         // allocate the memory
-        SymTableEntry curEntry(name, scope, t, getSize(t), getSize(t), myIndex, 0, true, true);
+        SymTableEntry curEntry(t, getSize(t, 1), getSize(t, 1), myIndex, 0, true, true);
         mySymbolTable.insert(curEntry);
         varStack.push(myIndex);
         return curEntry.refObj;

@@ -28,11 +28,10 @@ class Object {
 private:
     friend std::ostream & operator<<(std::ostream &os, const Object& o);
 public:
-    string name, scope;
     type objType;
     int size;
     int totSize;
-    Object(string _name, string _scope, type _objType, int _size, int _totSize);
+    Object(type _objType, int _size, int _totSize);
 };
 
 class SymTableEntry {
@@ -41,7 +40,7 @@ public:
     int wordIndex, wordOffset;
     bool valid, marked;
 
-    SymTableEntry(string _name, string _scope, type _objType, int _size, int _totSize, int _wordIndex, int _wordOffset, bool _valid, bool _marked);
+    SymTableEntry(type _objType, int _size, int _totSize, int _wordIndex, int _wordOffset, bool _valid, bool _marked);
     inline void unmark();
     inline void invalidate();
 };
@@ -77,12 +76,14 @@ public:
 */
 int createMem(size_t memSize);
 
-Object createVar(type t, string name, string scope);
+Object createVar(type t);
 
 int assignVar(type t, type t2);
 
 int createArr(type t, int len);
 
 int freeElem(type* t);
+
+size_t getSize(type t, int freq = 1);
 
 #endif // __MEMLAB_H
