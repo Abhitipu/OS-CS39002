@@ -3,12 +3,19 @@
 
 #include <iostream>
 #include <cstdlib>
+#include <climits>
 #include <string>
 #include <string.h>
 #include <pthread.h>
 #include <vector>
 #include <stack>
 #include <map>
+#include <bitset>
+#include <cassert>
+
+using namespace std;
+
+const int mxn = 1e4;
 
 typedef enum _type {
     boolean,
@@ -17,7 +24,48 @@ typedef enum _type {
     integer
 } type;
 
-using namespace std;
+class Object {
+public:
+    string name, scope;
+    type objType;
+    int size;
+    int totSize;
+    Object(string _name, string _scope, type _objType, int _size, int _totSize);
+};
+
+class SymTableEntry {
+public:
+    Object refObj;
+    int wordIndex, wordOffset;
+    bool valid, marked;
+
+    SymTableEntry(string _name, string _scope, type _objType, int _size, int _totSize, int _wordIndex, int _wordOffset, bool _valid, bool _marked);
+    inline void unmark();
+    inline void invalidate();
+};
+
+class entries {
+public:
+    // 1e9 / 4 words 256 mil. words
+    // 32 * 1e6  --> bytes 32mb
+    static bitset<256'000'000> validMem; // overhead 32MiB, True if word is in use, false if it is not in use
+    SymTableEntry myEntries[mxn];
+    int ctr;
+    
+    entries();
+    int insert(SymTableEntry st);
+    int search(string name, string scope);
+};
+
+class Stack {
+public:
+    int indices[1000];
+    int top;
+    Stack(); 
+    void push(int index);
+    int pop();
+    int peek();
+};
 
 /*
     _ _ _ _
@@ -25,32 +73,9 @@ using namespace std;
     _ _ _ _
     _ _ _ _
 */
-
-struct symbolTableEntry {
-    string symbolName;
-    type dataType;
-    int offset;
-    size_t len; // how long is the segment? (word)
-};
-
-struct symbolTable {
-    string scope;
-    int tableSize;
-    vector<symbolTableEntry> entries;
-
-    symbolTable(string _scope): scope(_scope), tableSize(0), entries(){
-
-    }
-
-    void addEntry(symbolTableEntry newEntry) {
-        entries.push_back(newEntry);
-        tableSize++;
-    }
-};
-
 int createMem(size_t memSize);
 
-int createVar(type t, char* scope);
+Object createVar(type t, string name, string scope);
 
 int assignVar(type t, type t2);
 
