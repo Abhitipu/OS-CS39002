@@ -3,7 +3,7 @@
 
 // memSeg is the whole memory
 void* memSeg;
-int totSize;
+int totSize = 0;
 const map<int, int> sizeInfo={
     {character,  1},
     {boolean,  1},
@@ -61,8 +61,14 @@ ScopeHandler myScope;
 
 Object :: Object(string _name="Temp", string _scope="global", type _objType=integer, int _size=-1, int _totSize=-1) {}
 
+std::ostream & operator<<(std::ostream &os, const Object& p)
+{
+    
+    os<<"\n+------------+--+\n| name       |"<<p.name <<"|\n+------------+--+\n| type       |"<<p.objType <<"|\n+------------+--+\n| scope      |"<<p.scope <<"|\n+------------+--+\n| size       |"<<p.size <<"|\n+------------+--+\n| total size |"<<p.totSize <<"|\n+------------+--+\n";
+    return os;
+}
 SymTableEntry::SymTableEntry(string _name="Temp", string _scope="global", type _objType=integer, int _size=-1, int _totSize=-1, int _wordIndex=-1, int _wordOffset=-1, bool _valid= false, bool _marked = false):
-    wordIndex(_wordIndex), wordOffset(_wordOffset), valid(_valid), marked(_marked), refObj(_name, _scope, _objType, _size, _totSize) { }
+     refObj(_name, _scope, _objType, _size, _totSize), wordIndex(_wordIndex), wordOffset(_wordOffset), valid(_valid), marked(_marked){ }
 
 inline void SymTableEntry::unmark() {
     marked = false;
@@ -87,10 +93,9 @@ static long long entries:: compute_hash(string const& s) {
     return hash_value;
 }
 */
-
+bitset<256'000'000> entries::validMem = 0;
 entries::entries() {
     cerr<<"This should be printed only once\n";
-    validMem &= 0;
     ctr = 0;
 }
 
@@ -146,6 +151,7 @@ int entries :: search(string name, string scope) {
     cout<<"Symbol not found!\n";
     return -1;
     */
+   return -1;
 }
 entries mySymbolTable;
 
@@ -169,6 +175,7 @@ int Stack::pop() {
         printf("Stack Underflow!\n");
     else
         top--;
+    return top;
 }
 
 int Stack::peek() {
@@ -176,10 +183,11 @@ int Stack::peek() {
         printf("Stack Underflow!\n");
     else
         return indices[top];
+    return -1;
 }
 Stack varStack;
 
-
+// Creates memory segment for memSize bytes
 int createMem(size_t memSize) {
     memSeg = malloc(memSize);
     if(!memSeg) {
@@ -209,11 +217,12 @@ int getBestFit(int reqdSize){
     int cur = 0;
     int i;
     for(i=0; i< totSize; i+=4) {
-        assert((i>>2) < entries :: validMem.size());
+        assert((i>>2) <(int) entries :: validMem.size());
+        cout<<entries :: validMem[i>>2]<<" ";
         if(entries :: validMem[i>>2]) {
             if(cur > reqdSize)
                 if(cur < best) {
-                    best = cur, idx = i - cur - 1;
+                    best = cur, idx = (i>>2) - cur;
                 }
             cur = 0;
         } else {
@@ -221,20 +230,23 @@ int getBestFit(int reqdSize){
             cur++;
         }
     }
+    cout<<i<<'\n';
     if(cur!=0)
     {
         if(cur > reqdSize)
             if(cur < best) {
-                best = cur, idx = i - cur - 1;
+                best = cur, idx = (i>>2) - cur;
             }
         cur = 0;
     }
-
+    cout<<"Best Segment found "<<best<<" at index "<<idx<<'\n';
     if(idx == -1)
         return -1;
     for(int done = 0, curIdx = idx; done < reqdSize; done++, curIdx++) {
         assert(!(entries :: validMem[curIdx]));
-        entries :: validMem[curIdx] |= 1;
+        entries :: validMem[curIdx]=true;
+        cout<<entries :: validMem[curIdx]<<" ? = true\n";
+        cout<<"allocating word "<<curIdx<<'\n';
     }
 
     return idx;
@@ -269,12 +281,13 @@ int assignVar(type t, type t2) {
         4. locate frame --> is this the memory?
         5. access / modify
     */
+   return -1;
 }
 
 int createArr() {
-
+    return -1;
 }
 
 int freeElem(type* t) {
-
+    return -1;
 }

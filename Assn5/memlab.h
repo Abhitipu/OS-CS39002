@@ -25,6 +25,8 @@ typedef enum _type {
 } type;
 
 class Object {
+private:
+    friend std::ostream & operator<<(std::ostream &os, const Object& o);
 public:
     string name, scope;
     type objType;

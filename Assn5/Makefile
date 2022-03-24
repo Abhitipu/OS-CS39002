@@ -1,5 +1,5 @@
 ourdemo.out: ourdemo.cpp libmemlab.a
-	g++ -o ourdemo ourdemo.cpp -L. -lmemlab
+	g++ -o ourdemo.out ourdemo.cpp -L. -lmemlab
 	./ourdemo.out
 
 libmemlab.a: memlab.o
