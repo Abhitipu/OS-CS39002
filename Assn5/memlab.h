@@ -6,15 +6,12 @@
 #include <climits>
 #include <string>
 #include <string.h>
-#include <pthread.h>
-#include <vector>
-#include <stack>
-#include <map>
 #include <bitset>
 #include <cassert>
 #include <array>
 #include <algorithm>
-// Multithreads / multiprocesses
+#include <map>
+
 #include <pthread.h>
 #include <sys/wait.h>
 #include <unistd.h>
@@ -42,11 +39,13 @@ public:
 
 class SymTableEntry {
 public:
+    pthread_mutex_t lock;
     Object refObj;
     int wordIndex, wordOffset;
     bool valid, marked;
 
     SymTableEntry(type _objType, int _size, int _totSize, int _wordIndex, int _wordOffset, bool _valid, bool _marked);
+    ~SymTableEntry();
     inline void unmark();
     inline void invalidate();
 };
@@ -55,7 +54,9 @@ class Stack {
 public:
     int indices[mxn];
     int top;
+    pthread_mutex_t lock;
     Stack(); 
+    ~Stack();
     void push(int index);
     int pop();
     int peek();
@@ -66,23 +67,15 @@ class entries {
 public:
     // 1e9 / 4 words 256 mil. words
     // 32 * 1e6  --> bytes 32mb
-    static bitset<256'000'000> validMem; // overhead 32MiB, True if word is in use, false if it is not in use
+    bitset<256'000'000> validMem; // overhead 32MiB, True if word is in use, false if it is not in use
     SymTableEntry myEntries[mxn];
     Stack listOfFreeIndices;
-    
+    pthread_mutex_t validMemlock; // for valid Memory
     entries();
     int insert(SymTableEntry st);
     int search(string name, string scope);
 };
 
-
-
-/*
-    _ _ _ _
-    _ _ _ _
-    _ _ _ _
-    _ _ _ _
-*/
 int createMem(size_t memSize);
 
 // for variables
@@ -95,9 +88,9 @@ Object createArr(type t, int length);
 int assignArr(Object dest, int srcIdx, int x);
 int assignArr(Object dest, int destIdx, Object src, int srcIdx);
 
-int freeElem(Object toDel);
+int freeElem(Object toDel, bool locked = false);
 
 size_t getSize(type t, int freq = 1);
-void startScope(); // Write this line at the start of every new functions
-void gc_run(bool , bool) ;
+void gc_initialize(); // Write this line at the start of every new functions
+void gc_run(bool scopeEnd = false, bool toCompact = false) ;
 #endif // __MEMLAB_H

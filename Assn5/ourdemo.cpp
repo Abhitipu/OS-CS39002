@@ -1,11 +1,11 @@
 #include "memlab.h"
 
-void fun()
+void fun(Object a)
 {
-    startScope();
-
-
-    gc_run();
+    gc_initialize();
+    freeElem(a);
+    
+    gc_run(true);
 }
 int main() {
     createMem(100);
@@ -44,5 +44,7 @@ int main() {
     assignArr(str2, 3, 'l');
     assignArr(str2, 4, 'd');
     cout<<str2;
+    // fun(str2);
+    gc_run(true);
     return 0;
 }
