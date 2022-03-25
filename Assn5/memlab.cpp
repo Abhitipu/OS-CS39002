@@ -18,7 +18,7 @@ const map<int, int> sizeInfo={
 
 
 Object :: Object(type _objType=integer, int _size=-1, int _totSize=-1):objType(_objType),\
-    size(_size), totSize(_totSize) { }
+    size(_size), totSize(_totSize), symTabIdx(-1) { }
 
 std::ostream & operator<<(std::ostream &os, const Object& p)
 {

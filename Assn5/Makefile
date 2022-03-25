@@ -1,5 +1,5 @@
 ourdemo: ourdemo.cpp libmemlab.a
-	g++ -o -g ourdemo ourdemo.cpp -L. -lmemlab -lpthread
+	g++ -g -o ourdemo ourdemo.cpp -L. -lmemlab -lpthread
 
 libmemlab.a: memlab.o
 	ar -rcs libmemlab.a memlab.o
