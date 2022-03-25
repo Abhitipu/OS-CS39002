@@ -29,8 +29,7 @@ private:
     friend std::ostream & operator<<(std::ostream &os, const Object& o);
 public:
     type objType;
-    int size;
-    int totSize;
+    int size, totSize, symTabIdx;
     Object(type _objType, int _size, int _totSize);
 };
 
@@ -76,13 +75,17 @@ public:
 */
 int createMem(size_t memSize);
 
+// for variables
 Object createVar(type t);
+int assignVar(Object dest, Object src);
+int assignVar(Object, int);
 
-int assignVar(type t, type t2);
+// for arrays
+Object createArr(type t, int length);
+int assignArr(Object dest, int srcIdx, int x);
+int assignArr(Object dest, int destIdx, Object src, int srcIdx);
 
-int createArr(type t, int len);
-
-int freeElem(type* t);
+int freeElem(Object toDel);
 
 size_t getSize(type t, int freq = 1);
 

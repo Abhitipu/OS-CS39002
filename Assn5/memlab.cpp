@@ -1,8 +1,8 @@
 #include "memlab.h"
 // Implementation file for our library
-
+entries mySymbolTable;
 // memSeg is the whole memory
-void* memSeg;
+char* memSeg;
 int totSize = 0;
 const map<int, int> sizeInfo={
     {character,  1},
@@ -18,47 +18,6 @@ const map<int, int> sizeInfo={
 // 2. gc_run (check state and free)
 // 3. Mark and sweep algorithm
 
-// . _ _ _ _ _ 
-// mark --> alive
-// unmark --> dead
-// symtable --> alive... scope
-// 1bit of 1 word (32 bit) , 1 bit for 1 byte (8 bit)
-// createVar() -- index
-// stack -- index (in symtab)
-
-// symtab --> _ _ _ _ -- 
-// stack --> scope _ _ O(#variables) 
-
-// append to scope
-// pop from scope
-
-// symtabEntry -->
-
-// hash(varName + scope) --> index --> store
-// stack --> 
-// Segment  _________.________i_______.__________________
-// 4. Need to check this out
-
-/*
-class ScopeHandler {
-    string scope;
-public:
-    ScopeHandler(string _scope = "global") {}
-
-    void appendScope(string newScope) {
-        scope += "/";
-        scope += newScope;
-    }
-
-    void pop() {
-        int lastPos = scope.find_last_of('/');
-        if(lastPos != scope.npos)
-            scope = scope.substr(0, lastPos);
-    }
-};
-ScopeHandler myScope;
-*/
-
 Object :: Object(type _objType=integer, int _size=-1, int _totSize=-1):objType(_objType),\
     size(_size), totSize(_totSize) { }
 
@@ -68,6 +27,69 @@ std::ostream & operator<<(std::ostream &os, const Object& p)
     <<p.objType <<"|\n+------------+--+\n| size      |"\
     <<p.size <<"|\n+------------+--+\n| total size |"\
     <<p.totSize <<"|\n+------------+--+\n";
+    int symTabIndex = p.symTabIdx;
+    SymTableEntry& curEntry = mySymbolTable.myEntries[symTabIndex];
+    char* memAddr = memSeg + curEntry.wordIndex * 4 + curEntry.wordOffset;
+    os<<"Value : ";
+    switch (p.objType)
+    {
+    case medium_integer:
+    case integer:
+        {
+            int *x = (int *)memAddr;
+            os<<*x;
+            // if its an array
+            if(p.totSize != p.size)
+            {
+                int totalElements = p.totSize / p.size;
+                for(int i=1; i<totalElements; ++i)
+                {   
+                    x += 1;
+                    os<<", "<<*x;
+                }
+            }
+        }
+        break;
+    case boolean:
+        {
+            bool *b = (bool*)memAddr;
+            os<<*b;
+            // if its an array
+            if(p.totSize != p.size)
+            {
+                int totalElements = p.totSize / p.size;
+                for(int i=1; i<totalElements; ++i)
+                {   
+                    b += 1;
+                    os<<", "<<*b;
+                }
+            }
+        }
+        break;
+    case character:
+        {
+            char *ch = memAddr;
+            os<<*ch;
+            // if its an array
+            if(p.totSize != p.size)
+            {
+                int totalElements = p.totSize / p.size;
+                for(int i=1; i<totalElements; ++i)
+                {   
+                    ch += 1;
+                    os<<", "<<*ch;
+                }
+            }
+        }
+        break;
+    default:
+        {
+            os<<"Print still not implemented!";
+        }
+        break;
+    }
+    
+    os<<'\n';    
     return os;
 }
 
@@ -85,20 +107,6 @@ inline void SymTableEntry::invalidate() {
 }
 
 // Hash table
-/*
-static long long entries:: compute_hash(string const& s) {
-    const int p = 31;
-    const int m = 1e9 + 9;
-    long long hash_value = 0;
-    long long p_pow = 1;
-    for (char c : s) {
-        hash_value = (hash_value + (c - 'a' + 1) * p_pow) % m;
-        p_pow = (p_pow * p) % m;
-        
-    }
-    return hash_value;
-}
-*/
 bitset<256'000'000> entries::validMem = 0;
 entries::entries() {
     cerr<<"This should be printed only once\n";
@@ -107,20 +115,6 @@ entries::entries() {
 
     // insert
 int entries :: insert(SymTableEntry st) {
-    /*
-    long long hashVal = compute_hash(st.refObj.name + st.refObj.scope)%mxn;
-    for(int k = 0; k < mxn; k++, hashVal++) {
-        if(hashVal == mxn)
-            hashVal = 0;
-        // find the available length
-        // how much length is required
-        if(!myEntries[hashVal].valid) {
-            myEntries[hashVal] = st;
-            return hashVal;
-        }
-    }
-    */
-
     if(ctr == mxn) {
         cout<<"Symbol table full!\n";
         return -1;
@@ -128,43 +122,6 @@ int entries :: insert(SymTableEntry st) {
     myEntries[ctr] = st;
     return ctr++;
 }
-
-// Search : assignVar / getVar
-// Object a, b; --- index - entries
-// a = Object()
-// b = getVar(a)
-// assignVar(b, a)
-
-// stack --> ?
-// symtab --> stack 
-// -1 --> start
-// indices >= 0
-// -1 ...
-
-int entries :: search(string name, string scope) {
-    /*
-    long long hashVal = compute_hash(name + scope)%mxn;
-    for(int k = 0; k < mxn; k++, hashVal++) {
-        if(hashVal == mxn)
-            hashVal = 0;
-        
-        if(!myEntries[hashVal].valid)
-            continue;
-
-        if(myEntries[hashVal].refObj.name == name \
-        && myEntries[hashVal].refObj.scope == scope)
-            return hashVal;
-    }
-    cout<<"Symbol not found!\n";
-    return -1;
-    */
-    return -1;
-}
-entries mySymbolTable;
-
-
-// entries --
-// createVar -- push into stack
 
 Stack :: Stack():top(-1) {
         
@@ -196,7 +153,7 @@ Stack varStack;
 
 // Creates memory segment for memSize bytes
 int createMem(size_t memSize) {
-    memSeg = malloc(memSize);
+    memSeg = (char*)malloc(memSize);
     if(!memSeg) {
         printf("Malloc failed!!\n");
         return -1;
@@ -243,6 +200,7 @@ int getBestFit(int reqdSize){
     cout<<"Best Segment found "<<best<<" at index "<<idx<<'\n';
     if(idx == -1)
         return -1;
+    
     for(int done = 0, curIdx = idx; done < reqdSize; done++, curIdx++) {
         assert(!(entries :: validMem[curIdx]));
         entries :: validMem[curIdx]=true;
@@ -266,29 +224,95 @@ Object createVar(type t) {
     else {
         // allocate the memory
         SymTableEntry curEntry(t, getSize(t, 1), getSize(t, 1), myIndex, 0, true, true);
-        mySymbolTable.insert(curEntry);
-        varStack.push(myIndex);
+        int symTabIdx = mySymbolTable.insert(curEntry);
+        curEntry.refObj.symTabIdx = symTabIdx;
+        varStack.push(symTabIdx);
         return curEntry.refObj;
     }
 }
 
-int assignVar(type t, type t2) {
+// 
+int assignVar(Object o, int x) {
+    // O -> location
+    int symTabIdx = o.symTabIdx; // -- in symtable
 
-    /*
-        1. find local addr --> ??
-        2. find logical addr --> ??
-
-        3. access page table --> extra structure
-        4. locate frame --> is this the memory?
-        5. access / modify
-    */
-   return -1;
+    // TODO: mutex
+    SymTableEntry& curEntry = mySymbolTable.myEntries[symTabIdx];
+    char* memAddr = memSeg + curEntry.wordIndex * 4 + curEntry.wordOffset;
+    memcpy(memAddr, (char*)(&x), getSize(o.objType, 1));
+    
+    return 1;
 }
 
-int createArr() {
-    return -1;
+int assignVar(Object dest, Object src) {
+    if(dest.objType == src.objType) {
+        int symTabIdx = src.symTabIdx;
+        SymTableEntry &curEntry = mySymbolTable.myEntries[symTabIdx];
+        char* memAddr = memSeg + curEntry.wordIndex * 4 + curEntry.wordOffset;
+        int x;
+        memcpy((char*)(&x), memAddr, getSize(src.objType, 1));
+        return assignVar(dest, x);
+    } else {
+        cout << "Cannot assign objects of different types\n";
+        return -1;
+    }
 }
 
-int freeElem(type* t) {
+Object createArr(type t, int length) {    
+    int myIndex = getBestFit(getSize(t, length)); // start index
+    if(myIndex == -1) {
+        cout << "Couldn't allocate memory!!\n";
+        return Object();
+    }
+    else {
+        // allocate the memory
+        SymTableEntry curEntry(t, getSize(t, 1), getSize(t, length), myIndex, 0, true, true);
+        int symTabIdx = mySymbolTable.insert(curEntry);
+        curEntry.refObj.symTabIdx = symTabIdx;
+        varStack.push(symTabIdx);
+        return curEntry.refObj;
+    }
+}
+
+
+int assignArr(Object dest, int destIdx, int x) {
+    if(destIdx < 0 || destIdx >= dest.totSize / dest.size) {
+        cout << "Out of array limits!\n";
+        return -1;
+    }
+    int symTabIdx = dest.symTabIdx; // -- in symtable
+
+    // TODO: mutex
+    SymTableEntry& curEntry = mySymbolTable.myEntries[symTabIdx];
+    // TODO: word alignment
+    char* memAddr = memSeg + curEntry.wordIndex * 4 + getSize(dest.objType, destIdx);
+    memcpy(memAddr, (char*)(&x), getSize(dest.objType, 1));
+    
+    return 1;
+}
+
+int assignArr(Object dest, int destIdx, Object src, int srcIdx) {
+
+    if(dest.objType == src.objType) {
+        if(destIdx < 0 || srcIdx < 0 || destIdx >= dest.totSize / dest.size || srcIdx >= src.totSize / src.size) {
+            cout << "Out of array limits!\n";
+            return -1;
+        }
+        int symTabIdx = src.symTabIdx; // -- in symtable
+
+        // TODO: mutex
+        SymTableEntry& curEntry = mySymbolTable.myEntries[symTabIdx];
+        // TODO: word alignment
+        char* memAddr = memSeg + curEntry.wordIndex * 4 + getSize(dest.objType, srcIdx);
+        int temp;
+        memcpy((char*)(&temp), memAddr, getSize(dest.objType, 1));
+        return assignArr(dest, destIdx, temp);
+    } else {
+        cout << "Cannot assign objects of different types\n";
+        return -1;
+    }
+}
+
+int freeElem(Object toDel) {
     return -1;
 }
