@@ -2,6 +2,7 @@
 // Implementation file for our library
 entries mySymbolTable;
 pthread_t threadId; // AutomaticGC thread
+Stack varStack;         // To track objects for Mark and Sweep algorithm
 
 // memSeg is the whole memory
 char* memSeg;
@@ -13,7 +14,7 @@ const map<int, int> sizeInfo={
     {integer,  4},
 };
 
-// There will be a global stack?
+// There will be a global stack? YES!
 
 
 Object :: Object(type _objType=integer, int _size=-1, int _totSize=-1):objType(_objType),\
@@ -108,36 +109,45 @@ inline void SymTableEntry::invalidate() {
 bitset<256'000'000> entries::validMem = 0;
 entries::entries() {
     cerr<<"This should be printed only once\n";
-    ctr = 0;
+    for(int i = 0; i < mxn; i++) 
+        listOfFreeIndices.push(i);
 }
 
 // insert
 int entries :: insert(SymTableEntry st) {
-    if(ctr == mxn) {
+    if(listOfFreeIndices.isEmpty()) {
         cout<<"Symbol table full!\n";
         return -1;
     }
-    myEntries[ctr] = st;
-    return ctr++;
+    int index = listOfFreeIndices.pop();
+    myEntries[index] = st;
+    
+    return index;
 }
 
 Stack :: Stack():top(-1) {
         
 }
-
+bool Stack::isEmpty() {
+    if(top >= mxn)
+        return false;
+    else
+        return true;
+}
 void Stack::push(int index) {
-    if(top == 1000)
+    if(!isEmpty())
         printf("Stack overflow!");
     else
         indices[++top] = index;
 }
 
 int Stack::pop() {
-    if(top < 0)
+    if(top < 0){
         printf("Stack Underflow!\n");
-    else
-        top--;
-    return top;
+        return -1;
+    } else {
+        return indices[top--];
+    }
 }
 
 int Stack::peek() {
@@ -147,34 +157,110 @@ int Stack::peek() {
         return indices[top];
     return -1;
 }
-Stack varStack;
 
-void gc_run(bool scopeEnd = false) {
+
+int mark() {
+    int cur;
+    int rem = 0;
+    do {
+        cur = varStack.pop();
+        if(cur != START_SCOPE) {
+            ++rem;
+            SymTableEntry& curEntry = mySymbolTable.myEntries[cur];
+            curEntry.unmark();
+            // curEntry.invalidate();
+        }
+    } while(cur != START_SCOPE);
+
+    return rem;
+}
+
+void sweep() {
+    for(int i = 0; i< mxn; ++i)
+    {
+        SymTableEntry &curEntry = mySymbolTable.myEntries[i];
+        if(!curEntry.marked)
+            freeElem(curEntry.refObj);
+    }
+    return;
+}
+
+void compact() {
+    // 100% compactions
+    // traverse through symbol table
+
+    // get the reverse links for memory
+
+    // do compaction
+
+    // reassign in symbol table
+    
+    // 2____ 00000 4_____ 00000 10______________________________ 0000
+    // 2____ 4_____ 10__________________________000000000000
+
+    array<int,2> symTabIndices[mxn];
+
+    int cur = 0;
+    for(SymTableEntry &curEntry: mySymbolTable.myEntries) {
+        if(curEntry.valid) {
+            symTabIndices[cur++] = {curEntry.wordIndex, curEntry.refObj.symTabIdx}; 
+        }
+    }
+
+    sort(symTabIndices, symTabIndices + cur, [](array<int,2> a, array<int,2> b){
+        if(a[0]==b[0])
+            return a[1]<b[1];
+        return a[0] < b[0];
+    });
+
+    int leftptr = 0;
+    
+    for(int i =0;i< cur; i++)
+    {
+        int rightptr = symTabIndices[i][0];
+        SymTableEntry &curEntry = mySymbolTable.myEntries[symTabIndices[i][1]];
+        if(leftptr != curEntry.wordIndex)
+        {
+            char *memleft = memSeg + leftptr*4;
+            char *memright = memSeg + rightptr*4;
+            int sizeInBytes = ((curEntry.refObj.totSize+3)>>2)<<2; // Rounded up to nearest multiple of 4 
+            memcpy(memleft, memright, sizeInBytes);
+            curEntry.wordIndex = leftptr;
+        }
+        leftptr += (curEntry.refObj.totSize+3)>>2;
+    }
+    return;
+}
+
+void gc_run(bool scopeEnd = false, bool tocompact = false) {
 
     // (marked and valid at the time of insertion)
+    if(scopeEnd)
+        mark();
 
-    // stack se pop
-    // symtable --> unmark
-    // sweep --> symtable --> if unmarked and valid --> free up memory
+    sweep(); // -- freeElem
 
     // compact --> reverse pointers --> symboltables --> 
+    if(tocompact)
+        compact();
+}
 
-    // _________       ________
-    // cccc c___ cccc c___ ____
-    // ____ ____ cccc c___ ____
-    // I want 10 char array
-    // c___ ____ c___ ____
-    // next 5 char array
-    // firstFit --> compaction
-    // largest hole available - 15
-    // for each entry in symbol table, find new first fit(), then copy
-    // largest hole available - 25
-    // 1. Mark
-    // 2. Sweep
-    // 3. Compact
+// Todo
+void gc_initialize() {
+    return;
+}
+
+void startScope() {
+    varStack.push(START_SCOPE);
 }
 
 void* gc_routine(void* args) {
+    gc_initialize();
+
+    while(true) {
+        sleep(2);
+        gc_run();
+    }
     // Garbage Collection
     // 1. gc_initialize
     // 2. gc_run (check state and free)
@@ -186,6 +272,8 @@ void* gc_routine(void* args) {
 // Creates memory segment for memSize bytes
 int createMem(size_t memSize) {
     memSeg = (char*)malloc(memSize);
+    startScope();
+    // varStack.push(START_SCOPE);
     if(!memSeg) {
         printf("Malloc failed!!\n");
         return -1;
@@ -347,5 +435,25 @@ int assignArr(Object dest, int destIdx, Object src, int srcIdx) {
 }
 
 int freeElem(Object toDel) {
-    return -1;
+    if(toDel.symTabIdx == -1)
+        return -1;
+    SymTableEntry &curEntry = mySymbolTable.myEntries[toDel.symTabIdx];
+    
+    // if already freed, skip
+    if(!curEntry.valid)
+        return -1;
+    
+    curEntry.invalidate();
+
+    // validMem --> flip
+    int tofree = (toDel.totSize + 3) / 4; // round up for word alignment
+
+    for(int done = 0, curIdx = curEntry.wordIndex; done < tofree; done++, curIdx++) {
+        assert(!(entries :: validMem[curIdx]));
+        entries :: validMem[curIdx]=false;
+        // cout<<entries :: validMem[curIdx]<<" ? = true\n";
+        cout<<"deallocating word "<<curIdx<<'\n';
+    }
+    mySymbolTable.listOfFreeIndices.push(toDel.symTabIdx);
+    return 1;
 }

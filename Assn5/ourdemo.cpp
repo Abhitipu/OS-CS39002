@@ -1,5 +1,12 @@
 #include "memlab.h"
 
+void fun()
+{
+    startScope();
+
+
+    gc_run();
+}
 int main() {
     createMem(100);
     Object a = createVar(integer);

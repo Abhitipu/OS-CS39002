@@ -12,13 +12,17 @@
 #include <map>
 #include <bitset>
 #include <cassert>
+#include <array>
+#include <algorithm>
 // Multithreads / multiprocesses
 #include <pthread.h>
 #include <sys/wait.h>
+#include <unistd.h>
 
 using namespace std;
 
 const int mxn = 1e4;
+const int START_SCOPE = -1;
 
 typedef enum _type {
     boolean,
@@ -47,28 +51,31 @@ public:
     inline void invalidate();
 };
 
+class Stack {
+public:
+    int indices[mxn];
+    int top;
+    Stack(); 
+    void push(int index);
+    int pop();
+    int peek();
+    bool isEmpty();
+};
+
 class entries {
 public:
     // 1e9 / 4 words 256 mil. words
     // 32 * 1e6  --> bytes 32mb
     static bitset<256'000'000> validMem; // overhead 32MiB, True if word is in use, false if it is not in use
     SymTableEntry myEntries[mxn];
-    int ctr;
+    Stack listOfFreeIndices;
     
     entries();
     int insert(SymTableEntry st);
     int search(string name, string scope);
 };
 
-class Stack {
-public:
-    int indices[1000];
-    int top;
-    Stack(); 
-    void push(int index);
-    int pop();
-    int peek();
-};
+
 
 /*
     _ _ _ _
@@ -91,5 +98,6 @@ int assignArr(Object dest, int destIdx, Object src, int srcIdx);
 int freeElem(Object toDel);
 
 size_t getSize(type t, int freq = 1);
-
+void startScope(); // Write this line at the start of every new functions
+void gc_run(bool , bool) ;
 #endif // __MEMLAB_H
