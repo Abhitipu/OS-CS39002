@@ -12,6 +12,9 @@
 #include <map>
 #include <bitset>
 #include <cassert>
+// Multithreads / multiprocesses
+#include <pthread.h>
+#include <sys/wait.h>
 
 using namespace std;
 

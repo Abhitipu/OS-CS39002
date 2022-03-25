@@ -1,6 +1,8 @@
 #include "memlab.h"
 // Implementation file for our library
 entries mySymbolTable;
+pthread_t threadId; // AutomaticGC thread
+
 // memSeg is the whole memory
 char* memSeg;
 int totSize = 0;
@@ -13,10 +15,6 @@ const map<int, int> sizeInfo={
 
 // There will be a global stack?
 
-// Garbage Collection
-// 1. gc_initialize
-// 2. gc_run (check state and free)
-// 3. Mark and sweep algorithm
 
 Object :: Object(type _objType=integer, int _size=-1, int _totSize=-1):objType(_objType),\
     size(_size), totSize(_totSize) { }
@@ -113,7 +111,7 @@ entries::entries() {
     ctr = 0;
 }
 
-    // insert
+// insert
 int entries :: insert(SymTableEntry st) {
     if(ctr == mxn) {
         cout<<"Symbol table full!\n";
@@ -151,6 +149,40 @@ int Stack::peek() {
 }
 Stack varStack;
 
+void gc_run(bool scopeEnd = false) {
+
+    // (marked and valid at the time of insertion)
+
+    // stack se pop
+    // symtable --> unmark
+    // sweep --> symtable --> if unmarked and valid --> free up memory
+
+    // compact --> reverse pointers --> symboltables --> 
+
+    // _________       ________
+    // cccc c___ cccc c___ ____
+    // ____ ____ cccc c___ ____
+    // I want 10 char array
+    // c___ ____ c___ ____
+    // next 5 char array
+    // firstFit --> compaction
+    // largest hole available - 15
+    // for each entry in symbol table, find new first fit(), then copy
+    // largest hole available - 25
+    // 1. Mark
+    // 2. Sweep
+    // 3. Compact
+}
+
+void* gc_routine(void* args) {
+    // Garbage Collection
+    // 1. gc_initialize
+    // 2. gc_run (check state and free)
+    // 3. Mark and sweep algorithm
+    
+    return NULL;
+}
+
 // Creates memory segment for memSize bytes
 int createMem(size_t memSize) {
     memSeg = (char*)malloc(memSize);
@@ -162,6 +194,7 @@ int createMem(size_t memSize) {
     totSize = memSize;
 
     //  TODO: Spawn the garbage collector
+    pthread_create(&threadId, NULL, gc_routine, NULL);
     return memSize;
 }
 
@@ -245,7 +278,7 @@ int assignVar(Object o, int x) {
 }
 
 int assignVar(Object dest, Object src) {
-    if(dest.objType == src.objType) {
+    if(dest.objType >= src.objType) {
         int symTabIdx = src.symTabIdx;
         SymTableEntry &curEntry = mySymbolTable.myEntries[symTabIdx];
         char* memAddr = memSeg + curEntry.wordIndex * 4 + curEntry.wordOffset;
@@ -253,7 +286,7 @@ int assignVar(Object dest, Object src) {
         memcpy((char*)(&x), memAddr, getSize(src.objType, 1));
         return assignVar(dest, x);
     } else {
-        cout << "Cannot assign objects of different types\n";
+        cout << "Cannot assign objects of incompatible types\n";
         return -1;
     }
 }
@@ -293,7 +326,7 @@ int assignArr(Object dest, int destIdx, int x) {
 
 int assignArr(Object dest, int destIdx, Object src, int srcIdx) {
 
-    if(dest.objType == src.objType) {
+    if(dest.objType >= src.objType) {
         if(destIdx < 0 || srcIdx < 0 || destIdx >= dest.totSize / dest.size || srcIdx >= src.totSize / src.size) {
             cout << "Out of array limits!\n";
             return -1;
@@ -303,12 +336,12 @@ int assignArr(Object dest, int destIdx, Object src, int srcIdx) {
         // TODO: mutex
         SymTableEntry& curEntry = mySymbolTable.myEntries[symTabIdx];
         // TODO: word alignment
-        char* memAddr = memSeg + curEntry.wordIndex * 4 + getSize(dest.objType, srcIdx);
+        char* memAddr = memSeg + curEntry.wordIndex * 4 + getSize(src.objType, srcIdx);
         int temp;
-        memcpy((char*)(&temp), memAddr, getSize(dest.objType, 1));
+        memcpy((char*)(&temp), memAddr, getSize(src.objType, 1));
         return assignArr(dest, destIdx, temp);
     } else {
-        cout << "Cannot assign objects of different types\n";
+        cout << "Cannot assign objects of incompatible types\n";
         return -1;
     }
 }
