@@ -4,9 +4,10 @@ void fun(Object a)
 {
     gc_initialize();
     freeElem(a);
-    
-    gc_run(true);
+    Object c = createVar(medium_integer);
+    gc_run(true, true);
 }
+
 int main() {
     createMem(100);
     Object a = createVar(integer);
@@ -44,7 +45,9 @@ int main() {
     assignArr(str2, 3, 'l');
     assignArr(str2, 4, 'd');
     cout<<str2;
-    // fun(str2);
+    fun(str);
+    cout<<str2;
+    str = createArr(character, 5);
     gc_run(true);
     return 0;
 }

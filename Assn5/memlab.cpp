@@ -7,12 +7,7 @@ Stack varStack;         // To track objects for Mark and Sweep algorithm
 // memSeg is the whole memory
 char* memSeg;
 int totSize = 0;
-const map<int, int> sizeInfo={
-    {character,  1},
-    {boolean,  1},
-    {medium_integer,  3},
-    {integer,  4},
-};
+const int sizeInfo[]={1, 1, 3, 4};
 
 // There will be a global stack? YES!
 
@@ -194,6 +189,7 @@ int Stack::peek() {
 
 
 int mark() {
+    cerr<<"Mark started\n";
     int cur;
     int rem = 0;
     do {
@@ -204,23 +200,28 @@ int mark() {
             SymTableEntry& curEntry = mySymbolTable.myEntries[cur];
             curEntry.unmark();
             pthread_mutex_unlock(&mySymbolTable.myEntries[cur].lock);
+            cerr<<"SymTabIndex "<<cur<<" Unmarked\n";
         }
     } while(cur != START_SCOPE);
-
+    cerr<<"Mark ended\n";
     return rem;
 }
 
 void sweep() {
+    cerr<<"Sweep started\n";
     for(int i = 0; i< mxn; ++i)
     {
         pthread_mutex_lock(&mySymbolTable.myEntries[i].lock);
         SymTableEntry &curEntry = mySymbolTable.myEntries[i];
-        if(!curEntry.marked)
+        // TODO remove
+        if(!curEntry.marked && curEntry.valid)
         {
+            cerr<<"Calling free elem on "<<i<<" index\n";
             freeElem(curEntry.refObj, true);
         }
         pthread_mutex_unlock(&mySymbolTable.myEntries[i].lock);
     }
+    cerr<<"Sweep ended\n";
     return;
 }
 
@@ -231,8 +232,10 @@ void compact() {
     // do compaction
     // reassign in symbol table
     
+    cerr << "Compacting!!\n";
     array<int,2> symTabIndices[mxn];
 
+    cerr << "Looking up the memory\n";
     int cur = 0;
     for(SymTableEntry &curEntry: mySymbolTable.myEntries) {
         pthread_mutex_lock(&(curEntry.lock));
@@ -250,6 +253,7 @@ void compact() {
 
     int leftptr = 0;
     
+    cerr << "Two pointer magic\n";
     for(int i =0;i< cur; i++)
     {
         int rightptr = symTabIndices[i][0];
@@ -268,11 +272,13 @@ void compact() {
         pthread_mutex_unlock(&mySymbolTable.myEntries[symTabIndices[i][1]].lock);
 
     }
+    cerr << "All done!\n";
     return;
 }
 
 void gc_run(bool scopeEnd, bool toCompact) {
 
+    cerr << "Garbage collector at work!\n";
     // (marked and valid at the time of insertion)
     if(scopeEnd)
         mark();
@@ -282,6 +288,8 @@ void gc_run(bool scopeEnd, bool toCompact) {
     // compact --> reverse pointers --> symboltables --> 
     if(toCompact)
         compact();
+
+    cerr << "Garbage collected!\n";
 }
 
 
@@ -320,7 +328,7 @@ int createMem(size_t memSize) {
     totSize = memSize;
 
     //  TODO: Spawn the garbage collector
-    // pthread_create(&threadId, NULL, gc_routine, NULL);
+    pthread_create(&threadId, NULL, gc_routine, NULL);
     return memSize;
 }
 
@@ -374,7 +382,7 @@ int getBestFit(int reqdSize){
 }
 
 size_t getSize(type t, int freq) {
-    return sizeInfo.at((int)t) * freq;
+    return sizeInfo[(int)t] * freq;
 }
 
 Object createVar(type t) {
@@ -483,9 +491,9 @@ int assignArr(Object dest, int destIdx, Object src, int srcIdx) {
 }
 
 int freeElem(Object toDel, bool locked) {
+    cout<<"Free elem called\n";
     if(toDel.symTabIdx == -1)
         return -1;
-
     SymTableEntry &curEntry = mySymbolTable.myEntries[toDel.symTabIdx];
     if(!locked)
         pthread_mutex_lock(&(curEntry.lock));
@@ -500,6 +508,7 @@ int freeElem(Object toDel, bool locked) {
 
     // validMem --> flip
     int tofree = (toDel.totSize + 3) / 4; // round up for word alignment
+    cout<<"To free "<<tofree<<" words\n";
     pthread_mutex_lock(&mySymbolTable.validMemlock);
     for(int done = 0, curIdx = curEntry.wordIndex; done < tofree; done++, curIdx++) {
         cout<<"Done "<<done<<'\n';

@@ -10,7 +10,7 @@
 #include <cassert>
 #include <array>
 #include <algorithm>
-#include <map>
+#include<iomanip>
 
 #include <pthread.h>
 #include <sys/wait.h>
@@ -92,5 +92,5 @@ int freeElem(Object toDel, bool locked = false);
 
 size_t getSize(type t, int freq = 1);
 void gc_initialize(); // Write this line at the start of every new functions
-void gc_run(bool scopeEnd = false, bool toCompact = false) ;
+void gc_run(bool scopeEnd = false, bool toCompact = false);
 #endif // __MEMLAB_H
