@@ -6,11 +6,9 @@
 #include <climits>
 #include <string>
 #include <string.h>
-#include <bitset>
 #include <cassert>
 #include <array>
-#include <algorithm>
-#include<iomanip>
+#include <iomanip>
 
 #include <pthread.h>
 #include <sys/wait.h>
@@ -63,11 +61,21 @@ public:
     bool isEmpty();
 };
 
+class _validMem {
+public:
+    uint mem[8'000'000];
+    _validMem();
+    int getIndex(int x);
+    int getOffset(int x);
+    int isSet(int x);
+    void set(int x);
+    void reset(int x);
+};
 class entries {
 public:
     // 1e9 / 4 words 256 mil. words
     // 32 * 1e6  --> bytes 32mb
-    bitset<256'000'000> validMem; // overhead 32MiB, True if word is in use, false if it is not in use
+    _validMem validMem; // overhead 32MiB, True if word is in use, false if it is not in use
     SymTableEntry myEntries[mxn];
     Stack listOfFreeIndices;
     pthread_mutex_t validMemlock; // for valid Memory
@@ -82,11 +90,15 @@ int createMem(size_t memSize);
 Object createVar(type t);
 int assignVar(Object dest, Object src);
 int assignVar(Object, int);
+int assignVar(Object dest, Object src, int srcIdx);
+void getVar(Object, void*);
 
 // for arrays
 Object createArr(type t, int length);
 int assignArr(Object dest, int srcIdx, int x);
+int assignArr(Object dest, int destIdx, Object src);
 int assignArr(Object dest, int destIdx, Object src, int srcIdx);
+void getArr(Object, int, void*);
 
 int freeElem(Object toDel, bool locked = false);
 
