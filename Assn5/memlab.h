@@ -16,7 +16,7 @@
 
 using namespace std;
 
-const int mxn = 1e4;
+const int mxn = 1 << 20;
 const int START_SCOPE = -1;
 
 typedef enum _type {
@@ -37,8 +37,8 @@ public:
 
 class SymTableEntry {
 public:
-    pthread_mutex_t lock;
     Object refObj;
+    pthread_mutex_t lock;
     int wordIndex, wordOffset;
     bool valid, marked;
 
@@ -61,9 +61,19 @@ public:
     bool isEmpty();
 };
 
+const int maxWords = 1 << 28;  // approx 8e6
+// 1gb --> 1 << 30 bytes
+// 1gb --> 1 << 28 words
+// 1gb --> 1 << 23 ints (each has 1 << 5)
 class _validMem {
 public:
-    uint mem[8'000'000];
+    // ptr to a free location (int the last free block)
+    int ptr;
+    // size (in words) available in free mem starting from ptr
+    int sizeAvl;
+    // 1GB mem -> 256 Mil words -> for each word we need 1 bit, 1 int has 32 bits, thus we need 256Mil/32 = 8 Mil int  
+    int totSizeAvl; // max word
+    uint32_t mem[maxWords >> 5];
     _validMem();
     int getIndex(int x);
     int getOffset(int x);

@@ -6,9 +6,9 @@ using namespace std;
 
 void func(Object x, Object y, type t) {
     gc_initialize();
-    Object newArr = createArr(t, 50000);
-    Object dest = createVar(t);
-    for(int i = 0; i < 50000; i++) {
+    Object newArr = createArr(t, 5000);
+    for(int i = 0; i < 5000; i++) {
+        Object dest = createVar(t);
         switch(t) {
             case integer: {
                 int x = rand();
@@ -43,7 +43,12 @@ void func(Object x, Object y, type t) {
 }
 
 int main() {
-    createMem(50000*8*4);
+    // 200'000 * bytes Array + 50'000Word --> 
+    // 400'000 bytes
+    // 1MB
+    // 50000 * 20 * 8
+    // 50,000
+    createMem(1 << 25);
     srand(time(NULL));
 
     Object x1 = createVar(integer);
@@ -57,16 +62,16 @@ int main() {
 
     func(x1, y1, x1.objType);
     func(x2, y2, x2.objType);
-    func(x3, y3, x3.objType);
-    func(x4, y4, x4.objType);
+    // func(x3, y3, x3.objType);
+    // func(x4, y4, x4.objType);
 
-    func(x1, y1, x1.objType);
-    func(x2, y2, x2.objType);
-    func(x3, y3, x3.objType);
-    func(x4, y4, x4.objType);
+    // func(x1, y1, x1.objType);
+    // func(x2, y2, x2.objType);
+    // func(x3, y3, x3.objType);
+    // func(x4, y4, x4.objType);
 
-    func(x1, y1, x1.objType);
-    func(x2, y2, x2.objType);
+    // func(x1, y1, x1.objType);
+    // func(x2, y2, x2.objType);
     gc_run(true);
     return 0;
 }

@@ -9,6 +9,10 @@ void fun(Object a)
 }
 
 int main() {
+    cout<<"Size of entries "<<(sizeof(entries) >> 20 )<< " MB\n";
+    cout<<"Size of stack "<<(sizeof(Stack) >> 20 )<< " MB\n";
+    cout<<"Size of validMem "<<(sizeof(_validMem) >> 20 )<< " MB\n";
+    /*
     createMem(100);
     Object a = createVar(integer);
     assignVar(a, 53);
@@ -49,5 +53,6 @@ int main() {
     cout<<str2;
     str = createArr(character, 5);
     gc_run(true);
+    */
     return 0;
 }

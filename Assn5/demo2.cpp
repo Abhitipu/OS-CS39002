@@ -3,8 +3,11 @@
 using namespace std;
 
 int fib(int k) {
+    cout << "Called function!\n";
     gc_initialize();
+    cout << "Trying to create var!\n";
     Object prod = createVar(integer);
+    cout << "Trying to assign var!\n";
     assignVar(prod, 1);
     Object secondLast = createVar(integer);
     assignVar(secondLast, 1);
@@ -15,6 +18,7 @@ int fib(int k) {
     
     assignArr(temp, 0, secondLast);
     assignArr(temp, 1, last);
+    cout << "Line 20\n";
     for(int i = 0; i < k - 2; i++) {
         int secondLastImg, lastImg, newFib, prodImg;
         getVar(secondLast, &secondLastImg);
@@ -30,9 +34,11 @@ int fib(int k) {
         assignVar(last, secondLastImg);
     }
 
+    cout << "Done loop" << endl;
+
     int ans;
     getVar(prod, &ans);
-    cout<<temp;
+    cout<<temp << endl;
     gc_run(true, true);
     return ans;
 }
