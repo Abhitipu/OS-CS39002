@@ -3,6 +3,7 @@
 entries mySymbolTable;
 pthread_t threadId; // AutomaticGC thread
 Stack varStack;         // To track objects for Mark and Sweep algorithm
+pthread_mutex_t compactLock;
 
 // memSeg is the whole memory
 char* memSeg;
@@ -265,14 +266,15 @@ int comp(const void* p1, const void* p2) {
     return arr1[1] - arr2[1];
 }
 
+int symTabIndices[mxn][2];
 void compact() {
     // 100% compactions
     // traverse through symbol table
     // get the reverse links for memory
     // do compaction
     // reassign in symbol table
+    pthread_mutex_lock(&compactLock);
     cerr<<"Compacting\n";
-    int symTabIndices[mxn][2];
 
     cerr << "Looking up the memory\n";
     int cur = 0;
@@ -321,6 +323,7 @@ void compact() {
     mySymbolTable.validMem.ptr = leftptr;
     mySymbolTable.validMem.sizeAvl = mySymbolTable.validMem.totSizeAvl;
     pthread_mutex_unlock(&mySymbolTable.validMemlock);
+    pthread_mutex_unlock(&compactLock);
     
     cerr << "All done!\n";
     return;
@@ -452,6 +455,7 @@ int getFirstFit(int reqdSize){
     cerr<<"reqd Size "<<reqdSize<<" bytes converted to ";
     reqdSize = (reqdSize + 3) / 4; // round up for word alignment
     cerr<<reqdSize<<" words (for word alignment)\n";
+    pthread_mutex_lock(&compactLock);
 
     pthread_mutex_lock(&mySymbolTable.validMemlock);
     if(reqdSize > mySymbolTable.validMem.totSizeAvl) {
@@ -478,6 +482,7 @@ int getFirstFit(int reqdSize){
     mySymbolTable.validMem.ptr += reqdSize;
     pthread_mutex_unlock(&mySymbolTable.validMemlock);
     
+    pthread_mutex_unlock(&compactLock);
     return idx;
 }
 
