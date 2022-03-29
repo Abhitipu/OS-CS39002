@@ -10,6 +10,9 @@ char* memSeg;
 int totSize = 0;
 const int sizeInfo[] = {1, 1, 3, 4};
 
+/*
+ * The constructor of the object class
+ */
 Object :: Object(type _objType=integer, int _size=-1, int _totSize=-1):objType(_objType),\
     size(_size), totSize(_totSize), symTabIdx(-1) { }
 
@@ -220,6 +223,10 @@ void _validMem :: reset(int x){
         mem[getIndex(x)] ^= (1 << getOffset(x));
 }
 
+/*
+ * Here the garbage collector pops the elements(from stack) which are out of scope
+ * and unmarks them on the symbol table.
+ */
 int mark() {
     cerr<<"Mark started\n";
     int cur;
@@ -241,6 +248,9 @@ int mark() {
     return rem;
 }
 
+/*
+ * Here the garbage collector calls freeElem on all the dead symbol table entries.
+ */
 void sweep() {
     cerr<<"Sweep started\n";
     for(int i = 0; i< mxn; ++i)
@@ -258,6 +268,9 @@ void sweep() {
     return;
 }
 
+/*
+ * Comparator function for sorting indices
+ */
 int comp(const void* p1, const void* p2) {
     int* arr1 = (int*)p1;
     int* arr2 = (int*)p2;
@@ -266,7 +279,14 @@ int comp(const void* p1, const void* p2) {
     return arr1[1] - arr2[1];
 }
 
+/*
+ * Temporary storage for sorting
+ */
 int symTabIndices[mxn][2];
+
+/*
+ * Compacts the memory by filling up the holes via shifting the memory blocks
+ */
 void compact() {
     // 100% compactions
     // traverse through symbol table
@@ -355,6 +375,9 @@ void gc_initialize() {
     varStack.push(START_SCOPE);
 }
 
+/*
+ * Periodically calls gc_run
+ */
 void* gc_routine(void* args) {
     // gc_initialize();
     int cnt=0;
@@ -444,6 +467,11 @@ int getBestFit(int reqdSize){
 }
 */
 
+/*
+ * Gets the first fit in memory i.e. essentially the one pointed by ptr.
+ * First a check is done on the total available memory, if not sufficient, we throw an error.
+ * If it doesnt fit, a compaction is performed first and then the object is stored.
+ */
 int getFirstFit(int reqdSize){
     // reqdSize -- bytes
     // start ptr -- free mem
