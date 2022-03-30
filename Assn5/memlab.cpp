@@ -820,7 +820,7 @@ void graph_data(){
     cout<<"\n";
     cout<<"ptr: ";
     printHformat(mySymbolTable->validMem.ptr*4);
-    fout<<mySymbolTable->validMem.maxptr*4<<" ";
+    fout<<mySymbolTable->validMem.maxptr*4<<" "<<mySymbolTable->validMem.sizeOfmem*32*4 - mySymbolTable->validMem.totSizeAvl*4<<'\n';
     cout<<"\n";
 
     cout<<"Max ptr: "<<mySymbolTable->validMem.maxptr*4<<"\n";
