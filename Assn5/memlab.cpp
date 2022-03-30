@@ -1,9 +1,31 @@
 #include "memlab.h"
 // Implementation file for our library
-entries mySymbolTable;
+entries *mySymbolTable;
 pthread_t threadId; // AutomaticGC thread
-Stack varStack;         // To track objects for Mark and Sweep algorithm
+Stack *varStack;         // To track objects for Mark and Sweep algorithm
 pthread_mutex_t compactLock;
+
+// int symTabIndices[mxn][2]; declared below
+
+void printHformat(int nbytes)
+{
+    if(nbytes < 1<<10)
+    {
+        cout<<nbytes<<"B";
+    }
+    else if(nbytes < 1<<20)
+    {
+        cout<<(nbytes>>10)<<"KB";
+    }
+    else if(nbytes < 1<<30)
+    {
+        cout<<(nbytes>>20)<<"MB";
+    }
+    else
+    {
+        cout<<(nbytes>>30)<<"GB";
+    }
+}
 
 // memSeg is the whole memory
 char* memSeg;
@@ -18,17 +40,17 @@ Object :: Object(type _objType=integer, int _size=-1, int _totSize=-1):objType(_
 
 std::ostream & operator<<(std::ostream &os, const Object& p)
 {
-    os  <<"+------------+-----+\n"\
-        <<"| type       |"<<setw(5)<<p.objType <<"|\n"\
-        <<"+------------+-----+\n"\
-        <<"| size       |"<<setw(5)<<p.size <<"|\n"\
-        <<"+------------+-----+\n"\
-        <<"| total size |"<<setw(5)<<p.totSize <<"|\n"\
-        <<"+------------+-----+\n"\
-        <<"| SymtabIndex|"<<setw(5)<<p.symTabIdx <<"|\n"\
-        <<"+------------+-----+\n";
+    os  <<"+------------+----------+\n"\
+        <<"| type       |"<<setw(10)<<p.objType <<"|\n"\
+        <<"+------------+----------+\n"\
+        <<"| size       |"<<setw(10)<<p.size <<"|\n"\
+        <<"+------------+----------+\n"\
+        <<"| total size |"<<setw(10)<<p.totSize <<"|\n"\
+        <<"+------------+----------+\n"\
+        <<"| SymtabIndex|"<<setw(10)<<p.symTabIdx <<"|\n"\
+        <<"+------------+----------+\n";
     int symTabIndex = p.symTabIdx;
-    SymTableEntry& curEntry = mySymbolTable.myEntries[symTabIndex];
+    SymTableEntry& curEntry = mySymbolTable->myEntries[symTabIndex];
     char* memAddr = memSeg + curEntry.wordIndex * 4 + curEntry.wordOffset;
     os<<"Value : ";
     switch (p.objType)
@@ -114,9 +136,14 @@ inline void SymTableEntry::invalidate() {
 }
 
 // Hash table
-entries::entries():validMem() {
+entries::entries(int _maxWords, int _mxn):mxn(_mxn), validMem((_maxWords+31)>>5), listOfFreeIndices(_mxn) {
     cerr<<"This should be printed only once\n";
-    pthread_mutex_init(&(mySymbolTable.validMemlock), NULL);
+    myEntries = new SymTableEntry[mxn];
+    cout<<"[Mem Allocated Symbols Array] : ";
+    printHformat(sizeof(SymTableEntry[mxn]));
+    cout<<'\n';
+
+    pthread_mutex_init(&(validMemlock), NULL);
     cerr<<"Initialized\n";
     for(int i = 0; i < mxn; i++)  {
         listOfFreeIndices.push(i);
@@ -136,7 +163,11 @@ int entries :: insert(SymTableEntry st) {
     return index;
 }
 
-Stack :: Stack():top(-1) {
+Stack :: Stack(int _mxn):mxn(_mxn), top(-1) {
+    indices = new int[mxn];
+    cout<<"[Mem Allocated Stack] : ";
+    printHformat(sizeof(int[mxn]));
+    cout<<"\n";
     pthread_mutex_init(&lock, NULL);     
 }
 
@@ -192,14 +223,18 @@ int Stack::peek() {
     }
 }
 
-_validMem :: _validMem():ptr(0){
+_validMem :: _validMem(int _sizeOfMem):ptr(0), sizeOfmem(_sizeOfMem){
     sizeAvl = min(totSize>>2, maxWords); // Minimum of requested memory, maxWords bound
-    memset(mem, 0, sizeof(mem));
+    mem = new uint32_t[sizeOfmem];
+    cout<<"[Mem Allocated ValidMem] : ";
+    printHformat(sizeof(uint32_t[sizeOfmem]));
+    cout<<"\n";
+    memset(mem, 0, sizeof(uint32_t[sizeOfmem]));
 }
 
 int _validMem :: getIndex(int x) {
     int check = x >> 5;
-    if(check >= 8'000'000) {
+    if(check >= sizeOfmem) {
         cerr << "Out of memory bounds (_valid Mem)" << '\n';
         exit(-1);
     }
@@ -232,15 +267,15 @@ int mark() {
     int cur;
     int rem = 0;
     do {
-        cur = varStack.pop();
+        cur = varStack->pop();
         cerr<<"Cur : "<<cur<<"\n";
         if(cur != START_SCOPE) {
             ++rem;
-            pthread_mutex_lock(&mySymbolTable.myEntries[cur].lock);
-            SymTableEntry& curEntry = mySymbolTable.myEntries[cur];
+            pthread_mutex_lock(&mySymbolTable->myEntries[cur].lock);
+            SymTableEntry& curEntry = mySymbolTable->myEntries[cur];
             cerr<<"sym: "<<curEntry.refObj.symTabIdx << '\n';
             curEntry.unmark();
-            pthread_mutex_unlock(&mySymbolTable.myEntries[cur].lock);
+            pthread_mutex_unlock(&mySymbolTable->myEntries[cur].lock);
             cerr<<"SymTabIndex "<<cur<<" Unmarked\n";
         }
     } while(cur != START_SCOPE);
@@ -253,16 +288,16 @@ int mark() {
  */
 void sweep() {
     cerr<<"Sweep started\n";
-    for(int i = 0; i< mxn; ++i)
+    for(int i = 0; i< mySymbolTable->mxn; ++i)
     {
-        pthread_mutex_lock(&mySymbolTable.myEntries[i].lock);
-        SymTableEntry &curEntry = mySymbolTable.myEntries[i];
+        pthread_mutex_lock(&mySymbolTable->myEntries[i].lock);
+        SymTableEntry &curEntry = mySymbolTable->myEntries[i];
         if(!curEntry.marked && curEntry.valid)
         {
             cerr<<"Calling free elem on "<<i<<" index\n";
             freeElem(curEntry.refObj, true);
         }
-        pthread_mutex_unlock(&mySymbolTable.myEntries[i].lock);
+        pthread_mutex_unlock(&mySymbolTable->myEntries[i].lock);
     }
     cerr<<"Sweep ended\n";
     return;
@@ -298,7 +333,8 @@ void compact() {
 
     cerr << "Looking up the memory\n";
     int cur = 0;
-    for(SymTableEntry &curEntry: mySymbolTable.myEntries) {
+    for(int i=0; i<mySymbolTable->mxn; ++i) {
+        SymTableEntry &curEntry= mySymbolTable->myEntries[i];
         pthread_mutex_lock(&(curEntry.lock));
         if(curEntry.valid) {
             symTabIndices[cur][0] = curEntry.wordIndex;
@@ -317,32 +353,32 @@ void compact() {
     for(int i =0;i< cur; i++)
     {
 
-        pthread_mutex_lock(&mySymbolTable.myEntries[symTabIndices[i][1]].lock);
+        pthread_mutex_lock(&mySymbolTable->myEntries[symTabIndices[i][1]].lock);
         int rightptr = symTabIndices[i][0];
-        SymTableEntry &curEntry = mySymbolTable.myEntries[symTabIndices[i][1]];
+        SymTableEntry &curEntry = mySymbolTable->myEntries[symTabIndices[i][1]];
         if(leftptr != curEntry.wordIndex)
         {
-            pthread_mutex_lock(&mySymbolTable.validMemlock);
+            pthread_mutex_lock(&mySymbolTable->validMemlock);
             char *memleft = memSeg + leftptr*4;
             char *memright = memSeg + rightptr*4;
             int sizeInBytes = ((curEntry.refObj.totSize+3)>>2)<<2; // Rounded up to nearest multiple of 4 
             memcpy(memleft, memright, sizeInBytes);
             for(int j=0;j<sizeInBytes/4; ++j)
             {
-                mySymbolTable.validMem.set(leftptr + j);
-                mySymbolTable.validMem.reset(rightptr + j);
+                mySymbolTable->validMem.set(leftptr + j);
+                mySymbolTable->validMem.reset(rightptr + j);
             }
             curEntry.wordIndex = leftptr;
-            pthread_mutex_unlock(&mySymbolTable.validMemlock);
+            pthread_mutex_unlock(&mySymbolTable->validMemlock);
         }
         leftptr += (curEntry.refObj.totSize+3)>>2;
-        pthread_mutex_unlock(&mySymbolTable.myEntries[symTabIndices[i][1]].lock);
+        pthread_mutex_unlock(&mySymbolTable->myEntries[symTabIndices[i][1]].lock);
 
     }
-    pthread_mutex_lock(&mySymbolTable.validMemlock);
-    mySymbolTable.validMem.ptr = leftptr;
-    mySymbolTable.validMem.sizeAvl = mySymbolTable.validMem.totSizeAvl;
-    pthread_mutex_unlock(&mySymbolTable.validMemlock);
+    pthread_mutex_lock(&mySymbolTable->validMemlock);
+    mySymbolTable->validMem.ptr = leftptr;
+    mySymbolTable->validMem.sizeAvl = mySymbolTable->validMem.totSizeAvl;
+    pthread_mutex_unlock(&mySymbolTable->validMemlock);
     pthread_mutex_unlock(&compactLock);
     
     cerr << "All done!\n";
@@ -372,7 +408,7 @@ void gc_run(bool scopeEnd, bool toCompact) {
 
 
 void gc_initialize() {
-    varStack.push(START_SCOPE);
+    varStack->push(START_SCOPE);
 }
 
 /*
@@ -394,22 +430,41 @@ void* gc_routine(void* args) {
 // Creates memory segment for memSize bytes
 int createMem(size_t memSize) {
     memSeg = (char*)malloc(memSize);
-    gc_initialize();
 
     if(!memSeg) {
         cout << "Malloc failed!!\n";
         return -1;
     }
-    
+    cout<<"Successfully allocated ";
+    printHformat(memSize);
+    cout<<"\n";
     cerr << "Created memory segment\n";
     memset(memSeg, '\0', memSize);
     totSize = memSize;
     if((totSize>>2) > maxWords)
     {
-        cout<<"We're reducing your mem space from "<<(totSize>>2)<<" to "<<maxWords<<"\n";
+        cout<<"We're reducing your mem space from "<<(totSize>>22)<<"MWords to "<<maxWords<<"MWords\n";
     }
-    mySymbolTable.validMem.totSizeAvl = min(totSize>>2, maxWords);
-    mySymbolTable.validMem.sizeAvl = min(totSize>>2, maxWords);
+    int AllowedMaxWords = min(totSize>>2, maxWords);
+    cout<<"Max allowed words "<<AllowedMaxWords<<"\n";
+    if((totSize>>2) > mxn)
+    {
+        cout<<"We're reducing your Symbol table capacity from "<<(totSize>>22)<<"MWords to "<<(mxn>>20)<<"MWords\n";
+    } 
+    int maxSymbols = min((totSize>>2), mxn);
+    cout<<"Max symobols "<<maxSymbols<<"\n";
+    cout<<"Allocating memory for mySymbolTable\n";
+    mySymbolTable = new entries(AllowedMaxWords, maxSymbols);
+    mySymbolTable->validMem.totSizeAvl = AllowedMaxWords;
+    mySymbolTable->validMem.sizeAvl = AllowedMaxWords;
+    
+    cout<<"Allocating memory for varStack\n";
+    varStack = new Stack(maxSymbols);
+    gc_initialize();
+    // How maxWords impact mxn and other maxWords
+
+    // init Compact lock
+    pthread_mutex_init(&compactLock, NULL);
 
     // Garbage collector
     pthread_create(&threadId, NULL, gc_routine, NULL);
@@ -426,11 +481,11 @@ int getBestFit(int reqdSize){
     int idx = -1;
     int cur = 0;
     int i;
-    pthread_mutex_lock(&mySymbolTable.validMemlock);
+    pthread_mutex_lock(&mySymbolTable->validMemlock);
     for(i=0; i< totSize; i+=4) {
-        // assert((i>>2) <(int) mySymbolTable.validMem.size());
-        // cerr<< mySymbolTable.validMem.isSet(i>>2)<<" ";
-        if(mySymbolTable.validMem.isSet(i>>2) ){
+        // assert((i>>2) <(int) mySymbolTable->validMem.size());
+        // cerr<< mySymbolTable->validMem.isSet(i>>2)<<" ";
+        if(mySymbolTable->validMem.isSet(i>>2) ){
             if(cur >= reqdSize)
                 if(cur < best) {
                     best = cur, idx = (i>>2) - cur;
@@ -452,17 +507,17 @@ int getBestFit(int reqdSize){
     }
     cerr<<"Best Segment found "<<best<<" at index "<<idx<<'\n';
     if(idx == -1) {
-        pthread_mutex_unlock(&mySymbolTable.validMemlock);
+        pthread_mutex_unlock(&mySymbolTable->validMemlock);
         return -1;
     }
     cerr << "allocating word " << idx << ": " << idx + reqdSize - 1 << '\n';
     for(int done = 0, curIdx = idx; done < reqdSize; done++, curIdx++) {
-        assert(!(mySymbolTable.validMem.isSet(curIdx)));
-        mySymbolTable.validMem.set(curIdx);
+        assert(!(mySymbolTable->validMem.isSet(curIdx)));
+        mySymbolTable->validMem.set(curIdx);
         // cerr<<entries :: validMem[curIdx]<<" ? = true\n";
         // cerr<<"allocating word "<<curIdx<<'\n';
     }
-    pthread_mutex_unlock(&mySymbolTable.validMemlock);
+    pthread_mutex_unlock(&mySymbolTable->validMemlock);
     return idx;
 }
 */
@@ -485,30 +540,30 @@ int getFirstFit(int reqdSize){
     cerr<<reqdSize<<" words (for word alignment)\n";
     pthread_mutex_lock(&compactLock);
 
-    pthread_mutex_lock(&mySymbolTable.validMemlock);
-    if(reqdSize > mySymbolTable.validMem.totSizeAvl) {
+    pthread_mutex_lock(&mySymbolTable->validMemlock);
+    if(reqdSize > mySymbolTable->validMem.totSizeAvl) {
         cout << "Insufficient memory!!\n";
-        pthread_mutex_unlock(&mySymbolTable.validMemlock);
+        pthread_mutex_unlock(&mySymbolTable->validMemlock);
         exit(-1);
-    } else if(reqdSize > mySymbolTable.validMem.sizeAvl) {
+    } else if(reqdSize > mySymbolTable->validMem.sizeAvl) {
         cout<<"Running compaction to accomodate "<<reqdSize<<" words\n";
-        pthread_mutex_unlock(&mySymbolTable.validMemlock);
+        pthread_mutex_unlock(&mySymbolTable->validMemlock);
         gc_run(false, true);
     }
     else{
-        pthread_mutex_unlock(&mySymbolTable.validMemlock);
+        pthread_mutex_unlock(&mySymbolTable->validMemlock);
     }
-    pthread_mutex_lock(&mySymbolTable.validMemlock);
-    int idx = mySymbolTable.validMem.ptr;
-    cerr<<"Free Segment found "<<mySymbolTable.validMem.sizeAvl<<" at index "<<idx<<'\n';
+    pthread_mutex_lock(&mySymbolTable->validMemlock);
+    int idx = mySymbolTable->validMem.ptr;
+    cerr<<"Free Segment found "<<mySymbolTable->validMem.sizeAvl<<" at index "<<idx<<'\n';
     for(int done = 0, curIdx = idx; done < reqdSize; done++, curIdx++) {
-        assert(!(mySymbolTable.validMem.isSet(curIdx)));
-        mySymbolTable.validMem.set(curIdx);
+        assert(!(mySymbolTable->validMem.isSet(curIdx)));
+        mySymbolTable->validMem.set(curIdx);
     }
-    mySymbolTable.validMem.sizeAvl -= reqdSize;
-    mySymbolTable.validMem.totSizeAvl -= reqdSize;
-    mySymbolTable.validMem.ptr += reqdSize;
-    pthread_mutex_unlock(&mySymbolTable.validMemlock);
+    mySymbolTable->validMem.sizeAvl -= reqdSize;
+    mySymbolTable->validMem.totSizeAvl -= reqdSize;
+    mySymbolTable->validMem.ptr += reqdSize;
+    pthread_mutex_unlock(&mySymbolTable->validMemlock);
     
     pthread_mutex_unlock(&compactLock);
     return idx;
@@ -527,9 +582,9 @@ Object createVar(type t) {
     else {
         // allocate the memory
         SymTableEntry curEntry(t, getSize(t, 1), getSize(t, 1), myIndex, 0, true, true);
-        int symTabIdx = mySymbolTable.insert(curEntry);
+        int symTabIdx = mySymbolTable->insert(curEntry);
         curEntry.refObj.symTabIdx = symTabIdx;
-        varStack.push(symTabIdx);
+        varStack->push(symTabIdx);
         return curEntry.refObj;
     }
 }
@@ -540,7 +595,7 @@ int assignVar(Object o, int x) {
     int symTabIdx = o.symTabIdx; // -- in symtable
 
     // TODO: mutex
-    SymTableEntry& curEntry = mySymbolTable.myEntries[symTabIdx];
+    SymTableEntry& curEntry = mySymbolTable->myEntries[symTabIdx];
     pthread_mutex_lock(&curEntry.lock);
     char* memAddr = memSeg + curEntry.wordIndex * 4 + curEntry.wordOffset;
     memcpy(memAddr, (char*)(&x), getSize(o.objType, 1));
@@ -553,7 +608,7 @@ void getVar(Object o, void *dest) {
     int symTabIdx = o.symTabIdx; // -- in symtable
 
     // TODO: mutex
-    SymTableEntry& curEntry = mySymbolTable.myEntries[symTabIdx];
+    SymTableEntry& curEntry = mySymbolTable->myEntries[symTabIdx];
     pthread_mutex_lock(&curEntry.lock);
     char* memAddr = memSeg + curEntry.wordIndex * 4 + curEntry.wordOffset;
     memcpy(dest, memAddr, getSize(o.objType, 1));
@@ -565,7 +620,7 @@ void getVar(Object o, void *dest) {
 int assignVar(Object dest, Object src) {
     if(dest.objType >= src.objType) {
         int symTabIdx = src.symTabIdx;
-        SymTableEntry &curEntry = mySymbolTable.myEntries[symTabIdx];
+        SymTableEntry &curEntry = mySymbolTable->myEntries[symTabIdx];
         pthread_mutex_lock(&curEntry.lock);
         char* memAddr = memSeg + curEntry.wordIndex * 4 + curEntry.wordOffset;
         int x;
@@ -596,9 +651,9 @@ Object createArr(type t, int length) {
     else {
         // allocate the memory
         SymTableEntry curEntry(t, getSize(t, 1), getSize(t, length), myIndex, 0, true, true);
-        int symTabIdx = mySymbolTable.insert(curEntry);
+        int symTabIdx = mySymbolTable->insert(curEntry);
         curEntry.refObj.symTabIdx = symTabIdx;
-        varStack.push(symTabIdx);
+        varStack->push(symTabIdx);
         return curEntry.refObj;
     }
 }
@@ -612,7 +667,7 @@ int assignArr(Object dest, int destIdx, int x) {
     int symTabIdx = dest.symTabIdx; // -- in symtable
 
     // TODO: mutex
-    SymTableEntry& curEntry = mySymbolTable.myEntries[symTabIdx];
+    SymTableEntry& curEntry = mySymbolTable->myEntries[symTabIdx];
     // TODO: word alignment
     pthread_mutex_lock(&curEntry.lock);
     char* memAddr = memSeg + curEntry.wordIndex * 4 + getSize(dest.objType, destIdx);
@@ -632,7 +687,7 @@ int assignArr(Object dest, int destIdx, Object src, int srcIdx) {
         int symTabIdx = src.symTabIdx; // -- in symtable
 
         // TODO: mutex
-        SymTableEntry& curEntry = mySymbolTable.myEntries[symTabIdx];
+        SymTableEntry& curEntry = mySymbolTable->myEntries[symTabIdx];
         // TODO: word alignment
         pthread_mutex_lock(&curEntry.lock);
         char* memAddr = memSeg + curEntry.wordIndex * 4 + getSize(src.objType, srcIdx);
@@ -655,7 +710,7 @@ void getArr(Object src, int srcIdx, void* mem) {
     int symTabIdx = src.symTabIdx; // -- in symtable
 
     // TODO: mutex
-    SymTableEntry& curEntry = mySymbolTable.myEntries[symTabIdx];
+    SymTableEntry& curEntry = mySymbolTable->myEntries[symTabIdx];
     // TODO: word alignment
     pthread_mutex_lock(&curEntry.lock);
     char* memAddr = memSeg + curEntry.wordIndex * 4 + getSize(src.objType, srcIdx);
@@ -669,7 +724,7 @@ int freeElem(Object toDel, bool locked) {
     if(toDel.symTabIdx == -1)
         return -1;
 
-    SymTableEntry &curEntry = mySymbolTable.myEntries[toDel.symTabIdx];
+    SymTableEntry &curEntry = mySymbolTable->myEntries[toDel.symTabIdx];
     if(!locked)
         pthread_mutex_lock(&(curEntry.lock));
     // if already freed, skip
@@ -686,19 +741,19 @@ int freeElem(Object toDel, bool locked) {
     // validMem --> flip
     int tofree = (toDel.totSize + 3) / 4; // round up for word alignment
     cerr<<"Going to free "<<tofree<<" word(s)\n";
-    pthread_mutex_lock(&mySymbolTable.validMemlock);
+    pthread_mutex_lock(&mySymbolTable->validMemlock);
     cerr << "deallocating word " << curEntry.wordIndex << ": " << curEntry.wordIndex + tofree - 1 << endl;
     for(int done = 0, curIdx = curEntry.wordIndex; done < tofree; done++, curIdx++) {
         // cerr<<"Done "<<done<<'\n';
-        assert(mySymbolTable.validMem.isSet(curIdx));
-        mySymbolTable.validMem.reset(curIdx);
+        assert(mySymbolTable->validMem.isSet(curIdx));
+        mySymbolTable->validMem.reset(curIdx);
         // cerr<<entries :: validMem[curIdx]<<" ? = true\n";
         // cerr<<"deallocating word "<<curIdx<<'\n';
     }
-    mySymbolTable.validMem.totSizeAvl += tofree;
-    pthread_mutex_unlock(&mySymbolTable.validMemlock);
+    mySymbolTable->validMem.totSizeAvl += tofree;
+    pthread_mutex_unlock(&mySymbolTable->validMemlock);
     if(!locked)
         pthread_mutex_unlock(&(curEntry.lock));
-    mySymbolTable.listOfFreeIndices.push(toDel.symTabIdx);
+    mySymbolTable->listOfFreeIndices.push(toDel.symTabIdx);
     return 1;
 }

@@ -9,9 +9,10 @@ void fun(Object a)
 }
 
 int main() {
-    cout<<"Size of entries "<<(sizeof(entries) >> 20 )<< " MB\n";
-    cout<<"Size of stack "<<(sizeof(Stack) >> 20 )<< " MB\n";
-    cout<<"Size of validMem "<<(sizeof(_validMem) >> 20 )<< " MB\n";
+    createMem(1<<30);
+    cout<<"Size of MySymbolTable "<<(sizeof(entries) >> 20 )<< " MB\n";
+    cout<<"Size of varStack "<<(sizeof(Stack) >> 20 )<< " MB\n";
+    cout<<"Size of array used for sorting "<<(sizeof(int [mxn][2]) >> 20 )<< " MB\n";
     /*
     createMem(100);
     Object a = createVar(integer);
@@ -54,5 +55,6 @@ int main() {
     str = createArr(character, 5);
     gc_run(true);
     */
+    gc_run(true, false);
     return 0;
 }

@@ -97,10 +97,11 @@ public:
  */
 class Stack {
 public:
-    int indices[mxn];
+    int mxn;
+    int *indices;
     int top;
     pthread_mutex_t lock;
-    Stack(); 
+    Stack(int _mxn = ::mxn); 
     ~Stack();
     void push(int index);
     int pop();
@@ -108,7 +109,7 @@ public:
     bool isEmpty();
 };
 
-const int maxWords = 1 << 28;  // approx 8e6
+const int maxWords = 1 << 28;  // approx 268e6
 // 1gb --> 1 << 30 bytes
 // 1gb --> 1 << 28 words
 // 1gb --> 1 << 23 ints (each has 1 << 5)
@@ -138,8 +139,9 @@ public:
     int sizeAvl;
     // 1GB mem -> 256 Mil words -> for each word we need 1 bit, 1 int has 32 bits, thus we need 256Mil/32 = 8 Mil int  
     int totSizeAvl; // max word
-    uint32_t mem[maxWords >> 5];
-    _validMem();
+    int sizeOfmem;
+    uint32_t *mem;
+    _validMem(int _sizeOfMem = (maxWords >> 5));
     int getIndex(int x);
     int getOffset(int x);
     int isSet(int x);
@@ -162,11 +164,12 @@ public:
  */
 class entries {
 public:
+    int mxn;
     _validMem validMem; // overhead 32MiB, True if word is in use, false if it is not in use
-    SymTableEntry myEntries[mxn];
+    SymTableEntry *myEntries;
     Stack listOfFreeIndices;
     pthread_mutex_t validMemlock; // for valid Memory
-    entries();
+    entries(int _maxWords = maxWords, int _mxn = ::mxn);
     int insert(SymTableEntry st);
 };
 

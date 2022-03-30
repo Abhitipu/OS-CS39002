@@ -47,7 +47,7 @@ int main() {
     int k;
     cout << "Enter k to compute the product of first k fibonacci numbers: ";
     cin >> k;
-    createMem(100);
+    createMem(100+4*k);
     // Object o = createVar(integer);
 
     cout << "The product is: " << fib(k) << '\n';
