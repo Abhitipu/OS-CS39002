@@ -7,8 +7,8 @@ using namespace std;
 void func(Object x, Object y, type t) {
     gc_initialize();
     Object newArr = createArr(t, 50000);
+    Object dest = createVar(t);
     for(int i = 0; i < 50000; i++) {
-        Object dest = createVar(t);
         switch(t) {
             case integer: {
                 int x = rand();
