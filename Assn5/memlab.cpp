@@ -11,19 +11,19 @@ void printHformat(int nbytes)
 {
     if(nbytes < 1<<10)
     {
-        cerr<<nbytes<<"B";
+        cout<<nbytes<<"B";
     }
     else if(nbytes < 1<<20)
     {
-        cerr<<(nbytes>>10)<<"KB";
+        cout<<(nbytes>>10)<<"KB";
     }
     else if(nbytes < 1<<30)
     {
-        cerr<<(nbytes>>20)<<"MB";
+        cout<<(nbytes>>20)<<"MB";
     }
     else
     {
-        cerr<<(nbytes>>30)<<"GB";
+        cout<<(nbytes>>30)<<"GB";
     }
 }
 
@@ -139,9 +139,9 @@ inline void SymTableEntry::invalidate() {
 entries::entries(int _maxWords, int _mxn):mxn(_mxn), validMem((_maxWords+31)>>5), listOfFreeIndices(_mxn) {
     cerr<<"This should be printed only once\n";
     myEntries = new SymTableEntry[mxn];
-    cerr<<"[Mem Allocated Symbols Array] : ";
+    cout<<"[Mem Allocated Symbols Array] : ";
     printHformat(sizeof(SymTableEntry[mxn]));
-    cerr<<'\n';
+    cout<<'\n';
 
     pthread_mutex_init(&(validMemlock), NULL);
     cerr<<"Initialized\n";
@@ -165,9 +165,9 @@ int entries :: insert(SymTableEntry st) {
 
 Stack :: Stack(int _mxn):mxn(_mxn), top(-1) {
     indices = new int[mxn];
-    cerr<<"[Mem Allocated Stack] : ";
+    cout<<"[Mem Allocated Stack] : ";
     printHformat(sizeof(int[mxn]));
-    cerr<<"\n";
+    cout<<"\n";
     pthread_mutex_init(&lock, NULL);     
 }
 
@@ -223,12 +223,13 @@ int Stack::peek() {
     }
 }
 
-_validMem :: _validMem(int _sizeOfMem):ptr(0), sizeOfmem(_sizeOfMem){
+_validMem :: _validMem(int _sizeOfMem):ptr(0), maxptr(0), sizeOfmem(_sizeOfMem){
     sizeAvl = min(totSize>>2, maxWords); // Minimum of requested memory, maxWords bound
     mem = new uint32_t[sizeOfmem];
-    cerr<<"[Mem Allocated ValidMem] : ";
+    cout<<"Size of mem "<<sizeOfmem<<"\n";
+    cout<<"[Mem Allocated ValidMem] : ";
     printHformat(sizeof(uint32_t[sizeOfmem]));
-    cerr<<"\n";
+    cout<<"\n";
     memset(mem, 0, sizeof(uint32_t[sizeOfmem]));
 }
 
@@ -386,7 +387,7 @@ void compact() {
 }
 
 void gc_run(bool scopeEnd, bool toCompact) {
-
+    // return;
     // Garbage Collection
     // 1. gc_initialize
     // 2. gc_run (check state and free)
@@ -429,36 +430,41 @@ void* gc_routine(void* args) {
 
 // Creates memory segment for memSize bytes
 int createMem(size_t memSize) {
+    if(memSize % 4 )
+    {
+        cout<<"Extending memSize for word alignment\n";
+    }
+    memSize= ((memSize+31)/32)*32;
     memSeg = (char*)malloc(memSize);
 
     if(!memSeg) {
-        cerr << "Malloc failed!!\n";
+        cout << "Malloc failed!!\n";
         return -1;
     }
-    cerr<<"Successfully allocated ";
+    cout<<"Successfully allocated ";
     printHformat(memSize);
-    cerr<<"\n";
-    cerr << "Created memory segment\n";
+    cout<<"\n";
+    cout << "Created memory segment\n";
     memset(memSeg, '\0', memSize);
     totSize = memSize;
     if((totSize>>2) > maxWords)
     {
-        cerr<<"We're reducing your mem space from "<<(totSize>>22)<<"MWords to "<<maxWords<<"MWords\n";
+        cout<<"We're reducing your mem space from "<<(totSize>>22)<<"MWords to "<<maxWords<<"MWords\n";
     }
     int AllowedMaxWords = min(totSize>>2, maxWords);
-    cerr<<"Max allowed words "<<AllowedMaxWords<<"\n";
+    cout<<"Max allowed words "<<AllowedMaxWords<<"\n";
     if((totSize>>2) > mxn)
     {
-        cerr<<"We're reducing your Symbol table capacity from "<<(totSize>>22)<<"MWords to "<<(mxn>>20)<<"MWords\n";
+        cout<<"We're reducing your Symbol table capacity from "<<(totSize>>22)<<"MWords to "<<(mxn>>20)<<"MWords\n";
     } 
     int maxSymbols = min((totSize>>2), mxn);
-    cerr<<"Max symobols "<<maxSymbols<<"\n";
-    cerr<<"Allocating memory for mySymbolTable\n";
+    cout<<"Max symobols "<<maxSymbols<<"\n";
+    cout<<"Allocating memory for mySymbolTable\n";
     mySymbolTable = new entries(AllowedMaxWords, maxSymbols);
     mySymbolTable->validMem.totSizeAvl = AllowedMaxWords;
     mySymbolTable->validMem.sizeAvl = AllowedMaxWords;
     
-    cerr<<"Allocating memory for varStack\n";
+    cout<<"Allocating memory for varStack\n";
     varStack = new Stack(maxSymbols);
     gc_initialize();
     // How maxWords impact mxn and other maxWords
@@ -527,7 +533,7 @@ int getBestFit(int reqdSize){
  * First a check is done on the total available memory, if not sufficient, we throw an error.
  * If it doesnt fit, a compaction is performed first and then the object is stored.
  */
-int getFirstFit(int reqdSize){
+int getNextFit(int reqdSize){
     // reqdSize -- bytes
     // start ptr -- free mem
     // length available
@@ -563,6 +569,7 @@ int getFirstFit(int reqdSize){
     mySymbolTable->validMem.sizeAvl -= reqdSize;
     mySymbolTable->validMem.totSizeAvl -= reqdSize;
     mySymbolTable->validMem.ptr += reqdSize;
+    mySymbolTable->validMem.maxptr = max(mySymbolTable->validMem.maxptr, mySymbolTable->validMem.ptr);
     pthread_mutex_unlock(&mySymbolTable->validMemlock);
     
     pthread_mutex_unlock(&compactLock);
@@ -574,7 +581,7 @@ size_t getSize(type t, int freq) {
 }
 
 Object createVar(type t) {
-    int myIndex = getFirstFit(getSize(t, 1)); // 1 word
+    int myIndex = getNextFit(getSize(t, 1)); // 1 word
     if(myIndex == -1) {
         cerr << "Couldn't allocate memory!!\n";
         return Object();
@@ -643,7 +650,7 @@ int assignArr(Object dest, int destIdx, Object src) {
 
 
 Object createArr(type t, int length) {    
-    int myIndex = getFirstFit(getSize(t, length)); // start index
+    int myIndex = getNextFit(getSize(t, length)); // start index
     if(myIndex == -1) {
         cerr << "Couldn't allocate memory!!\n";
         return Object();
@@ -792,4 +799,31 @@ int freeElem(Object toDel, bool locked) {
         pthread_mutex_unlock(&(curEntry.lock));
     mySymbolTable->listOfFreeIndices.push(toDel.symTabIdx);
     return 1;
+}
+
+void graph_data(){
+    ofstream fout;
+    fout.open("output.txt", ios::out |ios::app);
+    
+    cout<<"Total size: ";
+    printHformat(totSize);
+    cout<<"\n";
+    cout<<"Total memory: ";
+    pthread_mutex_lock(&mySymbolTable->validMemlock);
+    printHformat(mySymbolTable->validMem.sizeOfmem*32*4);// each element of valid mem takes 32 bits, 1 bit represent 1 word, 1 word - 4 bytes
+    cout<<"\n";
+    cout<<"Avl mem: ";
+    printHformat(mySymbolTable->validMem.totSizeAvl*4);
+    cout<<'\n';
+    cout<<"Used Mem: ";
+    printHformat(mySymbolTable->validMem.sizeOfmem*32*4 - mySymbolTable->validMem.totSizeAvl*4);
+    cout<<"\n";
+    cout<<"ptr: ";
+    printHformat(mySymbolTable->validMem.ptr*4);
+    fout<<mySymbolTable->validMem.maxptr*4<<" ";
+    cout<<"\n";
+
+    cout<<"Max ptr: "<<mySymbolTable->validMem.maxptr*4<<"\n";
+    pthread_mutex_unlock(&mySymbolTable->validMemlock);
+
 }

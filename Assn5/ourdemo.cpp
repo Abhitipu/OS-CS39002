@@ -9,12 +9,11 @@ void fun(Object a)
 }
 
 int main() {
-    createMem(1<<22);
+    createMem(100);
     cout<<"Size of MySymbolTable "<<(sizeof(entries) >> 20 )<< " MB\n";
     cout<<"Size of varStack "<<(sizeof(Stack) >> 20 )<< " MB\n";
     cout<<"Size of array used for sorting "<<(sizeof(int [mxn][2]) >> 20 )<< " MB\n";
     
-    createMem(100);
     Object a = createVar(integer);
     assignVar(a, 53);
     cout<<a;
@@ -61,8 +60,8 @@ int main() {
     assignArr(str2, 2, str, 0);
     cout<<str2;
     // str = createArr(character, 5);
-    
-    
+    cout<<"Last\n";
+    graph_data();
     gc_run(true, false);
     return 0;
 }
