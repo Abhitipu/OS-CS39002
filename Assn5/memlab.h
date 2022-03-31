@@ -1,6 +1,7 @@
 #ifndef __MEMLAB_H
 #define __MEMLAB_H
 
+#include <fstream>
 #include <iostream>
 #include <cstdlib>
 #include <climits>
@@ -135,6 +136,8 @@ class _validMem {
 public:
     // ptr to a free location (int the last free block)
     int ptr;
+    // max ptr for memory footprint calculation
+    int maxptr;
     // size (in words) available in free mem starting from ptr
     int sizeAvl;
     // 1GB mem -> 256 Mil words -> for each word we need 1 bit, 1 int has 32 bits, thus we need 256Mil/32 = 8 Mil int  
@@ -229,4 +232,6 @@ void gc_initialize(); // Write this line at the start of every new functions
  * Helper function to run the garbage collector
  */
 void gc_run(bool scopeEnd = false, bool toCompact = false);
+
+void graph_data();
 #endif // __MEMLAB_H
