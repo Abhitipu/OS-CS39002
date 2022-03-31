@@ -37,7 +37,7 @@ void func(Object x, Object y, type t) {
         }
         assignArr(newArr, i, dest);
     }
-    freeElem(newArr);
+    graph_data();
     gc_run(true, true);
     return;
 }
@@ -60,18 +60,37 @@ int main() {
     Object x4 = createVar(boolean);
     Object y4 = createVar(boolean);
 
-    func(x1, y1, x1.objType);
-    func(x2, y2, x2.objType);
-    func(x3, y3, x3.objType);
     func(x4, y4, x4.objType);
+    cout<<"\n\nEnd of func1 \n";
+    graph_data();
+    func(x3, y3, x3.objType);
+    cout<<"\n\nEnd of func2 \n";
+    graph_data();
+    func(x4, y4, x4.objType);
+    cout<<"\n\nEnd of func3 \n";
+    graph_data();
+    func(x2, y2, x2.objType);
+    cout<<"\n\nEnd of func4 \n";
+    graph_data();
+    func(x3, y3, x3.objType);
+    cout<<"\n\nEnd of func5 \n";
+    graph_data();
+    func(x2, y2, x2.objType);
+    cout<<"\n\nEnd of func6 \n";
+    graph_data();
+    func(x1, y1, x1.objType);
+    cout<<"\n\nEnd of func7 \n";
+    graph_data();
+    func(x1, y1, x1.objType);
+    cout<<"\n\nEnd of func8 \n";
+    graph_data();
 
     func(x1, y1, x1.objType);
+    cout<<"\n\nEnd of func9 \n";
+    graph_data();
     func(x2, y2, x2.objType);
-    func(x3, y3, x3.objType);
-    func(x4, y4, x4.objType);
-
-    func(x1, y1, x1.objType);
-    func(x2, y2, x2.objType);
+    cout<<"\n\nEnd of func10 \n";
+    graph_data();
     gc_run(true);
     return 0;
 }
