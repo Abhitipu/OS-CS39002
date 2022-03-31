@@ -430,7 +430,7 @@ void* gcRoutine(void* args) {
     // gcInitialize();
     int cnt=0;
     while(true) {
-        sleep(2);
+        sleep(10);
         // compaction is done once in 5 times
         gcRun(false, cnt==0);
         cnt = (cnt + 1)%5;

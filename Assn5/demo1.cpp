@@ -43,11 +43,12 @@ void func(Object x, Object y, type t) {
 }
 
 int main() {
-    // 200'000 * bytes Array + 50'000Word --> 
-    // 400'000 bytes
-    // 1MB
-    // 50000 * 20 * 8
-    // 50,000
+    // This prevents printing: Thus we know the actual time taken
+    // uncomment this to know actual runtime
+    // std::cout.setstate(std::ios_base::failbit);
+    // std::cerr.setstate(std::ios_base::failbit);
+    timespec startTime, endTime;
+    clock_gettime(CLOCK_REALTIME, &startTime);
     createMem(1 << 28);
     srand(time(NULL));
 
@@ -92,5 +93,13 @@ int main() {
     cout<<"\n\nEnd of func10 \n";
     graph_data();
     gcRun(true);
+    
+    // Re enable printing: Uncomment this for faster runtime
+    // cout.clear();
+    // cerr.clear();
+
+    clock_gettime(CLOCK_REALTIME, &endTime);
+    cout<<"Total time: "<<((endTime.tv_sec- startTime.tv_sec)*((int)1e9) + (endTime.tv_nsec- startTime.tv_nsec))/(1000000.0)<<" milli seconds\n";
+    
     return 0;
 }

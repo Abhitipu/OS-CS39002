@@ -49,8 +49,8 @@ int main() {
     cin >> k;
     createMem(100+4*k);
     // Object o = createVar(integer);
-
-    cout << "The product is: " << fib(k) << '\n';
+    int ans = fib(k);
+    cout << "The product is: " << ans << '\n';
 
     gcRun(true);
     return 0;

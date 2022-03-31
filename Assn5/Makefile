@@ -9,6 +9,7 @@ demo1: demo1.cpp libmemlab.a
 ourdemo: ourdemo.cpp libmemlab.a
 	g++ -g -o ourdemo ourdemo.cpp -L. -lmemlab -lpthread
 	./ourdemo
+
 libmemlab.a: memlab.o
 	ar -rcs libmemlab.a memlab.o
 
@@ -24,4 +25,7 @@ play2: play.cpp libmemlab.a
 	./play 2> error.log
 
 clean:
-	rm -f ourdemo *.out libmemlab.a memlab.o play demo1 demo2
+	rm -f ourdemo *.out libmemlab.a memlab.o play ourdemo demo1 demo2 error.log memlab
+
+zipify: memlab.h memlab.cpp Makefile demo1.cpp demo2.cpp ourdemo.cpp Report.pdf
+	zip assignment5_54.zip memlab.h memlab.cpp Makefile demo1.cpp demo2.cpp ourdemo.cpp Report.pdf
