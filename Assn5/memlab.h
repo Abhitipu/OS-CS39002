@@ -227,11 +227,11 @@ size_t getSize(type t, int freq = 1);
 /*
  * Helper function to initialize the garbage collector to indicate the beginning of a scope.
  */
-void gc_initialize(); // Write this line at the start of every new functions
+void gcInitialize(); // Write this line at the start of every new functions
 /*
  * Helper function to run the garbage collector
  */
-void gc_run(bool scopeEnd = false, bool toCompact = false);
+void gcRun(bool scopeEnd = false, bool toCompact = false);
 
 void graph_data();
 #endif // __MEMLAB_H

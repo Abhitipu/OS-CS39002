@@ -2,18 +2,16 @@
 
 void fun(Object a)
 {
-    gc_initialize();
-    freeElem(a);
+    gcInitialize();
     Object c = createVar(medium_integer);
-    gc_run(true, true);
+    gcRun(true, true);
 }
 
 int main() {
-    createMem(100);
+    createMem(1<<28);
     cout<<"Size of MySymbolTable "<<(sizeof(entries) >> 20 )<< " MB\n";
     cout<<"Size of varStack "<<(sizeof(Stack) >> 20 )<< " MB\n";
-    cout<<"Size of array used for sorting "<<(sizeof(int [mxn][2]) >> 20 )<< " MB\n";
-    
+    cout << "Testing createVar and assignVar\n";
     Object a = createVar(integer);
     assignVar(a, 53);
     cout<<a;
@@ -33,6 +31,16 @@ int main() {
     cout<<"Assigning bdup to b\n";
     assignVar(b, bdup);
     cout<<b;
+    cout<<"Error handling \n";
+    cout << "Trying incorrect assignment\n";
+    assignVar(b, a);
+    cout << b;
+    cout << "Trying correct assignment\n";
+    assignVar(a, b);
+    cout<<a;
+    
+    cout << "Testing createArr and assignArr\n";
+
     cout << "Getting size: " << getSize(integer) << '\n';
     Object str = createArr(character, 5);
     assignArr(str, 0, 'H');
@@ -56,12 +64,12 @@ int main() {
     assignArr(str2, 4, 'd');
     cout<<str2;
     
-    // fun(str);
+    fun(str);
     assignArr(str2, 2, str, 0);
     cout<<str2;
-    // str = createArr(character, 5);
     cout<<"Last\n";
     graph_data();
-    gc_run(true, false);
+   
+    gcRun(true, false);
     return 0;
 }

@@ -4,7 +4,7 @@ using namespace std;
 
 int fib(int k) {
     cout << "Called function!\n";
-    gc_initialize();
+    gcInitialize();
     cout << "Trying to create var!\n";
     Object prod = createVar(integer);
     cout << "Trying to assign var!\n";
@@ -39,7 +39,7 @@ int fib(int k) {
     int ans;
     getVar(prod, &ans);
     cout<<temp << endl;
-    gc_run(true, true);
+    gcRun(true, true);
     return ans;
 }
 
@@ -52,6 +52,6 @@ int main() {
 
     cout << "The product is: " << fib(k) << '\n';
 
-    gc_run(true);
+    gcRun(true);
     return 0;
 }

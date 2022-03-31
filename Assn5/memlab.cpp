@@ -7,6 +7,9 @@ pthread_mutex_t compactLock;
 
 // int symTabIndices[mxn][2]; declared below
 
+void copyWordWise(char *firstWord, char *secondWord, int offset, int nBytes, int data);
+int copyWordWiseGet(char *firstWord, char *secondWord, int offset, int nBytes);
+
 void printHformat(int nbytes)
 {
     if(nbytes < 1<<10)
@@ -331,7 +334,10 @@ void compact() {
     // reassign in symbol table
     pthread_mutex_lock(&compactLock);
     cerr<<"Compacting\n";
-
+    pthread_mutex_lock(&mySymbolTable->validMemlock);
+    cout<<"Memavl before compaction : "<<mySymbolTable->validMem.sizeAvl<<"\n";
+    pthread_mutex_unlock(&mySymbolTable->validMemlock);
+    
     cerr << "Looking up the memory\n";
     int cur = 0;
     for(int i=0; i<mySymbolTable->mxn; ++i) {
@@ -379,20 +385,22 @@ void compact() {
     pthread_mutex_lock(&mySymbolTable->validMemlock);
     mySymbolTable->validMem.ptr = leftptr;
     mySymbolTable->validMem.sizeAvl = mySymbolTable->validMem.totSizeAvl;
+    cout<<"Final Memavl after compaction : "<<mySymbolTable->validMem.sizeAvl<<"\n";
     pthread_mutex_unlock(&mySymbolTable->validMemlock);
     pthread_mutex_unlock(&compactLock);
     
     cerr << "All done!\n";
     return;
 }
-
-void gc_run(bool scopeEnd, bool toCompact) {
+// 
+void gcRun(bool scopeEnd, bool toCompact) {
     // return;
     // Garbage Collection
-    // 1. gc_initialize
-    // 2. gc_run (check state and free)
+    // 1. gcInitialize
+    // 2. gcRun (check state and free)
     // 3. Mark and sweep algorithm
-
+    timespec startTime, endTime;
+    clock_gettime(CLOCK_REALTIME, &startTime);
     cerr << "Garbage collector at work!\n";
     // (marked and valid at the time of insertion)
     if(scopeEnd)
@@ -405,23 +413,26 @@ void gc_run(bool scopeEnd, bool toCompact) {
         compact();
         
     cerr << "Garbage collected!\n";
+    clock_gettime(CLOCK_REALTIME, &endTime);
+    cout<<"GC exec time: "<<((endTime.tv_sec- startTime.tv_sec)*((int)1e9) + (endTime.tv_nsec- startTime.tv_nsec))/(1000000.0)<<" milli seconds\n";
+    return;
 }
 
 
-void gc_initialize() {
+void gcInitialize() {
     varStack->push(START_SCOPE);
 }
 
 /*
- * Periodically calls gc_run
+ * Periodically calls gcRun
  */
-void* gc_routine(void* args) {
-    // gc_initialize();
+void* gcRoutine(void* args) {
+    // gcInitialize();
     int cnt=0;
     while(true) {
         sleep(2);
         // compaction is done once in 5 times
-        gc_run(false, cnt==0);
+        gcRun(false, cnt==0);
         cnt = (cnt + 1)%5;
     }
     
@@ -466,14 +477,14 @@ int createMem(size_t memSize) {
     
     cout<<"Allocating memory for varStack\n";
     varStack = new Stack(maxSymbols);
-    gc_initialize();
+    gcInitialize();
     // How maxWords impact mxn and other maxWords
 
     // init Compact lock
     pthread_mutex_init(&compactLock, NULL);
 
     // Garbage collector
-    // pthread_create(&threadId, NULL, gc_routine, NULL);
+    pthread_create(&threadId, NULL, gcRoutine, NULL);
     return memSize;
 }
 
@@ -529,7 +540,7 @@ int getBestFit(int reqdSize){
 */
 
 /*
- * Gets the first fit in memory i.e. essentially the one pointed by ptr.
+ * Gets the next fit in memory i.e. essentially the one pointed by ptr.
  * First a check is done on the total available memory, if not sufficient, we throw an error.
  * If it doesnt fit, a compaction is performed first and then the object is stored.
  */
@@ -538,9 +549,6 @@ int getNextFit(int reqdSize){
     // start ptr -- free mem
     // length available
 
-    // _ _ 11_ 11111 ptr_ _ _ _ _ _ _ _ _
-    // compact
-    // 1111111ptr______________________
     cerr<<"reqd Size "<<reqdSize<<" bytes converted to ";
     reqdSize = (reqdSize + 3) / 4; // round up for word alignment
     cerr<<reqdSize<<" words (for word alignment)\n";
@@ -554,7 +562,7 @@ int getNextFit(int reqdSize){
     } else if(reqdSize > mySymbolTable->validMem.sizeAvl) {
         cerr<<"Running compaction to accomodate "<<reqdSize<<" words\n";
         pthread_mutex_unlock(&mySymbolTable->validMemlock);
-        gc_run(false, true);
+        gcRun(false, true);
     }
     else{
         pthread_mutex_unlock(&mySymbolTable->validMemlock);
@@ -592,6 +600,7 @@ Object createVar(type t) {
         int symTabIdx = mySymbolTable->insert(curEntry);
         curEntry.refObj.symTabIdx = symTabIdx;
         varStack->push(symTabIdx);
+        cerr << "Created a variable\n" << curEntry.refObj;
         return curEntry.refObj;
     }
 }
@@ -601,11 +610,12 @@ int assignVar(Object o, int x) {
     // O -> location
     int symTabIdx = o.symTabIdx; // -- in symtable
 
-    // TODO: mutex
     SymTableEntry& curEntry = mySymbolTable->myEntries[symTabIdx];
     pthread_mutex_lock(&curEntry.lock);
-    char* memAddr = memSeg + curEntry.wordIndex * 4 + curEntry.wordOffset;
-    memcpy(memAddr, (char*)(&x), getSize(o.objType, 1));
+    char *firstword = memSeg + curEntry.wordIndex * 4 ;
+    char *secondword = memSeg + curEntry.wordIndex * 4 + 4;
+    cerr << "Assigned to\n" << o << '\n';
+    copyWordWise(firstword, secondword, curEntry.wordOffset, getSize(o.objType, 1), x);
     pthread_mutex_unlock(&curEntry.lock);
     return 1;
 }
@@ -614,11 +624,13 @@ void getVar(Object o, void *dest) {
     // O -> location
     int symTabIdx = o.symTabIdx; // -- in symtable
 
-    // TODO: mutex
     SymTableEntry& curEntry = mySymbolTable->myEntries[symTabIdx];
     pthread_mutex_lock(&curEntry.lock);
-    char* memAddr = memSeg + curEntry.wordIndex * 4 + curEntry.wordOffset;
-    memcpy(dest, memAddr, getSize(o.objType, 1));
+    // char* memAddr = memSeg + curEntry.wordIndex * 4 + curEntry.wordOffset;
+    char *firstword = memSeg + curEntry.wordIndex * 4;
+    char *secondword = memSeg + curEntry.wordIndex * 4+ 4;
+    int temp = copyWordWiseGet(firstword, secondword, curEntry.wordOffset, getSize(o.objType, 1));
+    memcpy((char*)dest, &temp, getSize(o.objType, 1));
     pthread_mutex_unlock(&curEntry.lock);
     return ;
 }
@@ -629,9 +641,10 @@ int assignVar(Object dest, Object src) {
         int symTabIdx = src.symTabIdx;
         SymTableEntry &curEntry = mySymbolTable->myEntries[symTabIdx];
         pthread_mutex_lock(&curEntry.lock);
-        char* memAddr = memSeg + curEntry.wordIndex * 4 + curEntry.wordOffset;
-        int x;
-        memcpy((char*)(&x), memAddr, getSize(src.objType, 1));
+        char *firstword = memSeg + curEntry.wordIndex * 4;
+        char *secondword = memSeg + curEntry.wordIndex * 4+ 4;
+        int x = copyWordWiseGet(firstword, secondword, curEntry.wordOffset, getSize(src.objType, 1));
+        // cerr << "Assigned " << src << "to " << dest << '\n';
         pthread_mutex_unlock(&curEntry.lock);
         return assignVar(dest, x);
     } else {
@@ -660,6 +673,7 @@ Object createArr(type t, int length) {
         SymTableEntry curEntry(t, getSize(t, 1), getSize(t, length), myIndex, 0, true, true);
         int symTabIdx = mySymbolTable->insert(curEntry);
         curEntry.refObj.symTabIdx = symTabIdx;
+        cerr << "Created array\n" << curEntry.refObj << '\n';
         varStack->push(symTabIdx);
         return curEntry.refObj;
     }
@@ -701,9 +715,7 @@ int assignArr(Object dest, int destIdx, int x) {
     }
     int symTabIdx = dest.symTabIdx; // -- in symtable
 
-    // TODO: mutex
     SymTableEntry& curEntry = mySymbolTable->myEntries[symTabIdx];
-    // TODO: word alignment
     pthread_mutex_lock(&curEntry.lock);
     // char* memAddr = memSeg + curEntry.wordIndex * 4 + getSize(dest.objType, destIdx);
     // memcpy(memAddr, (char*)(&x), getSize(dest.objType, 1));
@@ -711,6 +723,7 @@ int assignArr(Object dest, int destIdx, int x) {
     char *firstword = memSeg + curEntry.wordIndex * 4 + (getSize(dest.objType, destIdx)/4)*4;
     char *secondword = memSeg + curEntry.wordIndex * 4 + (getSize(dest.objType, destIdx)/4)*4 + 4;
     copyWordWise(firstword, secondword, getSize(dest.objType, destIdx)%4, getSize(dest.objType, 1), x);
+    cerr << "Assigned to array at index " << destIdx << '\n';
     pthread_mutex_unlock(&curEntry.lock);
     
     return 1;
@@ -724,13 +737,12 @@ int assignArr(Object dest, int destIdx, Object src, int srcIdx) {
         }
         int symTabIdx = src.symTabIdx; // -- in symtable
 
-        // TODO: mutex
         SymTableEntry& curEntry = mySymbolTable->myEntries[symTabIdx];
-        // TODO: word alignment
         pthread_mutex_lock(&curEntry.lock);
         char *firstword = memSeg + curEntry.wordIndex * 4 + (getSize(src.objType, srcIdx)/4)*4;
         char *secondword = memSeg + curEntry.wordIndex * 4 + (getSize(src.objType, srcIdx)/4)*4 + 4;
         int temp = copyWordWiseGet(firstword, secondword, getSize(src.objType, srcIdx)%4, getSize(src.objType, 1));
+        cerr << "Assigning to array from " << srcIdx << '\n'; 
         pthread_mutex_unlock(&curEntry.lock);
         return assignArr(dest, destIdx, temp);
     } else {
@@ -747,9 +759,7 @@ void getArr(Object src, int srcIdx, void* mem) {
     }
     int symTabIdx = src.symTabIdx; // -- in symtable
 
-    // TODO: mutex
     SymTableEntry& curEntry = mySymbolTable->myEntries[symTabIdx];
-    // TODO: word alignment
     pthread_mutex_lock(&curEntry.lock);
     // char* memAddr = memSeg + curEntry.wordIndex * 4 + getSize(src.objType, srcIdx);
     // memcpy((char*)mem, memAddr, getSize(src.objType, 1));
@@ -758,6 +768,7 @@ void getArr(Object src, int srcIdx, void* mem) {
     char *secondword = memSeg + curEntry.wordIndex * 4 + (getSize(src.objType, srcIdx)/4)*4 + 4;
     int temp = copyWordWiseGet(firstword, secondword, getSize(src.objType, srcIdx)%4, getSize(src.objType, 1));
     memcpy((char*)mem, &temp, getSize(src.objType, 1));
+    cerr << "Getting value from array at index " << srcIdx << '\n';
     pthread_mutex_unlock(&curEntry.lock);
 
     return;

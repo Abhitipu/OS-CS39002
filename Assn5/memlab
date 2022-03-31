@@ -46036,8 +46036,8 @@ int assignArr(Object dest, int destIdx, Object src, int srcIdx);
 int freeElem(Object toDel, bool locked = false);
 
 size_t getSize(type t, int freq = 1);
-void gc_initialize();
-void gc_run(bool scopeEnd = false, bool toCompact = false) ;
+void gcInitialize();
+void gcRun(bool scopeEnd = false, bool toCompact = false) ;
 # 2 "/home/abhitipu/Desktop/OS-CS39002/Assn5/memlab.cpp" 2
 
 entries mySymbolTable;
@@ -46323,7 +46323,7 @@ void compact() {
     return;
 }
 
-void gc_run(bool scopeEnd, bool toCompact) {
+void gcRun(bool scopeEnd, bool toCompact) {
 
 
     if(scopeEnd)
@@ -46337,11 +46337,11 @@ void gc_run(bool scopeEnd, bool toCompact) {
 }
 
 
-void gc_initialize() {
+void gcInitialize() {
     varStack.push(START_SCOPE);
 }
 
-void* gc_routine(void* args) {
+void* gcRoutine(void* args) {
 
 
     while(true) {
@@ -46366,7 +46366,7 @@ void* gc_routine(void* args) {
 
 int createMem(size_t memSize) {
     memSeg = (char*)malloc(memSize);
-    gc_initialize();
+    gcInitialize();
 
     if(!memSeg) {
         printf("Malloc failed!!\n");

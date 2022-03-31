@@ -5,7 +5,7 @@
 using namespace std;
 
 void func(Object x, Object y, type t) {
-    gc_initialize();
+    gcInitialize();
     Object newArr = createArr(t, 50000);
     Object dest = createVar(t);
     for(int i = 0; i < 50000; i++) {
@@ -38,7 +38,7 @@ void func(Object x, Object y, type t) {
         assignArr(newArr, i, dest);
     }
     graph_data();
-    gc_run(true, true);
+    gcRun(true, true);
     return;
 }
 
@@ -48,7 +48,7 @@ int main() {
     // 1MB
     // 50000 * 20 * 8
     // 50,000
-    createMem(1 << 25);
+    createMem(1 << 28);
     srand(time(NULL));
 
     Object x1 = createVar(integer);
@@ -91,6 +91,6 @@ int main() {
     func(x2, y2, x2.objType);
     cout<<"\n\nEnd of func10 \n";
     graph_data();
-    gc_run(true);
+    gcRun(true);
     return 0;
 }
